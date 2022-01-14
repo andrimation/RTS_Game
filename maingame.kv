@@ -1,0 +1,60 @@
+#: include mainmappicture.kv
+#: include mapview.kv
+#: include gameobject.kv
+#: include matrixmapwidget.kv
+#: include menubutton.kv
+
+<MainWindow>:
+    id: MainWindow
+    # Główne tło na którym zostanie położony ekran gry
+#    canvas.before:
+#        Color:
+#            rgb: 0.7,0.7,0.7
+#        Rectangle:
+#            size: root.width, root.height
+
+    MapView:
+        id: MapView
+        size_hint: 1,1
+        pos_hint: {"x":0.1,"y":0}
+        MainMapPicture:
+            id: MainMapPicture
+            on_touch_down: root.click_on_map(*args)
+            source: "testimage.jpg"
+
+    Widget:
+        id: SidePanelWidget
+        canvas.before:
+            Color:
+                rgb: 0.7,0.7,0.7
+            Rectangle:
+                size: root.width*0.1, root.height
+        MenuButton:
+            id: MenuButton_AddSelect
+            text: "SEL/MOV mode ON" if not self.selected else "ADD mode ON"
+            pos: SidePanelWidget.width * 0.01,SidePanelWidget.height * 0.8
+            size: 150,150
+#            on_release: root.menu_button_click(self)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

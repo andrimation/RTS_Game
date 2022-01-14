@@ -1,0 +1,3 @@
+
+class Storage():
+    MenuButtonSelected = False

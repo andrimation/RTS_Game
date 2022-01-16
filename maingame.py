@@ -103,6 +103,13 @@ class MainWindow(FloatLayout):
         # Czyli muszę shiftować wszystko na planszy -> włacznie z wydanymi rozkazami
         # -> shifrować będę musiał też położenia kolejnych boxów matrixa mapy jak będe poruszał się po boxach
         # np, mogę zamieniać boxy na kolejne pozycje
+
+    # Prosty algorytm wyszukiwania trasy -> sprawdzamy wolne pola wokół jednostki i mierzymy odległośc między wolnymi polami
+    # i wybieiramy to wolne które jest najbliżej.
+    #
+    # -> bardziej złożony, ale poprawny -> algorytm który nadaje wagi poszczególnym badanym polom, z tym że większą wagę mają te pola, które
+    # są bliżej
+
     def add_GameObject(self,add_X,add_Y,matrixX,matrixY):
         # Gdy dodaję obiekty, wykluczyć sytuację gdy klikam w szare pole i wciąż je dodaje ->
         # szary obszar muzi być nieaktywny dla myszki -> nie można tam ani kliknąć ani wjechać itp

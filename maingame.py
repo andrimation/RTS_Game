@@ -19,6 +19,8 @@ from kivy.properties import BooleanProperty
 # Others
 import pyautogui
 import math
+imp
+
 
 # Fullscreen
 Window.fullscreen = 'auto'    # To nam włacza fullscreen

@@ -40,6 +40,7 @@ class position():
 
 def marsPathfinder(startPosition,endPosition,mapMatrix):
 
+
     startNode = position(startPosition)
     startNode.name = "start"
     endNode   = position(endPosition)

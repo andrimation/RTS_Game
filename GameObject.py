@@ -9,6 +9,10 @@ from Storage import Storage
 class GameObject(Button):
     selected = BooleanProperty(False)
     speed = 1
+    matrixPosition = []
+
+    moveX = 0
+    moveY = 0
 
     def on_release(self):
         if Storage.MenuButtonSelected == False:

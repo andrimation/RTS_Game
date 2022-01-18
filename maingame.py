@@ -19,13 +19,14 @@ from kivy.properties import BooleanProperty
 # Others
 import pyautogui
 import math
-imp
+import MarsPathfinder_setup
 
 
 # Fullscreen
-Window.fullscreen = 'auto'    # To nam włacza fullscreen
+# Window.fullscreen = 'auto'    # To nam włacza fullscreen
 # Mouse
 Config.set("input","mouse","mouse,multitouch_on_demand")
+
 
 class MainWindow(FloatLayout):
     obj_add_index = 1
@@ -113,41 +114,65 @@ class MainWindow(FloatLayout):
     # są bliżej
 
     def add_GameObject(self,add_X,add_Y,matrixX,matrixY):
-        # Gdy dodaję obiekty, wykluczyć sytuację gdy klikam w szare pole i wciąż je dodaje ->
-        # szary obszar muzi być nieaktywny dla myszki -> nie można tam ani kliknąć ani wjechać itp
         new_GameObject = GameObject()
         new_GameObject.pos = (add_X,add_Y)
         new_GameObject.size_hint = (None,None)
         new_GameObject.size = (60,60)
         new_GameObject.id   = f"Game_object_{self.obj_add_index}"
+        new_GameObject.matrixPosition = [matrixX,matrixY]
         self.gameMapMatrix[matrixX][matrixY][2] = True
         self.add_widget(new_GameObject,self.obj_add_index)
         self.obj_add_index += 1
         self.ids["SidePanelWidget"].index = 0
 
-    def move_queue_execute(self,move_queue):
-        for queue in self.move_queue:
-            object,coords,matrix = queue[0],queue[1],queue[2]
+    def move_queue_execute(self):
+        for order in self.move_queue:
+            object,coords,matrix = order[0],order[1],order[2]
+            if order[3]  and  object.moveX == 0 and object.moveY == 0:
+                currentPosition = order[3].pop(0)
+                if order[3]:
+                    newPosition     = order[3][0]
+                    if currentPosition[1] < newPosition[1]:
+                        object.moveX = 60
+                    if currentPosition[1] > newPosition[1]:
+                        object.moveX = -60
+                    if currentPosition[0] < newPosition[0]:
+                        object.moveY = -60
+                    if currentPosition[0] > newPosition[0]:
+                        object.moveY = 60
+                    self.gameMapMatrix[currentPosition[0]][currentPosition[1]][2] = None
+                    object.matrixPosition = newPosition
+                    self.gameMapMatrix[object.matrixPosition[0]][object.matrixPosition[1]][2] = True
 
-            # X-axis
-            if object.x > coords[0]:
-                object.x -= 2
-            elif object.x < coords[0]:
+                else:
+                    object.matrixPosition = currentPosition
+
+            if object.moveX > 0:
                 object.x += 2
+                object.moveX -= 2
+            elif object.moveX < 0:
+                object.x -= 2
+                object.moveX += 2
             else:
                 pass
-
-            # Y-axis
-            if object.y > coords[1]:
-                object.y -= 2
-            elif object.y < coords[1]:
+            # if object.moveX == 0:
+                # Y-axis
+            if object.moveY > 0:
                 object.y += 2
+                object.moveY -= 2
+            elif object.moveY < 0:
+                object.y -= 2
+                object.moveY += 2
             else:
                 pass
+        # Remove object from move queue if order finished
+        for order in self.move_queue:
+            if order[3] == None or order[3] == []:
+                try:
 
-            if object.x == coords[0] and object.y == coords[1]:
-                self.move_queue.remove(queue)
-                print("Koniec ruchu:",object.pos)
+                    self.move_queue.remove(order)
+                except:
+                    pass
 
 
 
@@ -170,37 +195,57 @@ class MainWindow(FloatLayout):
         return pos_X, pos_Y, matrixX, matrixY
 
 
+
     def click_on_map(self,*args):
         if self.ids["MenuButton_AddSelect"].selected == True:
 
             add_X,add_Y,matrixX,matrixY = self.compute_mouse_position(*args)
             self.add_GameObject(add_X, add_Y, matrixX, matrixY)
-
         # Deselect
         elif args[1].button =="right":
             self.deselect_all_objects_on_map()
-
         # Move objects
         elif self.ids["MenuButton_AddSelect"].selected == False:
             pos_X,pos_Y,matrixX,matrixY = self.compute_mouse_position(*args)
             # Add object,coords,and matrix to move_queue
             for object in self.children:
                 if isinstance(object,GameObject) and object.selected == True:
-                    current_order = [object,(pos_X,pos_Y),(matrixX,matrixY)]
+                    try:
+                        convertMatrix = MarsPathfinder_setup.convertMap(self.gameMapMatrix)
+                        for x in convertMatrix:
+                            print(x)
+                        print(object.matrixPosition, [matrixX,matrixY])
+                        computePath = MarsPathfinder_setup.marsPathfinder(object.matrixPosition,[matrixX,matrixY],convertMatrix)
+                        current_order = [object,(pos_X,pos_Y),(matrixX,matrixY),computePath]
+                    except:
+                        print("nie można obliczyc trasy")
+                        pass
+                    # Remove old order if object got new during old
                     for order in self.move_queue:
                         if order[0] == current_order[0]:
                             self.move_queue.remove(order)
                     self.move_queue.append(current_order)
-                    print(self.move_queue)
 
-
+    def updateGameMatrix(self):
+        positions = []
+        for object in self.children:
+            if isinstance(object,GameObject):
+                positions.append(object.matrixPosition)
+        for x in range(len(self.gameMapMatrix)-1):
+            for y in range(len(self.gameMapMatrix[0])-1):
+                if [x,y] in positions:
+                    self.gameMapMatrix[x][y][2] = True
+                else:
+                    self.gameMapMatrix[x][y][2] = None
 
 
     def next_frame(self,*args):
         # Check mouse position, and move map.
         self.scroll_game_map()
+        # Force mainMatrix update
+        self.updateGameMatrix()
         # Move units on map
-        self.move_queue_execute(self.move_queue)
+        self.move_queue_execute()
 
         pass
 
@@ -213,7 +258,7 @@ class MainGameApp(App):
     def build(self):
         mainwindow = MainWindow()
         mainwindow.create_map_matrix()
-        Clock.schedule_interval(mainwindow.next_frame,0.001)
+        Clock.schedule_interval(mainwindow.next_frame,0.0005)
         return mainwindow
 
 if __name__ == "__main__":

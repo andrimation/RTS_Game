@@ -37,9 +37,27 @@ class position():
         return self.pos == other.pos
 
 
+def convertMap(gameMatrix):
+    convertedMap = []
+    for line in gameMatrix:
+        newLine = []
+        for point in line:
+            if point[2] == None:
+                newLine.append("")
+            else:
+                newLine.append("A")
+        convertedMap.append(newLine)
+    return convertedMap
+
+
 
 def marsPathfinder(startPosition,endPosition,mapMatrix):
-
+    #Debug Matrix
+    mapMatrix[startPosition[0]][startPosition[1]] = "S"
+    mapMatrix[endPosition[0]][endPosition[1]] = "K"
+    for line in mapMatrix:
+        print(line)
+    #
     startNode = position(startPosition)
     startNode.name = "start"
     endNode   = position(endPosition)
@@ -51,17 +69,15 @@ def marsPathfinder(startPosition,endPosition,mapMatrix):
     while openList:
         openList.sort(key= lambda node: abs(node.x-endNode.x)+abs(node.y-endNode.y) + node.steps)
         currentNode = openList[0]
-        print(currentNode.pos)
         if currentNode == endNode:
             currentNode.name = "end"
             currentNode.previous_position = closedList[-1]
             closedList.append(currentNode)
-            return closedList  # tu napisać funkcję zwracającą ostateczną ścieżkę
-        if mapMatrix[currentNode.x][currentNode.y] == "K":
-            currentNode.name = "end"
-            currentNode.previous_position = closedList[-1]
-            closedList.append(currentNode)
-            return closedList
+            answer = find_answer_path(closedList)
+            answer.reverse()
+            return answer  # tu napisać funkcję zwracającą ostateczną ścieżkę
+
+
 
         openList.remove(currentNode)
         closedList.append(currentNode)
@@ -72,44 +88,32 @@ def marsPathfinder(startPosition,endPosition,mapMatrix):
                     child_of_currentNode.steps = currentNode.steps + 1
                     if child_of_currentNode not in openList and mapMatrix[child_of_currentNode.x][child_of_currentNode.y] != "A" and child_of_currentNode not in closedList:
                         # Wykluczenie skosu
-                        if mapMatrix[currentNode.x-1][currentNode.y] == "A" and mapMatrix[currentNode.x][currentNode.y+1] == "A":
-                            continue
-                        if mapMatrix[currentNode.x][currentNode.y+1] == "A" and mapMatrix[currentNode.x+1][currentNode.y] == "A":
-                            continue
-                        if mapMatrix[currentNode.x][currentNode.y-1] == "A" and mapMatrix[currentNode.x+1][currentNode.y] == "A":
-                            continue
-                        if mapMatrix[currentNode.x][currentNode.y-1] == "A" and mapMatrix[currentNode.x-1][currentNode.y] == "A":
-                            continue
+                        try:
+                            if mapMatrix[currentNode.x-1][currentNode.y] == "A" and mapMatrix[currentNode.x][currentNode.y+1] == "A":
+                                continue
+                        except:
+                            pass
+                        try:
+                            if mapMatrix[currentNode.x][currentNode.y+1] == "A" and mapMatrix[currentNode.x+1][currentNode.y] == "A":
+                                continue
+                        except:
+                            pass
+                        try:
+                            if mapMatrix[currentNode.x][currentNode.y-1] == "A" and mapMatrix[currentNode.x+1][currentNode.y] == "A":
+                                continue
+                        except:
+                            pass
+                        try:
+                            if mapMatrix[currentNode.x][currentNode.y-1] == "A" and mapMatrix[currentNode.x-1][currentNode.y] == "A":
+                                continue
+                        except:
+                            pass
 
                         openList.append(child_of_currentNode)
                     else:
                         continue
 
 
-
-
-pathAnswer = marsPathfinder([11,0],[0,13],testPathMap)
-print(pathAnswer)
-
-for x in pathAnswer:
-    print(x.name)
-
-
-
-testPathMap = [
-    ["","","","","","","","","","A","","","","K",],
-    ["","","","","","","","","","A","","","","",],
-    ["","","A","A","A","","","","","","A","","","",],
-    ["","","","","A","A","A","A","","","","","A","",],
-    ["","","","","","A","A","A","","","","A","","",],
-    ["","","","","","", "", "A","A","","","","","",],
-    ["","","","","","","","","A","A","","","","",],
-    ["","","","","","","","","","A","A","","","",],
-    ["","","","","","","","","","A","A","","","",],
-    ["","","","","","","","","","","A","","","",],
-    ["","","","","","","","","","","A","A","","",],
-    ["P","","","","","","","","","","","A","","",],
-]
 # -> zaczynamy wyznaczanie ścieżki od końcowego punktu -> "end"
 def find_answer_path(pathAnswer):
 
@@ -121,18 +125,13 @@ def find_answer_path(pathAnswer):
             endPosition = position
             pathAnswer.pop(pathAnswer.index(endPosition))
             finalPath.append(endPosition)
-            print(endPosition,"endPos")
-            print(finalPath[-1].pos)
     while True:
         for position in pathAnswer:
             if position == finalPath[-1].previous_position:
-                print(finalPath[-1].previous_position)
-                print(position.pos)
                 prevPos = position
                 pathAnswer.pop(pathAnswer.index(prevPos))
                 finalPath.append(prevPos)
                 if finalPath[-1].name == "start":
-                    print("jest start")
                     finalPathXY = []
                     for position in finalPath:
                         finalPathXY.append(position.pos)
@@ -140,38 +139,3 @@ def find_answer_path(pathAnswer):
 
 
     return finalPath
-
-finalPath = find_answer_path(pathAnswer)
-
-#
-testPathMap = [
-    ["","","","","","","","","","A","","","","K",],
-    ["","","","","","","","","","A","","","","",],
-    ["","","A","A","A","","","","","","A","","","",],
-    ["","","","","A","A","","","","","","","A","",],
-    ["","","","","","A","A","A","","","","A","","",],
-    ["","","","","","","","A","A","","","","","",],
-    ["","","","","","","","","A","A","","","","",],
-    ["","","","","","","","","","A","A","","","",],
-    ["","","","","","","","","","A","A","","","",],
-    ["","","","","","","","","","","A","","","",],
-    ["","","","","","","","","","","A","A","","",],
-    ["P","","","","","","","","","","","A","","",],
-]
-
-
-
-for position in finalPath:
-    testPathMap[position[0]][position[1]] = "@"
-
-
-
-
-for x in pathAnswer:
-    print(x.previous_position)
-
-
-
-
-for x in testPathMap:
-    print(x)

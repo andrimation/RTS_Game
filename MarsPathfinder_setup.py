@@ -1,17 +1,4 @@
-testPathMap = [
-    ["","","","","","","","","","A","","","","K",],
-    ["","","","","","","","","","A","","","","",],
-    ["","","A","A","A","","","","","","A","","","",],
-    ["","","","","A","A","","A","","","","","A","",],
-    ["","","","","","A","A","","","","","A","","",],
-    ["","","","","","","","A","A","","","","","",],
-    ["","","","","","","","","A","A","","","","",],
-    ["","","","","","","","","","A","A","","","",],
-    ["","","","","","","","","","A","A","","","",],
-    ["","","","","","","","","","","A","","","",],
-    ["","","","","","","","","","","A","A","","",],
-    ["P","","","","","","","","","","","A","","",],
-]
+
 # Czyli tak najpierw ustalić położenie początkowe -> tzn x, y mojej pozycji.
 # -> a czyli po prostu sprawdzamy czy jak odejmiemy -1 do x, i albo -1 y, to czy wyjdzie liczba mniej niż zero.
 # to wtedy pomijamy
@@ -77,46 +64,53 @@ def marsPathfinder(startPosition,endPosition,mapMatrix):
             answer.reverse()
             return answer  # tu napisać funkcję zwracającą ostateczną ścieżkę
 
-
-
         openList.remove(currentNode)
         closedList.append(currentNode)
+
+        # If a is near position -> ignore slant (skos) moves
+        checkA = False
         for x in [-1, 0, 1]:
             for y in [-1, 0, 1]:
+                if currentNode.x + x >= 0 and currentNode.y + y >= 0 and currentNode.x + x < len(mapMatrix) and currentNode.y + y < len(mapMatrix[0]):
+                    if mapMatrix[currentNode.x+x][currentNode.y+y] == "A":
+                        checkA = True
+                        print("checka")
+        if checkA:
+            for x in [-1, 0, 1]:
+                y = 0
                 if currentNode.x + x >= 0 and currentNode.y + y >= 0 and currentNode.x + x < len(mapMatrix) and currentNode.y + y < len(mapMatrix[0]):
                     child_of_currentNode = position([currentNode.x+x,currentNode.y+y],previous_position=currentNode)
                     child_of_currentNode.steps = currentNode.steps + 1
                     if child_of_currentNode not in openList and mapMatrix[child_of_currentNode.x][child_of_currentNode.y] != "A" and child_of_currentNode not in closedList:
-                        # Wykluczenie skosu
-                        try:
-                            if mapMatrix[currentNode.x-1][currentNode.y] == "A" and mapMatrix[currentNode.x][currentNode.y+1] == "A":
-                                continue
-                        except:
-                            pass
-                        try:
-                            if mapMatrix[currentNode.x][currentNode.y+1] == "A" and mapMatrix[currentNode.x+1][currentNode.y] == "A":
-                                continue
-                        except:
-                            pass
-                        try:
-                            if mapMatrix[currentNode.x][currentNode.y-1] == "A" and mapMatrix[currentNode.x+1][currentNode.y] == "A":
-                                continue
-                        except:
-                            pass
-                        try:
-                            if mapMatrix[currentNode.x][currentNode.y-1] == "A" and mapMatrix[currentNode.x-1][currentNode.y] == "A":
-                                continue
-                        except:
-                            pass
-
+                        openList.append(child_of_currentNode)
+                    else:
+                        continue
+            for y in [-1,0,1]:
+                x = 0
+                if currentNode.x + x >= 0 and currentNode.y + y >= 0 and currentNode.x + x < len(mapMatrix) and currentNode.y + y < len(mapMatrix[0]):
+                    child_of_currentNode = position([currentNode.x+x,currentNode.y+y],previous_position=currentNode)
+                    child_of_currentNode.steps = currentNode.steps + 1
+                    if child_of_currentNode not in openList and mapMatrix[child_of_currentNode.x][child_of_currentNode.y] != "A" and child_of_currentNode not in closedList:
                         openList.append(child_of_currentNode)
                     else:
                         continue
 
+        else:
+            for x in [-1, 0, 1]:
+                for y in [-1, 0, 1]:
+                    # zrobić tak -> że jeżeli obiekt jest blisko jakiegoś A to aby się poruszał tylko w 4 kierunkach, a jeśli nie ma obok A to aby
+                    # mógł poruszać się po skosie
+                    if currentNode.x + x >= 0 and currentNode.y + y >= 0 and currentNode.x + x < len(mapMatrix) and currentNode.y + y < len(mapMatrix[0]):
+                        child_of_currentNode = position([currentNode.x+x,currentNode.y+y],previous_position=currentNode)
+                        child_of_currentNode.steps = currentNode.steps + 1
+                        if child_of_currentNode not in openList and mapMatrix[child_of_currentNode.x][child_of_currentNode.y] != "A" and child_of_currentNode not in closedList:
+                            openList.append(child_of_currentNode)
+                        else:
+                            continue
 
-# -> zaczynamy wyznaczanie ścieżki od końcowego punktu -> "end"
+
+# -> zaczynam wyznaczanie ścieżki od końcowego punktu -> "end"
 def find_answer_path(pathAnswer):
-
     finalPath = []
 
 

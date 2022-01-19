@@ -222,9 +222,15 @@ class MainWindow(FloatLayout):
                         pass
                     # Remove old order if object got new during old
                     for order in self.move_queue:
-                        if order[0] == current_order[0]:
-                            self.move_queue.remove(order)
-                    self.move_queue.append(current_order)
+                        try:
+                            if order[0] == current_order[0]:
+                                self.move_queue.remove(order)
+                        except:
+                            pass
+                    try:
+                        self.move_queue.append(current_order)
+                    except:
+                        pass
 
     def updateGameMatrix(self):
         positions = []

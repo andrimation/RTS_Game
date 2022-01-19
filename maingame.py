@@ -174,25 +174,18 @@ class MainWindow(FloatLayout):
                     pass
 
 
-
     def compute_mouse_position(self,*args):
         # Convert kivy X,Y coords, to matrix coords
         imageY = self.ids["MainMapPicture"].ids["main_map_image"].size[1]
         x, y = args[1].pos
-        # Srawdzić które z poniższych zmiennych są rzeczywiście potrzebne - wyczyścić
 
-        clickX = abs(self.positionX // 60) + x
-        clickY = abs((abs(self.positionY) + y) - imageY)
-        matrixX = math.floor(clickX // 60)
-        matrixY = math.floor(x + abs(self.positionX-Window.size[0]*0.1))//60
-        print(math.floor(clickY//60),matrixY)
-
-        # Actual cursor position.
+        # Actual cursor position in window.
         pos_X = (x // 60) * 60 + (Window.size[0] * 0.1)
         pos_Y = (y // 60) * 60
 
-        bigMatrixY = math.floor(clickY//60)
-        bigMatrixX = matrixY
+        # Cursor position in whole game matrix
+        bigMatrixY = math.floor(abs((abs(self.positionY) + y) - imageY)//60)
+        bigMatrixX = math.floor(x + abs(self.positionX-Window.size[0]*0.1))//60
 
         return pos_X, pos_Y, bigMatrixY, bigMatrixX
 

@@ -24,7 +24,7 @@ class position():
         return self.pos == other.pos
 
 
-def convertMap(gameMatrix):
+def convertMap(gameMatrix,orderQueue):
     convertedMap = []
     for line in gameMatrix:
         newLine = []
@@ -34,16 +34,29 @@ def convertMap(gameMatrix):
             else:
                 newLine.append("A")
         convertedMap.append(newLine)
+    # Tu jako zajęte odnaczam dodatkowo pola z innych rozkazów
+    for order in orderQueue:
+        if order[3]:
+            for point in order[3]:
+                convertedMap[point[0]][point[1]] = "A"
+
+
     return convertedMap
 
 
 
 def marsPathfinder(startPosition,endPosition,mapMatrix):
-    #Debug Matrix
+    # Find new end-
+    changeEnd = False
+    if mapMatrix[endPosition[0]][endPosition[1]] == "A":
+        changeEnd = True
+
+
+    #Debug Matrix Print
     mapMatrix[startPosition[0]][startPosition[1]] = "S"
     mapMatrix[endPosition[0]][endPosition[1]] = "K"
-    for line in mapMatrix:
-        print(line)
+    # for line in mapMatrix:
+    #     print(line)
     #
     startNode = position(startPosition)
     startNode.name = "start"
@@ -62,6 +75,8 @@ def marsPathfinder(startPosition,endPosition,mapMatrix):
             closedList.append(currentNode)
             answer = find_answer_path(closedList)
             answer.reverse()
+            if changeEnd == True:
+                answer.pop(-1)
             return answer  # tu napisać funkcję zwracającą ostateczną ścieżkę
 
         openList.remove(currentNode)

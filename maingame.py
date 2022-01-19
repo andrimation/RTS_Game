@@ -128,6 +128,7 @@ class MainWindow(FloatLayout):
     def move_queue_execute(self):
         for order in self.move_queue:
             object,coords,matrix = order[0],order[1],order[2]
+            # print(order)
             if order[3]  and  object.moveX == 0 and object.moveY == 0:
                 currentPosition = order[3].pop(0)
                 if order[3]:
@@ -143,7 +144,6 @@ class MainWindow(FloatLayout):
                     self.gameMapMatrix[currentPosition[0]][currentPosition[1]][2] = None
                     object.matrixPosition = newPosition
                     self.gameMapMatrix[object.matrixPosition[0]][object.matrixPosition[1]][2] = True
-
                 else:
                     object.matrixPosition = currentPosition
 
@@ -167,9 +167,8 @@ class MainWindow(FloatLayout):
                 pass
         # Remove object from move queue if order finished
         for order in self.move_queue:
-            if order[3] == None or order[3] == []:
+            if order[3] == None or order[3] == [] or order[3] == object.matrixPosition:
                 try:
-
                     self.move_queue.remove(order)
                 except:
                     pass
@@ -180,25 +179,27 @@ class MainWindow(FloatLayout):
         # Convert kivy X,Y coords, to matrix coords
         imageY = self.ids["MainMapPicture"].ids["main_map_image"].size[1]
         x, y = args[1].pos
+        # Srawdzić które z poniższych zmiennych są rzeczywiście potrzebne - wyczyścić
 
         clickX = abs(self.positionX // 60) + x
         clickY = abs((abs(self.positionY) + y) - imageY)
-        matrixY = math.floor(clickX // 60)
-        matrixX = math.floor(clickY // 60)
+        matrixX = math.floor(clickX // 60)
+        matrixY = math.floor(x + abs(self.positionX-Window.size[0]*0.1))//60
+        print(math.floor(clickY//60),matrixY)
 
         # Actual cursor position.
         pos_X = (x // 60) * 60 + (Window.size[0] * 0.1)
         pos_Y = (y // 60) * 60
 
+        bigMatrixY = math.floor(clickY//60)
+        bigMatrixX = matrixY
 
-
-        return pos_X, pos_Y, matrixX, matrixY
+        return pos_X, pos_Y, bigMatrixY, bigMatrixX
 
 
 
     def click_on_map(self,*args):
         if self.ids["MenuButton_AddSelect"].selected == True:
-
             add_X,add_Y,matrixX,matrixY = self.compute_mouse_position(*args)
             self.add_GameObject(add_X, add_Y, matrixX, matrixY)
         # Deselect
@@ -211,7 +212,7 @@ class MainWindow(FloatLayout):
             for object in self.children:
                 if isinstance(object,GameObject) and object.selected == True:
                     try:
-                        convertMatrix = MarsPathfinder_setup.convertMap(self.gameMapMatrix)
+                        convertMatrix = MarsPathfinder_setup.convertMap(self.gameMapMatrix,self.move_queue)
                         for x in convertMatrix:
                             print(x)
                         print(object.matrixPosition, [matrixX,matrixY])

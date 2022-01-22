@@ -20,7 +20,8 @@ from kivy.properties import BooleanProperty
 import pyautogui
 import math
 import MarsPathfinder_setup
-
+import gc
+import threading
 
 # Fullscreen
 # Window.fullscreen = 'auto'    # To nam włacza fullscreen
@@ -37,7 +38,9 @@ class MainWindow(FloatLayout):
 
     gameMapMatrix = []
     move_queue = []
+    orders_destinations = []
 
+    threadsList =[]
 
     def deselect_all_objects_on_map(self):
         for object in self.children:
@@ -48,7 +51,6 @@ class MainWindow(FloatLayout):
         imageX,imageY = self.ids["MainMapPicture"].ids["main_map_image"].size
         matrixX = int(imageX/60)
         matrixY = int(imageY/60)
-        print(imageX,imageY)
         # Muszę pamiętać że matryca jest odwrócona
         for y in range(matrixY):
             self.gameMapMatrix.append([])
@@ -56,10 +58,9 @@ class MainWindow(FloatLayout):
             for x in range(matrixX):
                 self.gameMapMatrix[-1].append([x*60,imageY,None])
 
-        # DEBUG matrix print
-        for x in self.gameMapMatrix:
-            print(x)
-
+        # # DEBUG matrix print
+        # for x in self.gameMapMatrix:
+        #     print(x)
 
     def scroll_game_map(self):
         mouseX,mouseY = pyautogui.position()
@@ -127,12 +128,21 @@ class MainWindow(FloatLayout):
 
     def move_queue_execute(self):
         for order in self.move_queue:
-            object,coords,matrix = order[0],order[1],order[2]
-            # print(order)
-            if order[3]  and  object.moveX == 0 and object.moveY == 0:
-                currentPosition = order[3].pop(0)
-                if order[3]:
-                    newPosition     = order[3][0]
+            object,matrix = order[0],order[1]
+            if order[2]  and  object.moveX == 0 and object.moveY == 0:
+                try:
+                    currentPosition = order[2].pop(0)
+                except:
+                    continue
+                if order[2]:
+                    newPosition     = order[2][0]
+                    if self.gameMapMatrix[newPosition[0]][newPosition[1]][2] == True:
+                        pass
+                        convertMatrix = MarsPathfinder_setup.convertMap(self.gameMapMatrix)
+                        computePath = MarsPathfinder_setup.marsPathfinder(object.matrixPosition, [order[2][-1][0], order[2][-1][1]],convertMatrix)
+                        order[2] = computePath
+                        continue
+
                     if currentPosition[1] < newPosition[1]:
                         object.moveX = 60
                     if currentPosition[1] > newPosition[1]:
@@ -155,8 +165,7 @@ class MainWindow(FloatLayout):
                 object.moveX += 2
             else:
                 pass
-            # if object.moveX == 0:
-                # Y-axis
+
             if object.moveY > 0:
                 object.y += 2
                 object.moveY -= 2
@@ -167,12 +176,11 @@ class MainWindow(FloatLayout):
                 pass
         # Remove object from move queue if order finished
         for order in self.move_queue:
-            if order[3] == None or order[3] == [] or order[3] == object.matrixPosition:
+            if order[2] == None or order[2] == [] or order[2] == object.matrixPosition:
                 try:
                     self.move_queue.remove(order)
                 except:
                     pass
-
 
     def compute_mouse_position(self,*args):
         # Convert kivy X,Y coords, to matrix coords
@@ -189,42 +197,54 @@ class MainWindow(FloatLayout):
 
         return pos_X, pos_Y, bigMatrixY, bigMatrixX
 
+    def compute_orders_paths(self):
+        usedCoords = []
+        for destination in self.orders_destinations:
+            usedCoords.append(destination[1])
 
+        for order_destination in self.orders_destinations:
+            if usedCoords.count(order_destination[1]) > 1:
+                convertMatrix = MarsPathfinder_setup.convertMap(self.gameMapMatrix)
+                order_destination[1] = MarsPathfinder_setup.find_Closesd_Free(convertMatrix,order_destination[1])
+            convertMatrix = MarsPathfinder_setup.convertMap(self.gameMapMatrix)
+            computePath = MarsPathfinder_setup.marsPathfinder(order_destination[0].matrixPosition, [order_destination[1][0], order_destination[1][1]],convertMatrix)
+            current_order = [order_destination[0], (order_destination[1][0], order_destination[1][1]), computePath]
+            if computePath != None:
+                self.orders_destinations.remove(order_destination)
+                # Remove old order if object got new during old
+                for order in self.move_queue:
+                    try:
+                        if order[0] == current_order[0]:
+                            self.move_queue.remove(order)
+                    except:
+                        pass
+                try:
+                    self.move_queue.append(current_order)
+                except:
+                    pass
 
-    def click_on_map(self,*args):
+    def click_on_map(self,*args):   # Dodac ograniczenie że za jednym razem można np max 7 unitów
         if self.ids["MenuButton_AddSelect"].selected == True:
             add_X,add_Y,matrixX,matrixY = self.compute_mouse_position(*args)
             self.add_GameObject(add_X, add_Y, matrixX, matrixY)
+
         # Deselect
         elif args[1].button =="right":
             self.deselect_all_objects_on_map()
-        # Move objects
+
+        # Move objects       # Tu dodawać tylko pozycję kliknięcia i dla którego obiektu -> obliczanie rozkazu będzie w innej funkcji
         elif self.ids["MenuButton_AddSelect"].selected == False:
             pos_X,pos_Y,matrixX,matrixY = self.compute_mouse_position(*args)
-            # Add object,coords,and matrix to move_queue
+
+            # Add object,coords do orders compute
             for object in self.children:
+
                 if isinstance(object,GameObject) and object.selected == True:
-                    try:
-                        convertMatrix = MarsPathfinder_setup.convertMap(self.gameMapMatrix,self.move_queue)
-                        for x in convertMatrix:
-                            print(x)
-                        print(object.matrixPosition, [matrixX,matrixY])
-                        computePath = MarsPathfinder_setup.marsPathfinder(object.matrixPosition,[matrixX,matrixY],convertMatrix)
-                        current_order = [object,(pos_X,pos_Y),(matrixX,matrixY),computePath]
-                    except:
-                        print("nie można obliczyc trasy")
-                        pass
-                    # Remove old order if object got new during old
-                    for order in self.move_queue:
-                        try:
-                            if order[0] == current_order[0]:
-                                self.move_queue.remove(order)
-                        except:
-                            pass
-                    try:
-                        self.move_queue.append(current_order)
-                    except:
-                        pass
+                    for order_destination in self.orders_destinations:
+                        if [matrixX,matrixY] == order_destination[1]:
+                            convertMatrix = MarsPathfinder_setup.convertMap(self.gameMapMatrix)
+                            [matrixX, matrixY] = MarsPathfinder_setup.find_Closesd_Free(convertMatrix,[matrixX, matrixY])
+                    self.orders_destinations.append([object,[matrixX,matrixY]])
 
     def updateGameMatrix(self):
         positions = []
@@ -237,16 +257,16 @@ class MainWindow(FloatLayout):
                     self.gameMapMatrix[x][y][2] = True
                 else:
                     self.gameMapMatrix[x][y][2] = None
-
-
+###########################################################################
     def next_frame(self,*args):
         # Check mouse position, and move map.
         self.scroll_game_map()
         # Force mainMatrix update
         self.updateGameMatrix()
+        # Compute paths for orders
+        self.compute_orders_paths()
         # Move units on map
         self.move_queue_execute()
-
         pass
 
     pass

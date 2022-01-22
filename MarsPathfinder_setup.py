@@ -1,4 +1,5 @@
-
+import gc
+import random
 # Czyli tak najpierw ustalić położenie początkowe -> tzn x, y mojej pozycji.
 # -> a czyli po prostu sprawdzamy czy jak odejmiemy -1 do x, i albo -1 y, to czy wyjdzie liczba mniej niż zero.
 # to wtedy pomijamy
@@ -24,37 +25,46 @@ class position():
         return self.pos == other.pos
 
 
-def convertMap(gameMatrix,orderQueue):
+def convertMap(gameMatrix):
     convertedMap = []
     for line in gameMatrix:
         newLine = []
         for point in line:
             if point[2] == None:
                 newLine.append("")
+            elif len(point) >= 4:
+                if point[3] == "Target":
+                    newLine.append("A")
             else:
                 newLine.append("A")
         convertedMap.append(newLine)
-    # Tu jako zajęte odnaczam dodatkowo pola z innych rozkazów
-    for order in orderQueue:
-        if order[3]:
-            for point in order[3]:
-                convertedMap[point[0]][point[1]] = "A"
-
-
     return convertedMap
+
+
+# Poprawić, żeby szukało najbliższego wolnego po spirali, nie w gwiazdkę
+def find_Closesd_Free(gameMatrix,endPosition):
+    results = []
+
+    n = 5
+    while len(results) < 3:
+
+        for x in range(-n,n):
+            for y in range(-n,n):
+                if endPosition[0] + x >= 0 and endPosition[1] + y >= 0 and endPosition[0] + x < len(gameMatrix) and endPosition[1] + y < len(gameMatrix[0]):
+                    if gameMatrix[endPosition[0] + x][endPosition[1] + y] != "A":
+                        results.append([endPosition[0]+x,endPosition[1]+y])
+
+    results.sort(key= lambda x: abs(x[0]-endPosition[0])+abs(x[1]-endPosition[1]))
+    return results[0]
+
 
 
 
 def marsPathfinder(startPosition,endPosition,mapMatrix):
-    # Find new end-
-    changeEnd = False
-    if mapMatrix[endPosition[0]][endPosition[1]] == "A":
-        changeEnd = True
 
-
-    #Debug Matrix Print
-    mapMatrix[startPosition[0]][startPosition[1]] = "S"
-    mapMatrix[endPosition[0]][endPosition[1]] = "K"
+    # # Debug Matrix Print
+    # mapMatrix[startPosition[0]][startPosition[1]] = "S"
+    # mapMatrix[endPosition[0]][endPosition[1]] = "K"
     # for line in mapMatrix:
     #     print(line)
     #
@@ -65,8 +75,9 @@ def marsPathfinder(startPosition,endPosition,mapMatrix):
 
     openList   = [startNode]
     closedList = []
-
+    counter = 0
     while openList:
+        counter += 1
         openList.sort(key= lambda node: abs(node.x-endNode.x)+abs(node.y-endNode.y) + node.steps)
         currentNode = openList[0]
         if currentNode == endNode:
@@ -75,10 +86,10 @@ def marsPathfinder(startPosition,endPosition,mapMatrix):
             closedList.append(currentNode)
             answer = find_answer_path(closedList)
             answer.reverse()
-            if changeEnd == True:
-                answer.pop(-1)
             return answer  # tu napisać funkcję zwracającą ostateczną ścieżkę
-
+        if counter > 50:
+            print("awaryjne wyłączrenie pathfindera")
+            return "Error"
         openList.remove(currentNode)
         closedList.append(currentNode)
 
@@ -89,7 +100,6 @@ def marsPathfinder(startPosition,endPosition,mapMatrix):
                 if currentNode.x + x >= 0 and currentNode.y + y >= 0 and currentNode.x + x < len(mapMatrix) and currentNode.y + y < len(mapMatrix[0]):
                     if mapMatrix[currentNode.x+x][currentNode.y+y] == "A":
                         checkA = True
-                        print("checka")
         if checkA:
             for x in [-1, 0, 1]:
                 y = 0

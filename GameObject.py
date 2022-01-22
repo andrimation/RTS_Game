@@ -13,11 +13,20 @@ class GameObject(Button):
 
     moveX = 0
     moveY = 0
+    matrixDestination = []
+    matrixPath = []
+
+
+    side = "Friend"
+    attack = "no"
 
     def on_release(self):
-        if Storage.MenuButtonSelected == False:
-            self.selected = not self.selected
-            print(self.id,self.selected)
+        if self.side == "Friend":
+            if Storage.MenuButtonSelected == False:
+                self.selected = not self.selected
+                print(self.id,self.selected)
+
         else:
-            print("MenuButtonSelected == True -> cant select object on map, just add.")
-            pass
+            Storage.enemyToAttack = self.matrixPosition
+            # print(Storage.enemyToAttack)
+

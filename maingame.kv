@@ -1,8 +1,11 @@
 #: include mainmappicture.kv
 #: include mapview.kv
-#: include gameobject.kv
+#: include gameunit.kv
 #: include matrixmapwidget.kv
 #: include menubutton.kv
+#: include building.kv
+#: include uran.kv
+#: include uranminer.kv
 
 <MainWindow>:
     id: MainWindow
@@ -16,25 +19,75 @@
     MapView:
         id: MapView
         size_hint: 1,1
+        index: 10000
         pos_hint: {"x":0.1,"y":0}
         MainMapPicture:
             id: MainMapPicture
             on_touch_down: root.click_on_map(*args)
             source: "testimage.jpg"
+            canvas.before:
+                Rectangle:
+    Button:
+        id: StartButton
+        index:0
+        canvas.before:
+            Color:
+                rgb: 0.7,0.7,0.7
+            Rectangle:
+                size: 100,100
+        on_release: root.start()
 
     Widget:
         id: SidePanelWidget
+        index:0
         canvas.before:
             Color:
                 rgb: 0.7,0.7,0.7
             Rectangle:
                 size: root.width*0.1, root.height
+
+        MenuButton:
+            id: MenuButton_BuildMainBase
+            text: "MainBaseBuild" if not self.selected else "ADD mode ON"
+            pos: SidePanelWidget.width * 0.003,SidePanelWidget.height * 0.7
+            size: SidePanelWidget.width*0.045,SidePanelWidget.height *0.08
+            on_release: root.add_building("MainBase")
+            disabled: False
+
+        MenuButton:
+            id: MenuButton_BuildRafinery
+            text: "Rafinery" if not self.selected else "ADD mode ON"
+            pos: SidePanelWidget.width * 0.05,SidePanelWidget.height * 0.7
+            size: SidePanelWidget.width*0.045,SidePanelWidget.height *0.08
+            on_release: root.add_building("Rafinery")
+            disabled: True
+        MenuButton:
+            id: MenuButton_BuildPowerPlant
+            text: "PowerPlant" if not self.selected else "ADD mode ON"
+            pos: SidePanelWidget.width * 0.003,SidePanelWidget.height * 0.6185
+            size: SidePanelWidget.width*0.045,SidePanelWidget.height *0.08
+            on_release: root.add_building("PowerPlant")
+            disabled: True
+        MenuButton:
+            id: MenuButton_BuildWarFactory
+            text: "WarFactory" if not self.selected else "ADD mode ON"
+            pos: SidePanelWidget.width * 0.05,SidePanelWidget.height * 0.6185
+            size: SidePanelWidget.width*0.045,SidePanelWidget.height *0.08
+            on_release: root.add_building("WarFactory")
+            disabled: True
+
+
+
+# Debug buttons
+
+
+        # Save map
         MenuButton:
             id: MenuButton_AddSelect
             text: "SEL/MOV mode ON" if not self.selected else "ADD mode ON"
-            pos: SidePanelWidget.width * 0.01,SidePanelWidget.height * 0.8
-            size: 150,150
-#            on_release: root.menu_button_click(self)
+            pos: SidePanelWidget.width * 0.00,SidePanelWidget.height * 0.0
+            size: SidePanelWidget.width * 0.1,SidePanelWidget.height *0.08
+            disabled: False
 
 
 

@@ -10,6 +10,7 @@ SCROLL_SPEED = 60  # Scroll speed must be power of 2
 
 
 class MainMapPicture(Scatter):
+
     source = StringProperty()
     draw_mode = StringProperty()
     shiftXCounter = 0
@@ -21,7 +22,7 @@ class MainMapPicture(Scatter):
                 self.shiftXCounter -= SCROLL_SPEED
                 return SCROLL_SPEED
         elif mouseX > screenWidth - 3:
-            if self.shiftXCounter + self.width*0.9 < self.children[0].size[0]:
+            if self.shiftXCounter + self.width * 0.9< self.children[0].size[0]:
                 self.right -= SCROLL_SPEED
                 self.shiftXCounter += SCROLL_SPEED
                 return -SCROLL_SPEED

@@ -6,14 +6,15 @@ from MenuButton import MenuButton
 from kivy.app import App
 import MarsPathfinder_setup
 
-from  Uran import Uran
 from Storage import Storage
+from  GameUnit import GameUnit
 import math
 
 
-class UranMiner(Button):
-    def __init__(self):
-        super(UranMiner, self).__init__()
+class UranMiner(GameUnit):
+    selected = BooleanProperty(False)
+    def __init__(self,root,unitType,side,player):
+        super(UranMiner, self).__init__(root,unitType,side,player)
         self.root = ""
         self.speed = 1
         self.matrixObjectSize = 1
@@ -25,11 +26,12 @@ class UranMiner(Button):
         self.moveX = 0
         self.moveY = 0
 
+        self.autoMode = True
         self.motherRafinery = []
         self.wait = 0
         self.buildCost = 0
         self.side = "Friend"
-        self.health = 100
+        self.health = 350
         self.shotDistance = 5
         self.firePower = 10
         self.reloadTime = 30
@@ -42,30 +44,32 @@ class UranMiner(Button):
         self.closestUranSpot = []
 
     def on_release(self):
-        print(self.matrixPosition,self.pos,self.root.gameMapMatrix[self.matrixPosition[0]][self.matrixPosition[1]],"Uran miner")
+        if self.side == "Friend":
+            self.selected = True
+            self.root.movableObjects.append(self)
 
     def mineUran(self):
         if self.closestUranSpot == []:
-            print("Szukam uranu")
             if self.working == False:
                 uranSpots = []
-                for object in self.root.children:
-                    if isinstance(object,Uran):
-                        uranSpots.append(object)
+                for object in self.root.urans:
+                    uranSpots.append(object)
                 if uranSpots and len(uranSpots) > 1:
                     closestUran = uranSpots.pop(0)
                     for uran in uranSpots:
-                        if math.dist(self.matrixPosition,closestUran.matrixPosition) > math.dist(self.matrixPosition,uran.matrixPosition):
+                        if math.dist(self.matrixPosition,closestUran.matrixPosition) > math.dist(self.matrixPosition,uran.matrixPosition) and self.root.gameMapMatrix[uran.matrixPosition[0]][uran.matrixPosition[1]][-1] != "uranMiner":
                             closestUran = uran
-                    print(closestUran.matrixPosition,"Closest uran")
                     self.closestUranSpot = closestUran
+                    self.root.gameMapMatrix[closestUran.matrixPosition[0]][closestUran.matrixPosition[1]].append("uranMiner")
                     self.go_to_uran()
                     return closestUran
                 else:
-                    closestUran = uranSpots[0]
-                    self.closestUranSpot = closestUran
-                    self.go_to_uran()
-                    print(self.closestUranSpot)
+                    try:
+                        closestUran = uranSpots[0]
+                        self.closestUranSpot = closestUran
+                        self.go_to_uran()
+                    except:
+                        pass
                     return
 
             else:
@@ -75,28 +79,39 @@ class UranMiner(Button):
 
         elif self.matrixPosition == self.motherRafinery:
             self.deliver_uran_to_rafinery()
+        else:
+            for order in self.root.move_queue:
+                if order[0] == self and order[2] == None:
+                    self.deliver_uran_to_rafinery()
+
 
     def go_to_uran(self):
+        self.selected = False
         if self.closestUranSpot != []:
             if self.working == False:
                 self.root.orders_destinations.append([self, self.closestUranSpot.matrixPosition, "Move", self.closestUranSpot])
-
-
+                self.root.compute_orders_paths()
 
     def mine_uran(self):
-        print("Mine uran")
-        print(self.wait)
-        print(self.closestUranSpot)
         self.wait += 1
         if self.wait == 500:
             self.wait = 0
-            self.root.remove_widget(self.closestUranSpot)
+            try:
+                if self.root.gameMapMatrix[self.closestUranSpot.matrixPosition[0]][self.closestUranSpot.matrixPosition[1]][-1] == "uranMiner":
+                    self.root.gameMapMatrix[self.closestUranSpot.matrixPosition[0]][self.closestUranSpot.matrixPosition[1]].pop(-1)
+                    self.root.urans.remove(self.closestUranSpot)
+                    self.root.onMapObjectsToShift.remove(self.closestUranSpot)
+                    self.root.remove_widget(self.closestUranSpot)
+            except:
+                pass
             self.root.orders_destinations.append([self, self.motherRafinery, "Move",self.motherRafinery])
-
+            self.root.compute_orders_paths()
 
     def deliver_uran_to_rafinery(self):
-        print("Deliver to rafinery")
         self.wait += 1
+        self.root.humanPlayer.money += 1
         if self.wait == 500:
             self.wait = 0
             self.closestUranSpot = []
+            self.working = False
+

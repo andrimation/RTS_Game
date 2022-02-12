@@ -63,6 +63,18 @@ def find_Closesd_Free(gameMatrix,endPosition):
     random.shuffle(results)
     return results[0]
 
+def find_Closesd_Free_NoRandom(gameMatrix,endPosition):
+    results = []
+    n = 15
+    while len(results) < 30:
+        for x in range(-n,n):
+            for y in range(-n,n):
+                if endPosition[0] + x >= 0 and endPosition[1] + y >= 0 and endPosition[0] + x < len(gameMatrix) and endPosition[1] + y < len(gameMatrix[0]):
+                    if gameMatrix[endPosition[0] + x][endPosition[1] + y] != "A":
+                        results.append([endPosition[0]+x,endPosition[1]+y])
+                        # print(gameMatrix[endPosition[0] + x][endPosition[1] + y])
+    results.sort(key= lambda x: abs(x[0]-endPosition[0])+abs(x[1]-endPosition[1]))
+    return results[0]
 
 
 

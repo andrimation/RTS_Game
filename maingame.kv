@@ -6,6 +6,8 @@
 #: include building.kv
 #: include uran.kv
 #: include uranminer.kv
+#: include selectbox.kv
+#: include minimap.kv
 
 <MainWindow>:
     id: MainWindow
@@ -51,7 +53,7 @@
             text: "MainBaseBuild" if not self.selected else "ADD mode ON"
             pos: SidePanelWidget.width * 0.003,SidePanelWidget.height * 0.7
             size: SidePanelWidget.width*0.045,SidePanelWidget.height *0.08
-            on_release: root.add_building("MainBase")
+            on_release: root.add_building("MainBase","Friend")
             disabled: False
 
         MenuButton:
@@ -59,21 +61,43 @@
             text: "Rafinery" if not self.selected else "ADD mode ON"
             pos: SidePanelWidget.width * 0.05,SidePanelWidget.height * 0.7
             size: SidePanelWidget.width*0.045,SidePanelWidget.height *0.08
-            on_release: root.add_building("Rafinery")
+            on_release: root.add_building("Rafinery","Friend")
             disabled: True
         MenuButton:
             id: MenuButton_BuildPowerPlant
             text: "PowerPlant" if not self.selected else "ADD mode ON"
             pos: SidePanelWidget.width * 0.003,SidePanelWidget.height * 0.6185
             size: SidePanelWidget.width*0.045,SidePanelWidget.height *0.08
-            on_release: root.add_building("PowerPlant")
+            on_release: root.add_building("PowerPlant","Friend")
             disabled: True
         MenuButton:
             id: MenuButton_BuildWarFactory
             text: "WarFactory" if not self.selected else "ADD mode ON"
             pos: SidePanelWidget.width * 0.05,SidePanelWidget.height * 0.6185
             size: SidePanelWidget.width*0.045,SidePanelWidget.height *0.08
-            on_release: root.add_building("WarFactory")
+            on_release: root.add_building("WarFactory","Friend")
+            disabled: True
+        # Odstępy miedzy buttonami - 0.0815
+        MenuButton:
+            id: MenuButton_BuildDefenceTower
+            text: "Defence Tower" if not self.selected else "ADD mode ON"
+            pos: SidePanelWidget.width * 0.003,SidePanelWidget.height * 0.537
+            size: SidePanelWidget.width*0.045,SidePanelWidget.height *0.08
+            on_release: root.add_building("DefenceTower","Friend")
+            disabled: True
+        MenuButton:
+            id: MenuButton_BuildTank
+            text: "Tank" if not self.selected else "ADD mode ON"
+            pos: SidePanelWidget.width * 0.003,SidePanelWidget.height * 0.4
+            size: SidePanelWidget.width*0.045,SidePanelWidget.height *0.08
+            on_release: root.build_Unit("Tank","Friend")
+            disabled: True
+        MenuButton:
+            id: MenuButton_BuildRocketLauncher
+            text: "RocketLauncher" if not self.selected else "ADD mode ON"
+            pos: SidePanelWidget.width * 0.05,SidePanelWidget.height * 0.4
+            size: SidePanelWidget.width*0.045,SidePanelWidget.height *0.08
+            on_release: root.build_Unit("RocketLauncher","Friend")
             disabled: True
 
 

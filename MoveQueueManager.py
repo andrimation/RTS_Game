@@ -15,8 +15,8 @@ class MoveQueueManager():
             if usedCoords.count(matrixDestination) > 1:
                 matrixDestination = MarsPathfinder_setup.find_Closesd_Free(self.root.numpyMapMatrix, order_destination[1])
             try:
-                computePath = MarsPathfinder_setup.marsPathfinder(unitInMove.matrixPosition, matrixDestination,self.root.numpyMapMatrix)
-                current_order = [unitInMove, matrixDestination, computePath, moveType, moveTarget, ""]
+                computePath = MarsPathfinder_setup.marsPathfinder(unitInMove.matrixPosition,[order_destination[1][0], order_destination[1][1]],self.root.numpyMapMatrix)
+                current_order = [unitInMove,(order_destination[1][0], order_destination[1][1]), computePath, moveType, moveTarget, ""]
                 unitInMove.moveEndPosition = computePath[-1]
             except:
                 # self.orders_destinations.remove(order_destination)  # To mogę usunąć, to jednostki będą ruszać nawet jeśli jch jest wiele w jednym miejscu.
@@ -47,7 +47,7 @@ class MoveQueueManager():
 
         # Execute move queue
         for order in self.root.move_queue:
-            unitInMove, matrixDestination, matrixPath, moveType, moveTarget = order[0], order[1], order[2], order[3],order[4]
+            unitInMove, matrixDestination,matrixPath,moveType,moveTarget,wtf = order
             if refreshMinimap:
                 unitInMove.updade_minimapPos()
             if moveType == "Move":
@@ -63,8 +63,8 @@ class MoveQueueManager():
                     newPosition = matrixPath[0]
                     if self.root.gameMapMatrix[newPosition[0]][newPosition[1]][2] == True:
                         self.root.updateGameMatrix()
-                        computePath = MarsPathfinder_setup.marsPathfinder(unitInMove.matrixPosition,matrixPath[-1],self.root.numpyMapMatrix)
-                        matrixPath = computePath
+                        computePath = MarsPathfinder_setup.marsPathfinder(unitInMove.matrixPosition,[order[2][-1][0], order[2][-1][1]],self.root.numpyMapMatrix)
+                        order[2] = computePath
                         continue
 
                     if currentPosition[1] < newPosition[1]:
@@ -103,7 +103,8 @@ class MoveQueueManager():
                 pass
         # Remove object from move queue if order finished
         for order in self.root.move_queue:
-            if matrixDestination == unitInMove.matrixPosition or matrixPath == []:
+            if order[1] == unitInMove.matrixPosition or order[2] == []:
+
                 try:
                     self.root.move_queue.remove(order)
                 except:

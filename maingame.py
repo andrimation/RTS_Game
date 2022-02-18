@@ -51,6 +51,7 @@ class MainWindow(FloatLayout):
         self.humanPlayer = HumanPlayer(self)
         self.computerPlayer = ComputerPlayer(self)
         self.computerPlayerEnabled = False
+        self.moveQueueManager = MoveQueueManager(self)
 
         Window.fullscreen = 'auto'
 
@@ -345,78 +346,8 @@ class MainWindow(FloatLayout):
                 self.remove_widget(bullet)
 
     def move_queue_execute(self):
-        # Avoid updating minimap in every step
-        self.miniMapCounter += 1
-        refreshMinimap = False
-        if self.miniMapCounter == 30:
-            refreshMinimap = True
-            self.miniMapCounter = 0
-
-        # Execute move queue
-        for order in self.move_queue:
-            object, matrix = order[0], order[1]
-            if refreshMinimap:
-                object.updade_minimapPos()
-            if order[3] == "Move":
-                object.attack = False
-                object.target = []
-
-            if order[2]  and  object.moveX == 0 and object.moveY == 0:
-                try:
-                    currentPosition = order[2].pop(0)
-                except:
-                    continue
-                if order[2]:
-                    newPosition     = order[2][0]
-                    if self.gameMapMatrix[newPosition[0]][newPosition[1]][2] == True:
-                        self.updateGameMatrix()
-                        computePath = MarsPathfinder_setup.marsPathfinder(object.matrixPosition, [order[2][-1][0], order[2][-1][1]],self.numpyMapMatrix)
-                        order[2] = computePath
-                        continue
-
-                    if currentPosition[1] < newPosition[1]:
-                        object.moveX = 60
-                    if currentPosition[1] > newPosition[1]:
-                        object.moveX = -60
-                    if currentPosition[0] < newPosition[0]:
-                        object.moveY = -60
-                    if currentPosition[0] > newPosition[0]:
-                        object.moveY = 60
-                    try:
-                        self.gameMapMatrix[currentPosition[0]][currentPosition[1]][2] = None
-                        object.matrixPosition = newPosition
-                        self.gameMapMatrix[object.matrixPosition[0]][object.matrixPosition[1]][2] = True
-                    except:
-                        pass
-                else:
-                    object.matrixPosition = currentPosition
-
-            if object.moveX > 0:
-                object.x += 2
-                object.moveX -= 2
-            elif object.moveX < 0:
-                object.x -= 2
-                object.moveX += 2
-            else:
-                pass
-
-            if object.moveY > 0:
-                object.y += 2
-                object.moveY -= 2
-            elif object.moveY < 0:
-                object.y -= 2
-                object.moveY += 2
-            else:
-                pass
-        # Remove object from move queue if order finished
-        for order in self.move_queue:
-            if order[1] == object.matrixPosition or order[2] == []:
-
-                try:
-                    self.move_queue.remove(order)
-                except:
-                    pass
-
+        self.moveQueueManager.execute_units_movement()
+        
 
     def make_attack(self):
         for order in self.move_queue:
@@ -474,35 +405,8 @@ class MainWindow(FloatLayout):
         return pos_X, pos_Y, bigMatrixY, bigMatrixX
 
     def compute_orders_paths(self):
-        usedCoords = []
-        for destination in self.orders_destinations:
-            usedCoords.append(destination[1])
+        self.moveQueueManager.compute_paths_for_orders()
 
-        for order_destination in self.orders_destinations:
-            if usedCoords.count(order_destination[1]) > 1:
-                order_destination[1] = MarsPathfinder_setup.find_Closesd_Free(self.numpyMapMatrix,order_destination[1])
-            try:
-                computePath = MarsPathfinder_setup.marsPathfinder(order_destination[0].matrixPosition, [order_destination[1][0], order_destination[1][1]],self.numpyMapMatrix)
-                current_order = [order_destination[0], (order_destination[1][0], order_destination[1][1]), computePath,order_destination[2],order_destination[3],""]
-                order_destination[0].moveEndPosition = computePath[-1]
-            except:
-                computePath = None
-                # self.orders_destinations.remove(order_destination)  # To mogę usunąć, to jednostki będą ruszać nawet jeśli jch jest wiele w jednym miejscu.
-                self.updateGameMatrix()
-                continue
-            if computePath != None:
-                self.orders_destinations.remove(order_destination)
-                # Remove old order if object got new during old
-                for order in self.move_queue:
-                    try:
-                        if order[0] == current_order[0]:
-                            self.move_queue.remove(order)
-                    except:
-                        pass
-                try:
-                    self.move_queue.append(current_order)
-                except:
-                    pass
 
     # Funkcja czyści wszystkie pending rozkazy i dodaje zje znów do orders destinations.
     def recomupute_all_orders(self):

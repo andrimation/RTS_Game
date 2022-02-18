@@ -39,7 +39,7 @@ def convertMap(gameMatrix):
             else:
                 newLine.append("A")
         convertedMap.append(newLine)
-    return numpy.char.array(convertedMap)
+    return convertedMap
 
 
 # Poprawić, żeby szukało najbliższego wolnego po spirali, nie w gwiazdkę
@@ -96,7 +96,10 @@ def marsPathfinder(startPosition,endPosition,mapMatrix):
     counter = 0
     while openList:
         counter += 1
-        openList.sort(key= lambda node: abs(node.x-endNode.x)+abs(node.y-endNode.y) + node.steps)
+        try:
+            openList.sort(key= lambda node: abs(node.x-endNode.x)+abs(node.y-endNode.y) + node.steps)
+        except:
+            pass
         currentNode = openList[0]
         if currentNode == endNode:
             currentNode.name = "end"

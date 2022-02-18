@@ -13,7 +13,8 @@ class Uran(Button):
         self.matrixPosition = []
         self.size_hint = (None,None)
         self.size = (60,60)
-
+        self.minimapUnit = None
+        self.minimapName = None
 
     moveX = 0
     moveY = 0
@@ -61,6 +62,13 @@ class Uran(Button):
         self.minimapUnit.pos = (zeroX + posX, zeroY + posY)
         self.root.minimapObject.add_widget(self.minimapUnit)
         self.root.ids["SidePanelWidget"].index = 0
+
+    def remove_minimap_widget(self):
+        self.root.minimapObject.remove_widget(self.minimapUnit)
+        del self.root.miniMapUnits[self.minimapName]
+        self.minimapName = None
+        self.minimapUnit = None
+
 
 
 

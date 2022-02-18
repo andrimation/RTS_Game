@@ -14,23 +14,23 @@ from Storage import Storage
 
 # Zrobić dla klasy budynków jak dla klasy pojazdów- że klasa building ma funkcję zwracającą obiekty pod-klasy - rafinery itp itd
 class Building(Button):
-    def __init__(self,side,player,originMatrix=[]):
+    def __init__(self,root,side,player,type,originMatrix=[],):
         super(Building,self).__init__()
-        self.buildingType = ""
+        self.buildingType = type
         self.buildMode = False
         self.HP = 0
-        self.originMatrix = originMatrix
         self.matrixPosition = []
+        self.originMatrix = originMatrix
         self.addCounter = 0
         self.wait = 0
         self.minimapUnit = None
         self.minimapName = None
 
-        self.root = ""
+        self.root = root
         self.selected = BooleanProperty(False)
         self.player = player
 
-        self.buildAndEnergyCosts = {"MainBase":(500,0),"Rafinery":(3000,-500),"PowerPlant":(1000,1500),"WarFactory":(1500,-500),"DefenceTower":(500,-250)}
+        self.buildAndEnergyCosts = {"MainBase":(500,0),"Rafinery":(1500,-500),"PowerPlant":(1000,1500),"WarFactory":(1500,-500),"DefenceTower":(500,-250)}
         self.side = side
         self.health = 100
         self.shotDistance = 5
@@ -42,83 +42,132 @@ class Building(Button):
         self.target = []
         self.active = True
 
+        self.size_hint = (None,None)
+
     def on_release(self):
-        self.root.ids["MenuButton_BuildMainBase"].disabled = True
-        self.root.ids["MenuButton_BuildRafinery"].disabled = False
-        self.root.ids["MenuButton_BuildPowerPlant"].disabled = False
-        self.root.ids["MenuButton_BuildWarFactory"].disabled = False
-        self.root.ids["MenuButton_BuildDefenceTower"].disabled = False
+        if self.side == "Friend":
+            self.root.ids["MenuButton_BuildMainBase"].disabled = True
+            self.root.ids["MenuButton_BuildRafinery"].disabled = False
+            self.root.ids["MenuButton_BuildPowerPlant"].disabled = False
+            self.root.ids["MenuButton_BuildWarFactory"].disabled = False
+            self.root.ids["MenuButton_BuildDefenceTower"].disabled = False
         if Storage.MenuButtonSelected == False:
             self.selected = not self.selected
 
         if self.buildMode == True:
             self.addCounter += 1
 
-
-# Zmniejszyć budynki skoro czołgi nie mogą za nie wjezdzac
-    def add_to_game(self,root,type):
-        self.root = root
-        if self.root.humanPlayer.money > self.buildAndEnergyCosts[type][0]:
-            if type == "MainBase":
-                self.buildingType = "MainBase"
-                self.size_hint = None, None
+    def add_to_game(self):
+        """Set building stats, depending on building type and add building on game map, adds building widget to game map"""
+        if self.player.money > self.buildAndEnergyCosts[self.buildingType][0]:
+            if self.buildingType == "MainBase":
                 self.size = (240,360)
                 self.matrixSize = [6,4]
                 self.buildMode = True
                 self.HP = 1500
-                self.root.add_widget(self,index=self.root.building_add_index)
-                self.root.buildingToAdd.append(self)
+                if self.side != "Enemy":
+                    self.root.add_widget(self, index=self.root.building_add_index)
+                    self.root.buildingToAdd.append(self)
                 self.root.ids["SidePanelWidget"].index = 0
+                self.player.MainBase = self
 
-            elif type == "Rafinery":
-                self.buildingType = "Rafinery"
-                self.size_hint = None, None
+            elif self.buildingType == "Rafinery":
                 self.size = (180, 240)
                 self.matrixSize = [4, 3]
                 self.buildMode = True
                 self.HP = 800
-                self.root.add_widget(self,canvas="before",index=self.root.building_add_index)
-                self.root.buildingToAdd.append(self)
+                if self.side != "Enemy":
+                    self.root.add_widget(self, canvas="before", index=self.root.building_add_index)
+                    self.root.buildingToAdd.append(self)
                 self.root.ids["SidePanelWidget"].index = 0
 
-            elif type == "PowerPlant":
-                self.buildingType = "PowerPlant"
-                self.size_hint = None, None
+            elif self.buildingType == "PowerPlant":
                 self.size = (180, 180)
                 self.matrixSize = [3, 3]
                 self.buildMode = True
                 self.HP = 800
-                self.root.add_widget(self,canvas="before",index=self.root.building_add_index)
-                self.root.buildingToAdd.append(self)
+                if self.side != "Enemy":
+                    self.root.add_widget(self, canvas="before", index=self.root.building_add_index)
+                    self.root.buildingToAdd.append(self)
                 self.root.ids["SidePanelWidget"].index = 0
 
-            elif type == "WarFactory":
-                self.buildingType = "WarFactory"
-                self.size_hint = None, None
-                self.size = (180, 240)
-                self.matrixSize = [4, 3]
-                self.buildMode = True
-                self.HP = 700
-                self.root.add_widget(self,canvas="before",index=self.root.building_add_index)
-                self.root.buildingToAdd.append(self)
-                self.root.ids["SidePanelWidget"].index = 0
-                self.root.ids["MenuButton_BuildTank"].disabled = False
-                self.root.ids["MenuButton_BuildRocketLauncher"].disabled = False
+            elif self.buildingType == "WarFactory":
+                if self.player.WarFactory == None:
+                    self.size = (180, 240)
+                    self.matrixSize = [4, 3]
+                    self.buildMode = True
+                    self.HP = 700
+                    if self.side != "Enemy":
+                        self.root.add_widget(self, canvas="before", index=self.root.building_add_index)
+                        self.root.buildingToAdd.append(self)
+                        self.root.ids["SidePanelWidget"].index = 0
+                        self.root.ids["MenuButton_BuildTank"].disabled = False
+                        self.root.ids["MenuButton_BuildRocketLauncher"].disabled = False
+                    self.player.WarFactory = self
+                else:
+                    return self
 
-            elif type == "DefenceTower":
-                self.buildingType = "WarFactory"
-                self.size_hint = None, None
+            elif self.buildingType == "DefenceTower":
+                self.buildingType = "DefenceTower"
                 self.size = (60, 120)
                 self.matrixSize = [2, 1]
                 self.buildMode = True
                 self.HP = 400
-                self.root.add_widget(self, canvas="before", index=self.root.building_add_index)
-                self.root.buildingToAdd.append(self)
+                if self.side != "Enemy":
+                    self.root.add_widget(self, canvas="before", index=self.root.building_add_index)
+                    self.root.buildingToAdd.append(self)
                 self.root.ids["SidePanelWidget"].index = 0
-            self.root.humanPlayer.money -= self.buildAndEnergyCosts[type][0]
-            self.root.humanPlayer.aviableEnergy += self.buildAndEnergyCosts[type][1]
+
+            self.root.humanPlayer.money -= self.buildAndEnergyCosts[self.buildingType][0]
+            self.root.humanPlayer.update_money()
+            self.root.humanPlayer.aviableEnergy += self.buildAndEnergyCosts[self.buildingType][1]
+            return self
+
+    def move_building_widget_along_cursor(self):
+        mouseX = (((Window.mouse_pos[0] - Window.size[0] * 0.1) // 60)) * 60
+        mouseY = (Window.mouse_pos[1] // 60) * 60
+        matrixY, matrixX = int((len(self.root.gameMapMatrix) - 1) - (mouseY // 60)), int(mouseX // 60)
+
+        if Window.mouse_pos[0] >= Window.size[0] * 0.1 + 60:
+            self.x = mouseX + Window.size[0] * 0.1
+            self.y = mouseY
+        else:
+            self.pos[0] = Window.size[0] * 0.1
+            self.pos[1] = mouseY
+
+        if self.top > Window.size[1]:
+            self.top = Window.size[1]
+
+        if self.addCounter == 1:
+            matrixY, matrixX = self.root.compute_mouse_position(self.x - Window.size[0] * 0.1, self.y,"building")
+            matrixY -= 1
+
+            if self.build_position_possible(matrixY, matrixX):
+                self.mark_position_as_used()
+                self.originMatrix = [matrixY, matrixX]
+                self.buildMode = False
+                self.add_on_minimap()
+                if self.buildingType == "Rafinery":
+                    self.add_uranMiner()
+                self.root.onMapObjectsToShift.append(self)
+                self.root.buildings.append(self)
+                self.root.buildingToAdd = []
+                self.root.recomupute_all_orders()
+                pass
+
+    def build_position_possible(self,matrixY,matrixX):
+        """Checking if all fields for build are free"""
+        for y in range(self.matrixSize[0]):
+            for x in range(self.matrixSize[1]):
+                self.matrixPosition.append([matrixY - y, matrixX + x])
+                if self.root.numpyMapMatrix[matrixY - y][matrixX + x] == "A":
+                    self.matrixPosition = []
+                    self.addCounter = 0
+                    return False
+        return True
 
     def compute_minimapXY(self):
+        """Returns building position on minimap"""
         imageX, imageY = self.root.ids["MainMapPicture"].ids["main_map_image"].size
         zeroX, zeroY = ((Window.size[0] * 0.1) * 0.025, self.root.ids["SidePanelWidget"].height * 0.83)
         posX = int((self.originMatrix[1] * ((Window.size[0] * 0.1) * 0.95)) / len(self.root.gameMapMatrix[0]))
@@ -129,6 +178,7 @@ class Building(Button):
 
     # Pamiętać aby usuwając budynek usuwać również obiekt minimapy - z widgetów i ze słownika obiektów minimap
     def add_on_minimap(self):
+        """Adds widget representing building to minimap"""
         self.minimapUnit = Image()
         zeroX,zeroY,posX,posY,sizeX,sizeY = self.compute_minimapXY()
         self.minimapName = str(self) + "Mini"
@@ -142,6 +192,7 @@ class Building(Button):
 
     # Rafinery only
     def add_uranMiner(self):
+        """Add uranMiner next to rafinery - need separate invoke when building matrix position is known"""
         self.matrixPosition.sort(key= lambda x: x[0])
         freePlace = [self.matrixPosition[0][0]+self.matrixSize[0],self.matrixPosition[0][1]]
         uranMiner = UranMiner(self.root,"UranMiner",self.side,self.player)
@@ -156,7 +207,14 @@ class Building(Button):
         self.root.add_widget(uranMiner,canvas="after",index=self.root.obj_add_index)
         self.root.updateGameMatrix()
 
+    def mark_position_as_used(self):
+        """Sets all matrix fields under building as used"""
+        for position in self.matrixPosition:
+            self.root.gameMapMatrix[position[0]][position[1]][2] = True
+
 
     def on_press(self):
         print(self.pos,"Building pos")
         print(self.matrixPosition,"Building matrix")
+
+

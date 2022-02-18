@@ -48,6 +48,32 @@
             Rectangle:
                 size: root.width*0.1, root.height
 
+
+        Label:
+            id: Dollars
+            text: "$$$"
+            pos: SidePanelWidget.width * 0.001,SidePanelWidget.height * 0.765
+            size: SidePanelWidget.width*0.045,SidePanelWidget.height *0.08
+
+        Label:
+            id: Money_label
+            text: self.text
+            pos: SidePanelWidget.width * 0.05,SidePanelWidget.height * 0.765
+            size: SidePanelWidget.width*0.045,SidePanelWidget.height *0.08
+
+        Label:
+            id: Money_labelComp
+            text: self.text
+            pos: SidePanelWidget.width * 0.05,SidePanelWidget.height * 0.2
+            size: SidePanelWidget.width*0.045,SidePanelWidget.height *0.1
+        Label:
+            id: Energy_labelComp
+            text: self.text
+            pos: SidePanelWidget.width * 0.05,SidePanelWidget.height * 0.15
+            size: SidePanelWidget.width*0.045,SidePanelWidget.height *0.1
+
+
+
         MenuButton:
             id: MenuButton_BuildMainBase
             text: "MainBaseBuild" if not self.selected else "ADD mode ON"
@@ -80,7 +106,7 @@
         # Odstępy miedzy buttonami - 0.0815
         MenuButton:
             id: MenuButton_BuildDefenceTower
-            text: "Defence Tower" if not self.selected else "ADD mode ON"
+            text: "Defence_Tower" if not self.selected else "ADD mode ON"
             pos: SidePanelWidget.width * 0.003,SidePanelWidget.height * 0.537
             size: SidePanelWidget.width*0.045,SidePanelWidget.height *0.08
             on_release: root.add_building("DefenceTower","Friend")

@@ -5,6 +5,7 @@ from kivy.properties import BooleanProperty
 from MenuButton import MenuButton
 from kivy.core.window import Window
 from kivy.app import App
+from kivy.uix.label import Label
 
 import MarsPathfinder_setup
 import math
@@ -20,9 +21,12 @@ class GameUnit(Button):
         self.speed = 10
         self.matrixObjectSize = 1
         self.matrixPosition = []
+        self.moveType =    None
+        self.matrixPath      = []
         self.moveEndPosition = []
         self.unitType = unitType
         self.minimapUnit = None
+        self.minimapName = None
 
         self.moveX = 0
         self.moveY = 0
@@ -50,13 +54,17 @@ class GameUnit(Button):
     def on_release(self):
         if self.side == "Friend":
             self.selected = not self.selected
+            testW = Label()
+            testW.text = "KKKKKKKKKK"
+            testW.pos = self.pos
+            self.root.add_widget(testW,0)
         else:
             self.root.click_on_map("Attack",self)
             self.selected = not self.selected
 
     def build_unit_in_factory(self):
         for building in self.root.buildings:
-            if building.buildingType == "WarFactory" and building.side == self.side:
+            if building.buildingType == "WarFactory" and building.player == self.player:
                 self.root.updateGameMatrix()
                 origin = building.matrixPosition[0]
                 self.matrixPosition = MarsPathfinder_setup.find_Closesd_Free_NoRandom(self.root.numpyMapMatrix,origin)
@@ -64,7 +72,7 @@ class GameUnit(Button):
                 posY = self.root.gameMapMatrix[self.matrixPosition[0]][self.matrixPosition[1]][1]+self.root.positionY
                 self.pos = (posX,posY)
                 self.add_on_minimap()
-                self.root.humanPlayer.money -= self.buildCost
+                self.root.update_money()
                 self.root.movableObjects.append(self)
                 self.root.gameMapMatrix[self.matrixPosition[0]][self.matrixPosition[1]][2] = True
                 self.root.add_widget(self, self.root.obj_add_index)
@@ -73,8 +81,7 @@ class GameUnit(Button):
                 self.root.ids["SidePanelWidget"].index = 0
 
     def add_unit_to_build_queue(self):
-        if self.player.money >= self.buildCost:
-            self.player.buildUnitsQueue.append(self)
+        self.player.buildUnitsQueue.append(self)
 
     def compute_minimapXY(self):
         imageX, imageY = self.root.ids["MainMapPicture"].ids["main_map_image"].size
@@ -86,7 +93,7 @@ class GameUnit(Button):
     def add_on_minimap(self):
         self.minimapUnit = Image()
         zeroX,zeroY,posX,posY = self.compute_minimapXY()
-        self.root.miniMapUnits[str(self)+"Mini"] = self.minimapUnit
+        self.root.miniMapUnits[self.minimapName] = self.minimapUnit
         self.minimapUnit.size_hint = (None,None)
         self.minimapUnit.size = (2,2)
         self.minimapUnit.pos = (zeroX + posX, zeroY + posY)
@@ -94,11 +101,23 @@ class GameUnit(Button):
         self.root.ids["SidePanelWidget"].index = 0
 
     def updade_minimapPos(self):
-        miniobjectToUpdate =  self.root.miniMapUnits[str(self)+"Mini"]
-        zeroX,zeroY,posX,posY = self.compute_minimapXY()
-        self.minimapUnit.pos = (zeroX + posX, zeroY + posY)
-        self.root.miniMapUnits[str(self) + "Mini"] = miniobjectToUpdate
-        self.root.ids["SidePanelWidget"].index = 0
+        try:
+            miniobjectToUpdate =  self.root.miniMapUnits[self.minimapName]
+            zeroX,zeroY,posX,posY = self.compute_minimapXY()
+            self.minimapUnit.pos = (zeroX + posX, zeroY + posY)
+            self.root.miniMapUnits[str(self) + "Mini"] = miniobjectToUpdate
+            self.root.ids["SidePanelWidget"].index = 0
+        except:
+            pass
+
+    def remove_minimap_widget(self):
+        try:
+            self.root.minimapObject.remove_widget(self.minimapUnit)
+            del self.root.miniMapUnits[self.minimapName]
+            self.minimapName = None
+            self.minimapUnit = None
+        except:
+            pass
 
 
 class Tank(GameUnit):
@@ -106,7 +125,7 @@ class Tank(GameUnit):
         super(Tank,self).__init__(root,unitType,side,player)
 
         self.buildCost = 250
-        self.buildTime = 100
+        self.buildTime = 10
         self.speed = 1
 
         self.size_hint = (None,None)
@@ -133,11 +152,19 @@ class RocketLauncher(GameUnit):
 
 class Bullet(Button):
 
+
     root = ""
     selected = BooleanProperty(False)
     speed = 400
     matrixPosition = []
     go = False
+
+    targetMatrix = 0
+    absoluteBulletStartX = 0
+
+    absoluteTargetX = 0
+    absoluteTargetY = 0
+
 
     moveX = 0
     moveY = 0

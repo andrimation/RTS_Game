@@ -23,6 +23,7 @@ from Uran import Uran
 from SelectBox import SelectBox
 from kivy.config import Config
 from kivy.input.motionevent import MotionEvent
+from MoveQueueManager import MoveQueueManager
 from UranMiner import UranMiner
 from miniMap import miniMap
 # Others
@@ -49,6 +50,8 @@ class MainWindow(FloatLayout):
         self.miniMap = None
         self.humanPlayer = HumanPlayer(self)
         self.computerPlayer = ComputerPlayer(self)
+        self.computerPlayerEnabled = False
+
         Window.fullscreen = 'auto'
 
         self.building_add_index = 1
@@ -97,6 +100,8 @@ class MainWindow(FloatLayout):
         self.positionX = Window.size[0] * 0.1
         self.create_minimap()
         self.add_uran()
+        self.update_money()
+        self.computerPlayerEnabled = True
 
 
     def create_minimap(self):
@@ -168,9 +173,10 @@ class MainWindow(FloatLayout):
         for line in self.gameMapMatrix:
             newLine = []
             for point in line:
-                newLine.append("")
+                newLine.append(" ")
             convertedMap.append(newLine)
-        self.numpyMapMatrix = numpy.char.array(convertedMap)
+        # self.numpyMapMatrix = numpy.char.array(convertedMap)
+        self.numpyMapMatrix = convertedMap
 
     def add_uran(self):
         uranOrigins = [[random.randint(0, len(self.gameMapMatrix) - 1),random.randint(0, len(self.gameMapMatrix[0]) - 1)] for x in range(10)]
@@ -212,6 +218,11 @@ class MainWindow(FloatLayout):
             except:
                 pass
 
+            # Move minimap
+            if self.miniMap != None:
+                self.miniMap.update_view_position(self.shiftX,self.shiftY)
+
+
             # Shift all objects on map     # Utworzyć osobne listy obiektów do shiftowania, a nie iterowac po wszystkim i robić dodatkowe ify
             for element in self.onMapObjectsToShift:
                 try:
@@ -250,11 +261,13 @@ class MainWindow(FloatLayout):
 
     def build_Unit(self,unitType,side):
         newUnit = GameUnit(self,unitType,side,self.humanPlayer).create_unit()
-        newUnit.add_unit_to_build_queue()
+        if self.humanPlayer.money >= newUnit.buildCost:
+            newUnit.add_unit_to_build_queue()
+            self.humanPlayer.money -= newUnit.buildCost
+            self.update_money()
 
     def build_queue_execute(self):
         self.humanPlayer.execute_build_queue()
-        self.computerPlayer.execute_build_queue()
 
 
     def make_bullet(self, startObject, endPos):
@@ -278,44 +291,16 @@ class MainWindow(FloatLayout):
 
     def add_building(self,*args):
         self.deselect_all_objects_on_map()
-        buildingAdd = Building(args[1],self.humanPlayer)
-        buildingAdd.add_to_game(self,args[0])
+        buildingAdd = Building(self,args[1],self.humanPlayer,args[0])
+        buildingAdd.add_to_game()
 
     def move_building_on_map(self):
         if self.buildingToAdd:
-            mouseX = (((Window.mouse_pos[0] - Window.size[0]*0.1)//60))*60
-            mouseY = (Window.mouse_pos[1] //60) * 60
-            matrixY, matrixX = int((len(self.gameMapMatrix) - 1) - (mouseY // 60)), int(mouseX // 60)
+            currentBuilding = self.buildingToAdd[0]
+            currentBuilding.move_building_widget_along_cursor()
 
-            if Window.mouse_pos[0] >= Window.size[0] * 0.1+60:
-                self.buildingToAdd[0].x = mouseX+Window.size[0] * 0.1
-                self.buildingToAdd[0].y = mouseY
-            else:
-                self.buildingToAdd[0].pos[0] = Window.size[0]*0.1
-                self.buildingToAdd[0].pos[1] = mouseY
-
-            if  self.buildingToAdd[0].top > Window.size[1]:
-                self.buildingToAdd[0].top = Window.size[1]
-
-            if  self.buildingToAdd[0].addCounter == 1:
-
-                matrixY,matrixX = self.compute_mouse_position(self.buildingToAdd[0].x-Window.size[0]*0.1,self.buildingToAdd[0].y,"building")
-                matrixY -= 1
-
-                for y in range(self.buildingToAdd[0].matrixSize[0]):
-                    for x in range(self.buildingToAdd[0].matrixSize[1]):
-                        self.buildingToAdd[0].matrixPosition.append([matrixY - y, matrixX + x])
-                        self.gameMapMatrix[matrixY-y][matrixX+x][2] = True
-                self.buildingToAdd[0].originMatrix = [matrixY,matrixX]
-                self.buildingToAdd[0].buildMode = False
-                self.buildingToAdd[0].add_on_minimap()
-                if self.buildingToAdd[0].buildingType == "Rafinery":
-                    self.buildingToAdd[0].add_uranMiner()
-                self.onMapObjectsToShift.append(self.buildingToAdd[0])
-                self.buildings.append(self.buildingToAdd[0])
-                self.buildingToAdd = []
-                self.recomupute_all_orders()
-                pass
+    def update_money(self):
+        self.ids["Money_label"].text = str(self.humanPlayer.money)
 
 
     def remove_assets(self):
@@ -468,7 +453,6 @@ class MainWindow(FloatLayout):
                         object.reloadCounter += 1
 
     def compute_mouse_position(self,*args):
-
         if args[-1] == "building":
             imageY = self.ids["MainMapPicture"].ids["main_map_image"].size[1]
             x, y = args[0],args[1]
@@ -486,6 +470,7 @@ class MainWindow(FloatLayout):
         # Cursor position in whole game matrix
         bigMatrixY = math.floor(abs((abs(self.positionY) + y) - imageY)//60)
         bigMatrixX = math.floor(x + abs(self.positionX-Window.size[0]*0.1))//60
+        print(bigMatrixY,bigMatrixX)
         return pos_X, pos_Y, bigMatrixY, bigMatrixX
 
     def compute_orders_paths(self):
@@ -594,6 +579,10 @@ class MainWindow(FloatLayout):
             elif isinstance(object, Building):
                 for smallPos in object.matrixPosition:
                     positions.append(smallPos)
+
+        # self.convertMapNumpy()
+        # for pos in positions:
+        #     self.numpyMapMatrix[pos[0]][pos[1]] = "A"
         for x in range(len(self.gameMapMatrix)-1):
             for y in range(len(self.gameMapMatrix[0])-1):
                 if [x,y] in positions:
@@ -601,7 +590,7 @@ class MainWindow(FloatLayout):
                     self.numpyMapMatrix[x][y] = "A"
                 else:
                     self.gameMapMatrix[x][y][2] = None
-                    self.numpyMapMatrix[x][y]   = ""
+                    self.numpyMapMatrix[x][y]   = " "
 
     def manage_auto_units(self):
         # uran miner
@@ -631,11 +620,9 @@ class MainWindow(FloatLayout):
         self.manage_auto_units()
         # execute build queue
         self.build_queue_execute()
-        # self.counter += 1
-        # if self.counter == 10000:
-        #     gc.collect()
-        #     counter = 0
-        # pass
+        # Computer
+        if self.computerPlayerEnabled:
+            self.computerPlayer.execute_Computer_Play()
 
     pass
 

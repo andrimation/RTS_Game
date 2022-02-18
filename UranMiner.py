@@ -99,6 +99,7 @@ class UranMiner(GameUnit):
             try:
                 if self.root.gameMapMatrix[self.closestUranSpot.matrixPosition[0]][self.closestUranSpot.matrixPosition[1]][-1] == "uranMiner":
                     self.root.gameMapMatrix[self.closestUranSpot.matrixPosition[0]][self.closestUranSpot.matrixPosition[1]].pop(-1)
+                    self.closestUranSpot.remove_minimap_widget()
                     self.root.urans.remove(self.closestUranSpot)
                     self.root.onMapObjectsToShift.remove(self.closestUranSpot)
                     self.root.remove_widget(self.closestUranSpot)
@@ -109,7 +110,8 @@ class UranMiner(GameUnit):
 
     def deliver_uran_to_rafinery(self):
         self.wait += 1
-        self.root.humanPlayer.money += 1
+        self.player.money += 1
+        self.player.update_money()
         if self.wait == 500:
             self.wait = 0
             self.closestUranSpot = []

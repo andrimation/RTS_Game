@@ -24,6 +24,7 @@ from SelectBox import SelectBox
 from kivy.config import Config
 from kivy.input.motionevent import MotionEvent
 from MoveQueueManager import MoveQueueManager
+from MoveQueueManager2 import MoveQueueManager2
 from UranMiner import UranMiner
 from miniMap import miniMap
 # Others
@@ -53,6 +54,7 @@ class MainWindow(FloatLayout):
         self.computerPlayer = ComputerPlayer(self)
         self.computerPlayerEnabled = False
         self.moveQueueManager = MoveQueueManager(self)
+        self.MoveQueueManager2 = MoveQueueManager2(self)
 
         Window.fullscreen = 'auto'
 
@@ -194,7 +196,6 @@ class MainWindow(FloatLayout):
             convertedMap.append(newLine)
         self.numpyMapMatrix = numpy.array(convertedMap,dtype=object)
 
-
     def add_uran(self):
         uranOrigins = [[random.randint(0, len(self.gameMapMatrix) - 1),random.randint(0, len(self.gameMapMatrix[0]) - 1)] for x in range(10)]
         for position in uranOrigins:
@@ -260,19 +261,9 @@ class MainWindow(FloatLayout):
                     element.y += self.shiftY
                 except:
                     pass
+        # Tu usunąłem shiftowanie rozkazów - przez to były dziwne pozycje
 
-            #Shift orders
-            for order in self.move_queue:
-                coordX,coordY = order[1]
-                try:
-                    coordX += self.shiftX
-                except:
-                    pass
-                try:
-                    coordY += self.shiftY
-                except:
-                    pass
-                order[1] = (coordX, coordY)
+
 
     # Pamiętać żeby jak wcisnę jakiś guzik z dodawaniem czegokolwiek, to żeby odznaczac wszystkie jednostki !!! - albo w ogóle zatrzymać całą grę !
 
@@ -400,7 +391,7 @@ class MainWindow(FloatLayout):
         return pos_X, pos_Y, bigMatrixY, bigMatrixX
 
     def compute_orders_paths(self):
-        self.moveQueueManager.compute_paths_for_orders()
+        self.MoveQueueManager2.compute_orders_paths()
 
 
     # Funkcja czyści wszystkie pending rozkazy i dodaje zje znów do orders destinations.
@@ -440,31 +431,23 @@ class MainWindow(FloatLayout):
         for object in self.movableObjects:
             if  object.selected == True : #and object.side == "Friend":
                 selectedObjectsList.append(object)
-        usedCoords = []
+        # usedCoords = []
         if args[0] == "Attack":
             move = "Attack"
             target = args[1]
-            usedCoords.append([matrixX,matrixY])
+            # usedCoords.append([matrixX,matrixY])
         else:
             move = "Move"
             target = None
         if selectedObjectsList:
             for object in selectedObjectsList:
-                if [matrixX, matrixY] not in usedCoords:
-                    object.matrixDestination = [matrixX, matrixY]
-                    usedCoords.append([matrixX, matrixY])
-                else:
-                    try:
-                        convertedMap = MarsPathfinder_setup.convertMap(self.gameMapMatrix)
-                        convertedMap[matrixX][matrixY] = 0
-                        matrixX, matrixY = MarsPathfinder_setup.find_Closesd_Free(convertedMap, [matrixX, matrixY])
-                        usedCoords.append([matrixX, matrixY])
-                    except:
-                        pass
                 if move == "Move":
                     self.orders_destinations.append([object, [matrixX, matrixY],move,target,None])
                 elif move == "Attack":
                     self.orders_destinations.append([object, [matrixX, matrixY], move,target,list(target.matrixPosition.copy())])
+        for order in self.orders_destinations:
+            print(order)
+
 
     def update_positionX(self):
         self.positionX = Window.size[0] * 0.1
@@ -505,9 +488,9 @@ class MainWindow(FloatLayout):
         end = time.time()
         # print(end-start,"self.scroll_game_map()")
         # Compute paths for orders
-        start = time.time()
+        # start = time.time()
         self.compute_orders_paths()
-        end = time.time()
+        # end = time.time()
         result = end - start
         # if result > 0:
         #     print(end - start, "self.compute_orders_paths()")
@@ -562,7 +545,7 @@ class MainGameApp(App):
         mainwindow = MainWindow()
         mainwindow.create_map_matrix()
         mainwindow.convertMapNumpy()
-        Clock.schedule_interval(mainwindow.next_frame,0.008)
+        Clock.schedule_interval(mainwindow.next_frame,0.005)
         return mainwindow
 
 if __name__ == "__main__":

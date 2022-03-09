@@ -116,14 +116,14 @@
             text: "Tank" if not self.selected else "ADD mode ON"
             pos: SidePanelWidget.width * 0.003,SidePanelWidget.height * 0.4
             size: SidePanelWidget.width*0.045,SidePanelWidget.height *0.08
-            on_release: root.build_Unit("Tank","Friend")
+            on_release: root.build_HumanPlayerUnit("Tank","Friend")
             disabled: True
         MenuButton:
             id: MenuButton_BuildRocketLauncher
             text: "RocketLauncher" if not self.selected else "ADD mode ON"
             pos: SidePanelWidget.width * 0.05,SidePanelWidget.height * 0.4
             size: SidePanelWidget.width*0.045,SidePanelWidget.height *0.08
-            on_release: root.build_Unit("RocketLauncher","Friend")
+            on_release: root.build_HumanPlayerUnit("RocketLauncher","Friend")
             disabled: True
 
 

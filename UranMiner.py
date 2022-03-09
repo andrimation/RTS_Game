@@ -13,8 +13,8 @@ import math
 
 class UranMiner(GameUnit):
     selected = BooleanProperty(False)
-    def __init__(self,root,unitType,side,player):
-        super(UranMiner, self).__init__(root,unitType,side,player)
+    def __init__(self,root,unitType,side,player,combatTeam):
+        super(UranMiner, self).__init__(root,unitType,side,player,combatTeam)
         self.root = ""
         self.speed = 1
         self.matrixObjectSize = 1
@@ -89,7 +89,7 @@ class UranMiner(GameUnit):
         self.selected = False
         if self.closestUranSpot != []:
             if self.working == False:
-                self.root.orders_destinations.append([self, self.closestUranSpot.matrixPosition, "Move", self.closestUranSpot])
+                self.root.orders_destinations.append([self, self.closestUranSpot.matrixPosition, "Move", self.closestUranSpot,None])
                 self.root.compute_orders_paths()
 
     def mine_uran(self):
@@ -105,7 +105,7 @@ class UranMiner(GameUnit):
                     self.root.remove_widget(self.closestUranSpot)
             except:
                 pass
-            self.root.orders_destinations.append([self, self.motherRafinery, "Move",self.motherRafinery])
+            self.root.orders_destinations.append([self, self.motherRafinery, "Move",self.motherRafinery,None])
             self.root.compute_orders_paths()
 
     def deliver_uran_to_rafinery(self):

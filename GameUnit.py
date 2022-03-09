@@ -9,12 +9,13 @@ from kivy.uix.label import Label
 
 import MarsPathfinder_setup
 import math
+import random
 
 from Storage import Storage
 
 class GameUnit(Button):
     selected = BooleanProperty(False)
-    def __init__(self,root,unitType,side,player):
+    def __init__(self,root,unitType,side,player,combatTeam):
         super(GameUnit, self).__init__()
         self.root = root
         self.player = player
@@ -27,6 +28,8 @@ class GameUnit(Button):
         self.unitType = unitType
         self.minimapUnit = None
         self.minimapName = None
+        self.selected = False
+        self.combatTeam = combatTeam
 
         self.moveX = 0
         self.moveY = 0
@@ -44,41 +47,40 @@ class GameUnit(Button):
         self.startPos = []
         self.target = []
 
-
     def create_unit(self):
         if self.unitType == "Tank":
-            return Tank(self.root,self.unitType,self.side,self.player)
+            return Tank(self.root,self.unitType,self.side,self.player,self.combatTeam)
         elif self.unitType == "RocketLauncher":
-            return RocketLauncher(self.root,self.unitType,self.side,self.player)
+            return RocketLauncher(self.root,self.unitType,self.side,self.player,self.combatTeam)
+
+    def build_unit_in_factory(self):
+        currentWarFactory = self.player.WarFactory
+        self.root.updateGameMatrix()
+        origin = currentWarFactory.matrixPosition[0]
+        self.matrixPosition = MarsPathfinder_setup.find_Closesd_Free_NoRandom(self.root.numpyMapMatrix,origin)
+        posX = self.root.gameMapMatrix[self.matrixPosition[0]][self.matrixPosition[1]][0]+self.root.positionX
+        posY = self.root.gameMapMatrix[self.matrixPosition[0]][self.matrixPosition[1]][1]+self.root.positionY
+        self.pos = (posX,posY)
+        self.add_on_minimap()
+        self.root.update_money()
+        self.root.movableObjects.append(self)
+        self.root.numpyMapMatrix[self.matrixPosition[0]][self.matrixPosition[1]] = 1
+        self.root.obj_add_index += 1
+        self.root.add_widget(self,1)
+        self.player.units.append(self)
+
+        self.root.onMapObjectsToShift.append(self)
+        self.root.ids["SidePanelWidget"].index = 0
 
     def on_release(self):
         if self.side == "Friend":
             self.selected = not self.selected
-            testW = Label()
-            testW.text = "KKKKKKKKKK"
-            testW.pos = self.pos
-            self.root.add_widget(testW,0)
+            for unit in self.root.movableObjects:
+                if unit.combatTeam == self.combatTeam and unit.side == self.side:
+                    unit.selected = self.selected
         else:
             self.root.click_on_map("Attack",self)
-            self.selected = not self.selected
 
-    def build_unit_in_factory(self):
-        for building in self.root.buildings:
-            if building.buildingType == "WarFactory" and building.player == self.player:
-                self.root.updateGameMatrix()
-                origin = building.matrixPosition[0]
-                self.matrixPosition = MarsPathfinder_setup.find_Closesd_Free_NoRandom(self.root.numpyMapMatrix,origin)
-                posX = self.root.gameMapMatrix[self.matrixPosition[0]][self.matrixPosition[1]][0]+self.root.positionX
-                posY = self.root.gameMapMatrix[self.matrixPosition[0]][self.matrixPosition[1]][1]+self.root.positionY
-                self.pos = (posX,posY)
-                self.add_on_minimap()
-                self.root.update_money()
-                self.root.movableObjects.append(self)
-                self.root.gameMapMatrix[self.matrixPosition[0]][self.matrixPosition[1]][2] = True
-                self.root.add_widget(self, self.root.obj_add_index)
-                self.root.onMapObjectsToShift.append(self)
-                self.root.obj_add_index += 1
-                self.root.ids["SidePanelWidget"].index = 0
 
     def add_unit_to_build_queue(self):
         self.player.buildUnitsQueue.append(self)
@@ -110,7 +112,19 @@ class GameUnit(Button):
         except:
             pass
 
-    def remove_minimap_widget(self):
+    def remove_unit(self):
+        for order in self.root.orders_destinations:
+            if order[0] == self:
+                self.root.orders_destinations.remove(order)
+        for order in self.root.move_queue:
+            if order[0] == self:
+                self.root.move_queue.remove(order)
+
+        try:
+            self.player.units.remove(self)
+            self.root.remove_widget(self)
+        except:
+            pass
         try:
             self.root.minimapObject.remove_widget(self.minimapUnit)
             del self.root.miniMapUnits[self.minimapName]
@@ -119,10 +133,38 @@ class GameUnit(Button):
         except:
             pass
 
+    def find_attack_target(self):
+        if self.combatTeam in [4,3,2]:
+            if self.root.humanPlayer.units:
+                target = random.choice(self.root.humanPlayer.units)
+                return target
+            elif self.root.humanPlayer.buildings:
+                target = random.choice(self.root.humanPlayer.buildings)
+                return target
+        else:
+            if self.root.humanPlayer.buildings:
+                target = random.choice(self.root.humanPlayer.buildings)
+                return target
+            elif self.root.humanPlayer.units:
+                target = random.choice(self.root.humanPlayer.units)
+                return target
+
+    def attack_human(self):
+        if self.movingToTarget == False:
+            self.movingToTarget = True
+            print(self.movingToTarget)
+            # Chuj wie co tu się dzieje - po wybraniu jakiegoś obiektu na target, on zaczyna jakby znikać z matrixa i porusza się po całym polu ?!
+            for unit in self.root.humanPlayer.units:
+                self.root.updateGameMatrix()
+                if unit.matrixPosition != []:
+                    self.root.orders_destinations.append([self,unit.matrixPosition,"Attack",unit])
+
+
+
 
 class Tank(GameUnit):
-    def __init__(self,root,unitType,side,player):
-        super(Tank,self).__init__(root,unitType,side,player)
+    def __init__(self,root,unitType,side,player,combatTeam):
+        super(Tank,self).__init__(root,unitType,side,player,combatTeam)
 
         self.buildCost = 250
         self.buildTime = 10
@@ -134,8 +176,8 @@ class Tank(GameUnit):
 
 
 class RocketLauncher(GameUnit):
-    def __init__(self,root,unitType,side,player):
-        super(RocketLauncher, self).__init__(root,unitType,side,player)
+    def __init__(self,root,unitType,side,player,combatTeam):
+        super(RocketLauncher, self).__init__(root,unitType,side,player,combatTeam)
 
         self.buildCost = 2500
         self.buildTime = 300
@@ -150,43 +192,44 @@ class RocketLauncher(GameUnit):
 
 
 
-class Bullet(Button):
+class Bullet(GameUnit):
+    def __init__(self):
+        super(GameUnit, self).__init__()
+
+        self.root = ""
+        self.selected = BooleanProperty(False)
+        self.speed = 1500
+        self.matrixPosition = []
+        self.go = False
+
+        self.targetMatrix = 0
+        self.absoluteBulletStartX = 0
+
+        self.absoluteTargetX = 0
+        self.absoluteTargetY = 0
 
 
-    root = ""
-    selected = BooleanProperty(False)
-    speed = 400
-    matrixPosition = []
-    go = False
+        self.moveX = 0
+        self.moveY = 0
 
-    targetMatrix = 0
-    absoluteBulletStartX = 0
+        self.distanceToFly = 10
 
-    absoluteTargetX = 0
-    absoluteTargetY = 0
-
-
-    moveX = 0
-    moveY = 0
-
-    distanceToFly = 10
-
-    shotPower = 10
-    reloadTime = 30
-    reloadCounter = 0
-    startPos = []
-    target = []
-    source = []
+        self.shotPower = 10
+        self.reloadTime = 30
+        self.reloadCounter = 0
+        self.startPos = []
+        self.target = []
+        self.source = []
 
 
-    def on_release(self):
-        if self.side == "Friend":
-            if Storage.MenuButtonSelected == False:
-                self.selected = not self.selected
-                print(self.id,self.selected)
-
-        else:
-            self.root.click_on_map("Attack",self)
+    # def on_release(self):
+    #     if self.side == "Friend":
+    #         if Storage.MenuButtonSelected == False:
+    #             self.selected = not self.selected
+    #             print(self.id,self.selected)
+    #
+    #     else:
+    #         self.root.click_on_map("Attack",self)
 
 
 

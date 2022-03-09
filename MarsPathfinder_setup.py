@@ -35,10 +35,12 @@ def convertMap(gameMatrix):
                 newLine.append("")
             elif len(point) >= 4:
                 if point[3] == "Target":
-                    newLine.append("A")
+                    newLine.append(1)
             else:
-                newLine.append("A")
+                newLine.append(1)
         convertedMap.append(newLine)
+    convertedMap = numpy.array(convertedMap, dtype=object)
+    convertedMap = numpy.array(convertedMap)
     return convertedMap
 
 
@@ -46,18 +48,17 @@ def convertMap(gameMatrix):
 def find_Closesd_Free(gameMatrix,endPosition):
     results = []
     n = 5
-
-    while len(results) < 30:
+    while len(results) < 10:
         for x in range(-n,n):
-            q = random.choice([-1,1])
-            x *= q
+            # q = random.choice([-1,1])
+            # x *= q
             for y in range(-n,n):
-                q = random.choice([-1, 1])
-                y *= q
-                if endPosition[0] + x >= 0 and endPosition[1] + y >= 0 and endPosition[0] + x < len(gameMatrix) and endPosition[1] + y < len(gameMatrix[0]):
-                    if gameMatrix[endPosition[0] + x][endPosition[1] + y] != "A":
+                # q = random.choice([-1, 1])
+                # y *= q
+                if (endPosition[0] + x >= 0) and (endPosition[1] + y >= 0) and (endPosition[0] + x < len(gameMatrix)-1) and (endPosition[1] + y < len(gameMatrix[0])-1):
+                    if gameMatrix[endPosition[0] + x][endPosition[1] + y] != 1:
                         results.append([endPosition[0]+x,endPosition[1]+y])
-                        # print(gameMatrix[endPosition[0] + x][endPosition[1] + y])
+
     results.sort(key= lambda x: abs(x[0]-endPosition[0])+abs(x[1]-endPosition[1]))
     results = results[:5]
     random.shuffle(results)
@@ -70,7 +71,7 @@ def find_Closesd_Free_NoRandom(gameMatrix,endPosition):
         for x in range(-n,n):
             for y in range(-n,n):
                 if endPosition[0] + x >= 0 and endPosition[1] + y >= 0 and endPosition[0] + x < len(gameMatrix) and endPosition[1] + y < len(gameMatrix[0]):
-                    if gameMatrix[endPosition[0] + x][endPosition[1] + y] != "A":
+                    if gameMatrix[endPosition[0] + x][endPosition[1] + y] != 1:
                         results.append([endPosition[0]+x,endPosition[1]+y])
                         # print(gameMatrix[endPosition[0] + x][endPosition[1] + y])
     results.sort(key= lambda x: abs(x[0]-endPosition[0])+abs(x[1]-endPosition[1]))
@@ -78,7 +79,7 @@ def find_Closesd_Free_NoRandom(gameMatrix,endPosition):
 
 
 
-def marsPathfinder(startPosition,endPosition,mapMatrix):
+def marsPathfinder(startPosition,endPosition,mapMatrix,moveType):
 
     # # Debug Matrix Print
     # mapMatrix[startPosition[0]][startPosition[1]] = "S"
@@ -94,6 +95,9 @@ def marsPathfinder(startPosition,endPosition,mapMatrix):
     openList   = [startNode]
     closedList = []
     counter = 0
+    counterMaxValue = 250
+    if moveType == "Attack":
+        counterMaxValue = 50
     while openList:
         counter += 1
         try:
@@ -107,8 +111,8 @@ def marsPathfinder(startPosition,endPosition,mapMatrix):
             closedList.append(currentNode)
             answer = find_answer_path(closedList)
             answer.reverse()
-            return answer  # tu napisać funkcję zwracającą ostateczną ścieżkę
-        if counter > 250:
+            return answer
+        if counter > counterMaxValue:  # Przekazać do pathfindera info czy to atak -> jeśli atak to zmniejszyć czas auto wylączenia
             # print("awaryjne wyłączrenie pathfindera")
             return None
         openList.remove(currentNode)
@@ -119,7 +123,7 @@ def marsPathfinder(startPosition,endPosition,mapMatrix):
         for x in [-1, 0, 1]:
             for y in [-1, 0, 1]:
                 if currentNode.x + x >= 0 and currentNode.y + y >= 0 and currentNode.x + x < len(mapMatrix) and currentNode.y + y < len(mapMatrix[0]):
-                    if mapMatrix[currentNode.x+x][currentNode.y+y] == "A":
+                    if mapMatrix[currentNode.x+x][currentNode.y+y] == 1:
                         checkA = True
         if checkA:
             for x in [-1, 0, 1]:
@@ -127,7 +131,7 @@ def marsPathfinder(startPosition,endPosition,mapMatrix):
                 if currentNode.x + x >= 0 and currentNode.y + y >= 0 and currentNode.x + x < len(mapMatrix) and currentNode.y + y < len(mapMatrix[0]):
                     child_of_currentNode = position([currentNode.x+x,currentNode.y+y],previous_position=currentNode)
                     child_of_currentNode.steps = currentNode.steps + 1
-                    if child_of_currentNode not in openList and mapMatrix[child_of_currentNode.x][child_of_currentNode.y] != "A" and child_of_currentNode not in closedList:
+                    if child_of_currentNode not in openList and mapMatrix[child_of_currentNode.x][child_of_currentNode.y] != 1 and child_of_currentNode not in closedList:
                         openList.append(child_of_currentNode)
                     else:
                         continue
@@ -136,7 +140,7 @@ def marsPathfinder(startPosition,endPosition,mapMatrix):
                 if currentNode.x + x >= 0 and currentNode.y + y >= 0 and currentNode.x + x < len(mapMatrix) and currentNode.y + y < len(mapMatrix[0]):
                     child_of_currentNode = position([currentNode.x+x,currentNode.y+y],previous_position=currentNode)
                     child_of_currentNode.steps = currentNode.steps + 1
-                    if child_of_currentNode not in openList and mapMatrix[child_of_currentNode.x][child_of_currentNode.y] != "A" and child_of_currentNode not in closedList:
+                    if child_of_currentNode not in openList and mapMatrix[child_of_currentNode.x][child_of_currentNode.y] != 1 and child_of_currentNode not in closedList:
                         openList.append(child_of_currentNode)
                     else:
                         continue
@@ -144,12 +148,10 @@ def marsPathfinder(startPosition,endPosition,mapMatrix):
         else:
             for x in [-1, 0, 1]:
                 for y in [-1, 0, 1]:
-                    # zrobić tak -> że jeżeli obiekt jest blisko jakiegoś A to aby się poruszał tylko w 4 kierunkach, a jeśli nie ma obok A to aby
-                    # mógł poruszać się po skosie
                     if currentNode.x + x >= 0 and currentNode.y + y >= 0 and currentNode.x + x < len(mapMatrix) and currentNode.y + y < len(mapMatrix[0]):
                         child_of_currentNode = position([currentNode.x+x,currentNode.y+y],previous_position=currentNode)
                         child_of_currentNode.steps = currentNode.steps + 1
-                        if child_of_currentNode not in openList and mapMatrix[child_of_currentNode.x][child_of_currentNode.y] != "A" and child_of_currentNode not in closedList:
+                        if child_of_currentNode not in openList and mapMatrix[child_of_currentNode.x][child_of_currentNode.y] != 1 and child_of_currentNode not in closedList:
                             openList.append(child_of_currentNode)
                         else:
                             continue

@@ -160,7 +160,7 @@ class Building(Button):
         for y in range(self.matrixSize[0]):
             for x in range(self.matrixSize[1]):
                 self.matrixPosition.append([matrixY - y, matrixX + x])
-                if self.root.numpyMapMatrix[matrixY - y][matrixX + x] == "A":
+                if self.root.numpyMapMatrix[matrixY - y][matrixX + x] == 1:
                     self.matrixPosition = []
                     self.addCounter = 0
                     return False
@@ -195,7 +195,7 @@ class Building(Button):
         """Add uranMiner next to rafinery - need separate invoke when building matrix position is known"""
         self.matrixPosition.sort(key= lambda x: x[0])
         freePlace = [self.matrixPosition[0][0]+self.matrixSize[0],self.matrixPosition[0][1]]
-        uranMiner = UranMiner(self.root,"UranMiner",self.side,self.player)
+        uranMiner = UranMiner(self.root,"UranMiner",self.side,self.player,None)
         uranMiner.motherRafinery = freePlace
         uranMiner.matrixPosition = freePlace
         uranMiner.root = self.root
@@ -206,11 +206,12 @@ class Building(Button):
         self.root.movableObjects.append(uranMiner)
         self.root.add_widget(uranMiner,canvas="after",index=self.root.obj_add_index)
         self.root.updateGameMatrix()
+        self.player.buildings.append(self)
 
     def mark_position_as_used(self):
         """Sets all matrix fields under building as used"""
         for position in self.matrixPosition:
-            self.root.gameMapMatrix[position[0]][position[1]][2] = True
+            self.root.numpyMapMatrix[position[0]][position[1]] = 1
 
 
     def on_press(self):

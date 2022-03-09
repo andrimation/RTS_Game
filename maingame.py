@@ -35,6 +35,7 @@ import numpy
 import time
 import gc
 import mouseinfo
+import copy
 
 # Fullscreen
 Window.fullscreen = 'auto'    # To nam włacza fullscreen
@@ -70,11 +71,15 @@ class MainWindow(FloatLayout):
         self.numpyMapMatrix = []
         self.move_queue = []
         self.orders_destinations = []
+
         self.buildingToAdd = []
         self.miniMapObject = None
         self.miniMapUnits = {}
+        self.humanPlayerUnits = []
+        self.computerPlayerUnits = []
+        self.combatTeamsCounterHuman = 0
+        self.combatTeamsCounterComp = 0
 
-        self.toRemove = []
 
         # Separated objects lists   - more memory, but saves many "if" checking
         # Remember to remove object representation from all lists
@@ -103,6 +108,7 @@ class MainWindow(FloatLayout):
         self.add_uran()
         self.update_money()
         self.computerPlayerEnabled = True
+        self.computerPlayer.execute_build_plan()
 
 
     def create_minimap(self):
@@ -134,22 +140,31 @@ class MainWindow(FloatLayout):
 
     def on_touch_up(self, touch):
         if self.selectBoxesObjects:
+
             selectBoxOrigin = self.selectBoxSizes[0]
             boxToRemove = self.selectBoxesObjects.pop()
             rangeXStart = int(selectBoxOrigin[0])
             rangeXEnd   = int(selectBoxOrigin[0] + boxToRemove.width)
             rangeYStart = int(selectBoxOrigin[1])
             rangeYEnd   = int(selectBoxOrigin[1] + boxToRemove.height)
+
             if rangeXStart > rangeXEnd:
                 rangeXStart,rangeXEnd = rangeXEnd,rangeXStart
+
             if rangeYStart > rangeYEnd:
                 rangeYStart,rangeYEnd = rangeYEnd,rangeYStart
+
             for object in self.movableObjects:
                 if object.pos[0] in range(rangeXStart,rangeXEnd) and object.pos[1] in range(rangeYStart,rangeYEnd):
                     object.selected = True
+                    for unit in self.movableObjects:
+                        if unit.combatTeam == object.combatTeam and unit.side == object.side:
+                            unit.selected = object.selected
                     self.selectedUnits = True
+
             self.remove_widget(boxToRemove)
             self.selectBoxSizes = []
+
         self.scrollEnabled = True
         self.ids["SidePanelWidget"].index = 0
 
@@ -167,17 +182,18 @@ class MainWindow(FloatLayout):
             self.gameMapMatrix.append([])
             imageY -= 60
             for x in range(matrixX):
-                self.gameMapMatrix[-1].append([x*60,imageY,None])
+                self.gameMapMatrix[-1].append([x*60,imageY])
 
     def convertMapNumpy(self):
+        # Tworząc numpy array najpierw musze podać jej rozmiary - z lenów mojego matrixa, a dopiero później zamianieać w niej miejsce
         convertedMap = []
         for line in self.gameMapMatrix:
             newLine = []
             for point in line:
-                newLine.append(" ")
+                newLine.append(0)
             convertedMap.append(newLine)
-        # self.numpyMapMatrix = numpy.char.array(convertedMap)
-        self.numpyMapMatrix = convertedMap
+        self.numpyMapMatrix = numpy.array(convertedMap,dtype=object)
+
 
     def add_uran(self):
         uranOrigins = [[random.randint(0, len(self.gameMapMatrix) - 1),random.randint(0, len(self.gameMapMatrix[0]) - 1)] for x in range(10)]
@@ -191,7 +207,7 @@ class MainWindow(FloatLayout):
                 x = random.randint(-5, 5)
                 while position[1] + x > len(self.gameMapMatrix[0])-1 or position[0] + y < 0:
                     x = random.randint(-5, 5)
-                if self.gameMapMatrix[position[0] + y][position[1] + x][2] == None:
+                if self.numpyMapMatrix[position[0] + y][position[1] + x] == 0:
                     uranOnMap.root = self
                     uranOnMap.matrixPosition = [position[0] + y, position[0] + x]
                     uranOnMap.pos = [self.gameMapMatrix[uranOnMap.matrixPosition[0]][uranOnMap.matrixPosition[1]][0]+Window.size[0]*0.1,self.gameMapMatrix[uranOnMap.matrixPosition[0]][uranOnMap.matrixPosition[1]][1]]
@@ -260,12 +276,9 @@ class MainWindow(FloatLayout):
 
     # Pamiętać żeby jak wcisnę jakiś guzik z dodawaniem czegokolwiek, to żeby odznaczac wszystkie jednostki !!! - albo w ogóle zatrzymać całą grę !
 
-    def build_Unit(self,unitType,side):
-        newUnit = GameUnit(self,unitType,side,self.humanPlayer).create_unit()
-        if self.humanPlayer.money >= newUnit.buildCost:
-            newUnit.add_unit_to_build_queue()
-            self.humanPlayer.money -= newUnit.buildCost
-            self.update_money()
+    def build_HumanPlayerUnit(self,unitType,side):
+        self.humanPlayer.build_unit(unitType,side)
+
 
     def build_queue_execute(self):
         self.humanPlayer.execute_build_queue()
@@ -304,16 +317,25 @@ class MainWindow(FloatLayout):
         self.ids["Money_label"].text = str(self.humanPlayer.money)
 
 
-    def remove_assets(self):
-        for asset in self.toRemove:
-           self.remove_widget(asset)
-
     def bullet_shot_execute(self):
+        # Jeden problem wykryty - bullet nie znika z self.bullets
         for bullet in self.bullets:
+            if bullet.target == None:
+                self.bullets.remove(bullet)
+                self.remove_widget(bullet)
+                continue
+            elif bullet.target.health <= 0:
+                self.bullets.remove(bullet)
+                self.remove_widget(bullet)
+                continue
             distance = math.dist(bullet.root.pos,bullet.target.pos)
             x = abs(bullet.absoluteBulletStartX-bullet.absoluteTargetX)/60
             y = abs(bullet.absoluteBulletStartY-bullet.absoluteTargetY)/60
 
+            if bullet.target.health <= 0 or bullet.target == None:
+                self.bullets.remove(bullet)
+                self.remove_widget(bullet)
+                continue
             if bullet.absoluteBulletStartX < bullet.absoluteTargetX:
                 try:
                     bullet.x += bullet.speed * x/distance
@@ -340,48 +362,22 @@ class MainWindow(FloatLayout):
                 except:
                     pass
             if bullet.collide_widget(bullet.target):
+                self.bullets.remove(bullet)
                 self.remove_widget(bullet)
                 bullet.target.health -= bullet.shotPower
+                for bulletTest in self.bullets:
+                    if bulletTest.target == bullet.target:
+                        bulletTest.target = None
             elif math.dist(bullet.root.matrixPosition,[bullet.root.matrixPosition[0]+bullet.moveX//60,bullet.root.matrixPosition[1]+bullet.moveY//60]) >= bullet.distanceToFly:
+                self.bullets.remove(bullet)
                 self.remove_widget(bullet)
 
     def move_queue_execute(self):
         self.moveQueueManager.execute_units_movement()
-        
+
 
     def make_attack(self):
-        for order in self.move_queue:
-            if order[3] == "Attack" and order[4] != None and order[4] != []:
-                object = order[0]
-                target = order[4]
-                if math.dist(object.matrixPosition,target.matrixPosition) < object.shotDistance and object.moveX == 0 and object.moveY == 0:
-                    self.gameMapMatrix[object.matrixPosition[0]][object.matrixPosition[1]][2] = True
-                    self.move_queue.remove(order)
-                    object.attack = True
-                    object.target = target
-                else:
-                    object.attack = True
-                    object.target = []
-        for object in self.movableObjects:
-            if object.target != [] and object.target != None:
-                if math.dist(object.matrixPosition,object.target.matrixPosition) > object.shotDistance:
-                    object.attack = False
-                    if object.wait == 50:
-                        self.orders_destinations.append([object, object.target.moveEndPosition, "Attack", object.target])
-                        object.wait = 0
-                    else:
-                        object.wait += 1
-                        continue
-                elif object.target.health <= 0:
-                    self.remove_widget(object.target)
-                    object.attack = False
-                    object.target = []
-                elif object.attack == True:
-                    if object.reloadCounter == object.reloadTime:
-                        self.make_bullet(object,object.target)
-                        object.reloadCounter = 0
-                    else:
-                        object.reloadCounter += 1
+        self.moveQueueManager.attack()
 
     def compute_mouse_position(self,*args):
         if args[-1] == "building":
@@ -401,7 +397,6 @@ class MainWindow(FloatLayout):
         # Cursor position in whole game matrix
         bigMatrixY = math.floor(abs((abs(self.positionY) + y) - imageY)//60)
         bigMatrixX = math.floor(x + abs(self.positionX-Window.size[0]*0.1))//60
-        print(bigMatrixY,bigMatrixX)
         return pos_X, pos_Y, bigMatrixY, bigMatrixX
 
     def compute_orders_paths(self):
@@ -413,7 +408,7 @@ class MainWindow(FloatLayout):
         self.orders_destinations = []
         for order in self.move_queue:
             try:
-                self.orders_destinations.append([order[0],order[2][-1],order[3],order[4]])
+                self.orders_destinations.append([order[0],order[2][-1],order[3],order[4],None])
             except:
                 pass
         self.move_queue = []
@@ -426,18 +421,15 @@ class MainWindow(FloatLayout):
         except:
             pass
         if args[0] != "Attack":
-            # Add unit
-            if self.ids["MenuButton_AddSelect"].selected == True:
-                add_X,add_Y,matrixX,matrixY = self.compute_mouse_position(*args)
-                self.add_GameObject(add_X, add_Y, matrixX, matrixY)
 
             # Deselect
-            elif args[1].button =="right":
+            if args[1].button =="right":
                 self.deselect_all_objects_on_map()
 
             # Move objects
             elif self.ids["MenuButton_AddSelect"].selected == False:
                 pos_X,pos_Y,matrixX,matrixY = self.compute_mouse_position(*args)
+                print(matrixX,matrixY)
             else:
                 self.buildingToAdd = []
 
@@ -464,12 +456,15 @@ class MainWindow(FloatLayout):
                 else:
                     try:
                         convertedMap = MarsPathfinder_setup.convertMap(self.gameMapMatrix)
-                        convertedMap[matrixX][matrixY] = "A"
+                        convertedMap[matrixX][matrixY] = 0
                         matrixX, matrixY = MarsPathfinder_setup.find_Closesd_Free(convertedMap, [matrixX, matrixY])
                         usedCoords.append([matrixX, matrixY])
                     except:
                         pass
-                self.orders_destinations.append([object, [matrixX, matrixY],move,target])
+                if move == "Move":
+                    self.orders_destinations.append([object, [matrixX, matrixY],move,target,None])
+                elif move == "Attack":
+                    self.orders_destinations.append([object, [matrixX, matrixY], move,target,list(target.matrixPosition.copy())])
 
     def update_positionX(self):
         self.positionX = Window.size[0] * 0.1
@@ -478,28 +473,25 @@ class MainWindow(FloatLayout):
     def updateGameMatrix(self):
         positions = []
         for object in self.children:
-            if isinstance(object, GameUnit) or isinstance(object,UranMiner):
+            if isinstance(object, GameUnit):
                 positions.append(object.matrixPosition)
             elif isinstance(object, Building):
                 for smallPos in object.matrixPosition:
                     positions.append(smallPos)
 
-        # self.convertMapNumpy()
-        # for pos in positions:
-        #     self.numpyMapMatrix[pos[0]][pos[1]] = "A"
         for x in range(len(self.gameMapMatrix)-1):
             for y in range(len(self.gameMapMatrix[0])-1):
                 if [x,y] in positions:
-                    self.gameMapMatrix[x][y][2] = True
-                    self.numpyMapMatrix[x][y] = "A"
+                    self.numpyMapMatrix[x][y] = 1
                 else:
-                    self.gameMapMatrix[x][y][2] = None
-                    self.numpyMapMatrix[x][y]   = " "
+                    self.numpyMapMatrix[x][y] = 0
 
     def manage_auto_units(self):
         # uran miner
         for object in self.autoUnits:
             object.mineUran()
+        # for unit in self.computerPlayer.units:
+        #     unit.attack_human()
 
 
 
@@ -507,26 +499,58 @@ class MainWindow(FloatLayout):
 ###########################################################################
 
     def next_frame(self,*args):
-
+        start = time.time()
         # Check mouse position, and move map.
         self.scroll_game_map()
+        end = time.time()
+        # print(end-start,"self.scroll_game_map()")
         # Compute paths for orders
+        start = time.time()
         self.compute_orders_paths()
+        end = time.time()
+        result = end - start
+        # if result > 0:
+        #     print(end - start, "self.compute_orders_paths()")
         # Attack
+        start = time.time()
         self.make_attack()
+        end = time.time()
+        # print(end - start, "self.make_attack()")
         # Bulet shot
+        start = time.time()
         self.bullet_shot_execute()
+        end = time.time()
+        # print(end - start, "self.bullet_shot_execute()")
         # Move units on map
+        start = time.time()
         self.move_queue_execute()
+        end = time.time()
+        result = end-start
+        # if result > 0:
+        #     print(end - start, "self.move_queue_execute()")
         # Adding buildings
+        start = time.time()
         self.move_building_on_map()
+        end = time.time()
+        # print(end - start, "self.move_building_on_map()")
         # manage auto units
+        start = time.time()
         self.manage_auto_units()
+        end = time.time()
+        # print(end - start, "self.manage_auto_units()")
         # execute build queue
+        start = time.time()
         self.build_queue_execute()
+        end = time.time()
+        # print(end - start, "self.build_queue_execute()")
         # Computer
         if self.computerPlayerEnabled:
             self.computerPlayer.execute_Computer_Play()
+
+        # self.counter += 1
+        # if self.counter == 300:
+        #     gc.collect()
+        #     self.counter = 0
 
     pass
 
@@ -538,7 +562,7 @@ class MainGameApp(App):
         mainwindow = MainWindow()
         mainwindow.create_map_matrix()
         mainwindow.convertMapNumpy()
-        Clock.schedule_interval(mainwindow.next_frame,0.0005)
+        Clock.schedule_interval(mainwindow.next_frame,0.008)
         return mainwindow
 
 if __name__ == "__main__":

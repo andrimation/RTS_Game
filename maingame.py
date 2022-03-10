@@ -366,7 +366,6 @@ class MainWindow(FloatLayout):
     def move_queue_execute(self):
         self.moveQueueManager.execute_units_movement()
 
-
     def make_attack(self):
         self.moveQueueManager.attack()
 
@@ -487,7 +486,7 @@ class MainWindow(FloatLayout):
         self.scroll_game_map()
         end = time.time()
         # print(end-start,"self.scroll_game_map()")
-        # Compute paths for orders
+        # self.updateGameMatrix()
         # start = time.time()
         self.compute_orders_paths()
         # end = time.time()

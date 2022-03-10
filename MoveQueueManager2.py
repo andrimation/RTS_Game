@@ -1,7 +1,8 @@
 import MarsPathfinder_setup
 import math
 import copy
-import GameUnit
+from GameUnit import GameUnit
+from UranMiner import UranMiner
 
 class MoveQueueManager2():
     def __init__(self,root):
@@ -42,16 +43,22 @@ class MoveQueueManager2():
     #                       ma len 4(albo 3?) czy 5(albo 4?) - jeśli jest ten dłuższy, to wiemy, że jest to obliczanie mini trasy i po obliczeniu mini trasy, do
     #                       obliczonej mini trasy dodajemy ostatni element order destination - czyli wczesniej obliczoną już trasę. ( to chyba lepsze wyjście, nie
     #                       będzie blokować move, a obliczenie będzie się wykonywać w funkcji obliczania. )
+    # 3) popawić pozycje jednostek tak aby nigdy sie nie przenikały na mapie !
+    # 4) Problem utraty kontroli nad jednostkami po iluś atakach
+    # 5) Problem nie pojawiających się uranMinerów po ataku na inne jednostki
 
     # Rozkaz jest usuwany jeżeli
     #   1) jednostka znajdzie się w komórce do której miała dotrzeć
     #   2) jeżeli jednostka atakuje i znajduje sie w odległości strzału od atakowanego obiektu
 
     # Inside functions
-    def check_destination_cell(self,destination):
+    def check_destination_cell(self,destination,unitInMove):
         """Function checks if destination is duplicated in orders_destinations, in move_queue and if position is free
             - returns new destination if duplication or not-free , or returns destination"""
-        # Tu coś chujowo działa.
+        # Tu coś chujowo działa. - problem z zacinaniem się przy krótkich dystansach wynikał z tego że każda jednostka dostawała tą samą destynację.
+        if isinstance(unitInMove,UranMiner):
+            print("Jest uran miner")
+            return destination
         cellOccurCounter = 0
         allDestinations = set()
         for order_destination in self.root.orders_destinations:
@@ -69,36 +76,41 @@ class MoveQueueManager2():
         if cellOccurCounter == 0:
             return destination
         else:
-            # AH bo tu nie bierze pod uwagę innych destynacji z całej gamy !
             new_destination = MarsPathfinder_setup.find_Closesd_Free(self.root.numpyMapMatrix,destination)
-            # while tuple(new_destination) in destination:   # Pętla while działa tu ale będzie kiepska bo może się zaciąć
-            #     # No tak, bo jak tu wylosujemy jakąś destynację, to nie wiemy czy ona jest już użyta ! możemy po prostu wylosować taką która jest już
-            #     # używana - potrzebna jest lista wszystkich destynacji i sprawdzanie czy wylosowana już w niej jest
-            #     new_destination = MarsPathfinder_setup.find_Closesd_Free(self.root.numpyMapMatrix, destination)
+            while tuple(new_destination) in destination:
+                new_destination = MarsPathfinder_setup.find_Closesd_Free(self.root.numpyMapMatrix, destination)
             return new_destination
 
+    # def temporary_matrix(self,destination):
+    #     matrixCopy = self.root.numpyMapMatrix.copy()
+    #     for order in self.root.move_queue:
+    #         for position in order[2]:
+    #             matrixCopy[position[0]][position[1]] = 1
+    #     matrixCopy[destination[0]][destination[1]] = 0
+    #     return matrixCopy
 
     # Main functions
     def compute_orders_paths(self):
         if self.root.orders_destinations:
             order_destination = self.root.orders_destinations.pop(0)
             unit = order_destination[0]
-            destination = self.check_destination_cell(order_destination[1])
+            destination = self.check_destination_cell(order_destination[1],unit)  # nie wywoływać tego dla UranMinerów ! one maja trafiać idealnie !
             move_type = order_destination[2]
             move_target = order_destination[3]
             move_targetFirstPos = order_destination[4]
-            print(unit,destination)
 
             try:
-                computePath = MarsPathfinder_setup.marsPathfinder(unit.matrixPosition,[order_destination[1][0], order_destination[1][1]],self.root.numpyMapMatrix,move_type)
-                current_order = [unit, [order_destination[1][0], order_destination[1][1]], computePath, move_type,move_target, move_targetFirstPos]
-                # To zrobić później - z resztą nie jestem pewien czy to end position jest potrzebne ?
-                unit.moveEndPosition = computePath[-1]
+                print(unit.matrixPosition)
+                computePath = MarsPathfinder_setup.marsPathfinder(unit.matrixPosition,destination,self.root.numpyMapMatrix,move_type)
+                current_order = [unit,destination, computePath, move_type,move_target, move_targetFirstPos]
+                print(current_order)
+                unit.moveEndPosition = destination
             except:
+                self.root.updateGameMatrix()
                 computePath = None
 
             # Normal order case
-            if computePath != None and len(order_destination) == 5:
+            if computePath != None:
                 # Remove old order if object got new during old
                 for order in self.root.move_queue:
                     if order[0] == current_order[0]:
@@ -106,11 +118,6 @@ class MoveQueueManager2():
                 self.root.move_queue.append(current_order)
                 return
 
-            # Re-compute of part of order
-            if computePath != None and len(order_destination) == 6:
-                return
-
-            #
             if computePath == None:
                 self.root.orders_destinations.append(order_destination)
 

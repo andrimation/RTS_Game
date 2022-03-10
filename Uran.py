@@ -33,6 +33,7 @@ class Uran(Button):
     target = []
 
     def on_release(self):
+        print(self.matrixPosition)
         uranMiner = ""
         for object in self.root.movableObjects:
             if isinstance(object,UranMiner) and object.selected == True:

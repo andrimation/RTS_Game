@@ -81,12 +81,7 @@ def find_Closesd_Free_NoRandom(gameMatrix,endPosition):
 
 def marsPathfinder(startPosition,endPosition,mapMatrix,moveType):
 
-    # # Debug Matrix Print
-    # mapMatrix[startPosition[0]][startPosition[1]] = "S"
-    # mapMatrix[endPosition[0]][endPosition[1]] = "K"
-    # for line in mapMatrix:
-    #     print(line)
-    #
+
     startNode = position(startPosition)
     startNode.name = "start"
     endNode   = position(endPosition)

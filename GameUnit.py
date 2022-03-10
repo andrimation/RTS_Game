@@ -114,15 +114,25 @@ class GameUnit(Button):
 
     def remove_unit(self):
         for order in self.root.orders_destinations:
-            if order[0] == self:
+            if order[0] == self or order[3] == self:
                 self.root.orders_destinations.remove(order)
         for order in self.root.move_queue:
-            if order[0] == self:
+            if order[0] == self or order[4] == self:
                 self.root.move_queue.remove(order)
+        for unit in self.root.movableObjects:
+            if unit.target == self:
+                unit.target = []
 
         try:
             self.player.units.remove(self)
+        except:
+            pass
+        try:
             self.root.remove_widget(self)
+        except:
+            pass
+        try:
+            self.root.movableObjects.remove(self)
         except:
             pass
         try:

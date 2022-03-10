@@ -217,8 +217,6 @@ class MoveQueueManager():
 
         # Execute move queue   - nie odejmuje mi ruchów które zostały wykonane, tylko wciąż sa w move queue
         for order in self.root.move_queue:
-            print(order)
-            print(order[0].matrixPosition)
             unitInMove, matrixDestination,matrixPath,moveType,moveTarget,moveTargetFirstPosition = order
             if refreshMinimap:
                 unitInMove.updade_minimapPos()
@@ -295,10 +293,10 @@ class MoveQueueManager():
                 unitInMove.moveY += 2
             else:
                 pass
-
+        # -- Rozkminić o co chodzi z tymi tuplami !! Po co one były?
         # Remove object from move queue if order finished
         for order in self.root.move_queue:
-            if order[1] == unitInMove.matrixPosition and order[3] == "Move": # ahh tupla != lista !
+            if order[1] == tuple(unitInMove.matrixPosition) and order[3] == "Move": # ahh tupla != lista !
                 try:
                     self.root.move_queue.remove(order)
                 except:
@@ -329,9 +327,11 @@ class MoveQueueManager():
                         object.target.remove_unit()
                         object.attack = False
                         object.target = []
-                        self.root.move_queue.remove(order)
-
-
+                        # prawdopodobnie zbędne
+                        try:
+                            self.root.move_queue.remove(order)
+                        except:
+                            pass
 
     def computer_attack(self):
         for order in self.root.move_queue:

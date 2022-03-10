@@ -57,7 +57,6 @@ class MoveQueueManager2():
             - returns new destination if duplication or not-free , or returns destination"""
         # Tu coś chujowo działa. - problem z zacinaniem się przy krótkich dystansach wynikał z tego że każda jednostka dostawała tą samą destynację.
         if isinstance(unitInMove,UranMiner):
-            print("Jest uran miner")
             return destination
         cellOccurCounter = 0
         allDestinations = set()
@@ -100,10 +99,8 @@ class MoveQueueManager2():
             move_targetFirstPos = order_destination[4]
 
             try:
-                print(unit.matrixPosition)
                 computePath = MarsPathfinder_setup.marsPathfinder(unit.matrixPosition,destination,self.root.numpyMapMatrix,move_type)
                 current_order = [unit,destination, computePath, move_type,move_target, move_targetFirstPos]
-                print(current_order)
                 unit.moveEndPosition = destination
             except:
                 self.root.updateGameMatrix()

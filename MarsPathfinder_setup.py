@@ -47,14 +47,14 @@ def convertMap(gameMatrix):
 # Poprawić, żeby szukało najbliższego wolnego po spirali, nie w gwiazdkę
 def find_Closesd_Free(gameMatrix,endPosition):
     results = []
-    n = 5
+    n = 10
     while len(results) < 10:
         for x in range(-n,n):
-            # q = random.choice([-1,1])
-            # x *= q
+            q = random.choice([-1,1])
+            x *= q
             for y in range(-n,n):
-                # q = random.choice([-1, 1])
-                # y *= q
+                q = random.choice([-1, 1])
+                y *= q
                 if (endPosition[0] + x >= 0) and (endPosition[1] + y >= 0) and (endPosition[0] + x < len(gameMatrix)-1) and (endPosition[1] + y < len(gameMatrix[0])-1):
                     if gameMatrix[endPosition[0] + x][endPosition[1] + y] != 1:
                         results.append([endPosition[0]+x,endPosition[1]+y])

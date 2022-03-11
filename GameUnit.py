@@ -122,6 +122,7 @@ class GameUnit(Button):
         for unit in self.root.movableObjects:
             if unit.target == self:
                 unit.target = []
+                unit.attack = False
         try:
             self.player.units.remove(self)
         except:

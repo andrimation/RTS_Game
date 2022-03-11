@@ -390,8 +390,7 @@ class MainWindow(FloatLayout):
         return pos_X, pos_Y, bigMatrixY, bigMatrixX
 
     def compute_orders_paths(self):
-        self.MoveQueueManager2.compute_orders_paths()
-
+        self.moveQueueManager.compute_paths_for_orders()
 
     # Funkcja czyści wszystkie pending rozkazy i dodaje zje znów do orders destinations.
     def recomupute_all_orders(self):
@@ -419,7 +418,6 @@ class MainWindow(FloatLayout):
             # Move objects
             elif self.ids["MenuButton_AddSelect"].selected == False:
                 pos_X,pos_Y,matrixX,matrixY = self.compute_mouse_position(*args)
-                print(matrixX,matrixY)
             else:
                 self.buildingToAdd = []
 
@@ -444,8 +442,8 @@ class MainWindow(FloatLayout):
                     self.orders_destinations.append([object, [matrixX, matrixY],move,target,None])
                 elif move == "Attack":
                     self.orders_destinations.append([object, [matrixX, matrixY], move,target,list(target.matrixPosition.copy())])
-        for order in self.orders_destinations:
-            print(order)
+        # for order in self.orders_destinations:
+        #     print(order)
 
 
     def update_positionX(self):
@@ -490,7 +488,7 @@ class MainWindow(FloatLayout):
         # start = time.time()
         self.compute_orders_paths()
         # end = time.time()
-        result = end - start
+        # result = end - start
         # if result > 0:
         #     print(end - start, "self.compute_orders_paths()")
         # Attack
@@ -544,7 +542,7 @@ class MainGameApp(App):
         mainwindow = MainWindow()
         mainwindow.create_map_matrix()
         mainwindow.convertMapNumpy()
-        Clock.schedule_interval(mainwindow.next_frame,0.005)
+        Clock.schedule_interval(mainwindow.next_frame,0.01)
         return mainwindow
 
 if __name__ == "__main__":

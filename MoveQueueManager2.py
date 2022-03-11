@@ -80,14 +80,6 @@ class MoveQueueManager2():
                 new_destination = MarsPathfinder_setup.find_Closesd_Free(self.root.numpyMapMatrix, destination)
             return new_destination
 
-    # def temporary_matrix(self,destination):
-    #     matrixCopy = self.root.numpyMapMatrix.copy()
-    #     for order in self.root.move_queue:
-    #         for position in order[2]:
-    #             matrixCopy[position[0]][position[1]] = 1
-    #     matrixCopy[destination[0]][destination[1]] = 0
-    #     return matrixCopy
-
     # Main functions
     def compute_orders_paths(self):
         if self.root.orders_destinations:

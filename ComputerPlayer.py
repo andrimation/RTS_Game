@@ -49,6 +49,7 @@ class ComputerPlayer():
         self.playerMaxUnitsCount = 25
         self.combatTeams = 0
         self.attackCounter = 0
+        self.side = "Enemy"
 
     # Delay Functions
     def build_Delay(self):

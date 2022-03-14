@@ -30,7 +30,8 @@ class Building(Button):
         self.selected = BooleanProperty(False)
         self.player = player
 
-        self.buildAndEnergyCosts = {"MainBase":(500,0),"Rafinery":(1500,-500),"PowerPlant":(1000,1500),"WarFactory":(1500,-500),"DefenceTower":(500,-250)}
+        self.buildAndEnergyCosts = {"MainBase":(500,0),"Rafinery":(1500,-500),"PowerPlant":(1000,1500),
+                                    "WarFactory":(1500,-500),"DefenceTower":(500,-250)}
         self.side = side
         self.health = 100
         self.shotDistance = 5
@@ -156,11 +157,13 @@ class Building(Button):
                 pass
 
     def build_position_possible(self,matrixY,matrixX):
-        """Checking if all fields for build are free"""
+        """Checking if all fields for build are free and distance"""
+        maxBuildDistance = 25
         for y in range(self.matrixSize[0]):
             for x in range(self.matrixSize[1]):
                 self.matrixPosition.append([matrixY - y, matrixX + x])
-                if self.root.numpyMapMatrix[matrixY - y][matrixX + x] == 1:
+                if (self.root.numpyMapMatrix[matrixY - y][matrixX + x] == 1
+                        or math.dist([len(self.root.numpyMapMatrix)-1,0],[matrixY,matrixX]) > maxBuildDistance):
                     self.matrixPosition = []
                     self.addCounter = 0
                     return False

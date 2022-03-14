@@ -13,6 +13,7 @@ class HumanPlayer():
         self.units      = []
         self.playerMaxUnitsCount = 25
         self.combatTeams = 0
+        self.side = "Friend"
 
 
     def execute_build_queue(self):

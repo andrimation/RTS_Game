@@ -470,6 +470,9 @@ class MainWindow(FloatLayout):
         # uran miner
         for object in self.autoUnits:
             object.mineUran()
+
+        for object in self.movableObjects:
+            object.auto_attack()
         # for unit in self.computerPlayer.units:
         #     unit.attack_human()
 

@@ -81,7 +81,7 @@ class MoveQueueManager():
         if self.root.orders_destinations:
             order_destination = self.root.orders_destinations.pop(0)
             unit = order_destination[0]
-            destination = self.check_destination_cell(order_destination[1],unit)  # nie wywoływać tego dla UranMinerów ! one maja trafiać idealnie !
+            destination = self.check_destination_cell(order_destination[1],unit)
             move_type = order_destination[2]
             move_target = order_destination[3]
             move_targetFirstPos = order_destination[4]
@@ -101,6 +101,7 @@ class MoveQueueManager():
                     if order[0] == current_order[0]:
                         self.root.move_queue.remove(order)
                 self.root.move_queue.append(current_order)
+                unit.attack = False
                 return
 
             if computePath == None:
@@ -108,6 +109,7 @@ class MoveQueueManager():
                     and not isinstance(unit,UranMiner)) and move_type == "Move":
                     try:
                         self.root.orders_destinations.remove(order_destination)
+                        unit.movePending = False
                     except:
                         pass
                 else:
@@ -211,10 +213,11 @@ class MoveQueueManager():
                 pass
 
         for order in self.root.move_queue:
-            if order[2] == [] and order[3] == "Move": # ahh tupla != lista !
+            if order[2] == [] and order[3] == "Move":
                 unitInMove.moveX = 0
                 unitInMove.moveY = 0
                 try:
+                    unitInMove.movePending = False
                     self.root.move_queue.remove(order)
                 except:
                     pass

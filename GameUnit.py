@@ -10,6 +10,7 @@ from kivy.uix.label import Label
 import MarsPathfinder_setup
 import math
 import random
+import copy
 
 from Storage import Storage
 
@@ -167,7 +168,23 @@ class GameUnit(Button):
             for unit in self.root.humanPlayer.units:
                 self.root.updateGameMatrix()
                 if unit.matrixPosition != []:
-                    self.root.orders_destinations.append([self,unit.matrixPosition,"Attack",unit])
+                    self.root.orders_destinations.append([self,unit.matrixPosition,"Attack",unit,list(unit.matrixPosition.copy())])
+
+    # Tu się dzieje coś grubo, prawdopodobnie z self.attack ?
+    def auto_attack(self):
+        make_Auto_Attack = True
+        for destination in self.root.orders_destinations:
+            if destination[0] == self:
+                return
+        for order in self.root.move_queue:
+            if order[0] == self:
+                return
+        # Żeby zrobić auto-atakującego kompa, wystarczy zrobić dla jednostek kompa distance obejmujący całą mapę !, i niech losują co zaatakują !
+        for unit in self.root.movableObjects:
+            if unit.player != self.player and math.dist(self.matrixPosition,unit.matrixPosition) < 10:
+                auto_attack = [self,unit.matrixPosition,"Attack",unit,list(unit.matrixPosition.copy())]
+                self.root.orders_destinations.append(auto_attack)
+
 
 
 

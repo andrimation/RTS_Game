@@ -15,7 +15,7 @@ from Storage import Storage
 # Zrobić dla klasy budynków jak dla klasy pojazdów- że klasa building ma funkcję zwracającą obiekty pod-klasy - rafinery itp itd
 class Building(Button):
     def __init__(self,root,side,player,type,originMatrix=[],):
-        super(Building,self).__init__()
+        super(Button,self).__init__()
         self.buildingType = type
         self.buildMode = False
         self.HP = 0
@@ -60,8 +60,7 @@ class Building(Button):
         if self.buildMode == True:
             self.addCounter += 1
 
-        else:
-            self.root.click_on_map("Attack",self)
+
 
     def add_to_game(self):
         """Set building stats, depending on building type and add building on game map, adds building widget to game map"""
@@ -70,7 +69,7 @@ class Building(Button):
                 self.size = (240,360)
                 self.matrixSize = [6,4]
                 self.buildMode = True
-                self.HP = 1500
+                self.health = 1500
                 if self.side != "Enemy":
                     self.root.add_widget(self, index=self.root.building_add_index)
                     self.root.buildingToAdd.append(self)
@@ -81,7 +80,7 @@ class Building(Button):
                 self.size = (180, 240)
                 self.matrixSize = [4, 3]
                 self.buildMode = True
-                self.HP = 800
+                self.health = 800
                 if self.side != "Enemy":
                     self.root.add_widget(self, canvas="before", index=self.root.building_add_index)
                     self.root.buildingToAdd.append(self)
@@ -91,7 +90,7 @@ class Building(Button):
                 self.size = (180, 180)
                 self.matrixSize = [3, 3]
                 self.buildMode = True
-                self.HP = 800
+                self.health = 800
                 if self.side != "Enemy":
                     self.root.add_widget(self, canvas="before", index=self.root.building_add_index)
                     self.root.buildingToAdd.append(self)
@@ -102,7 +101,7 @@ class Building(Button):
                     self.size = (180, 240)
                     self.matrixSize = [4, 3]
                     self.buildMode = True
-                    self.HP = 700
+                    self.health = 700
                     if self.side != "Enemy":
                         self.root.add_widget(self, canvas="before", index=self.root.building_add_index)
                         self.root.buildingToAdd.append(self)
@@ -118,7 +117,7 @@ class Building(Button):
                 self.size = (120, 120)
                 self.matrixSize = [2, 2]
                 self.buildMode = True
-                self.HP = 400
+                self.health = 400
                 if self.side != "Enemy":
                     self.root.add_widget(self, canvas="before", index=self.root.building_add_index)
                     self.root.buildingToAdd.append(self)
@@ -223,9 +222,8 @@ class Building(Button):
 
 
     def on_press(self):
-        print(self.pos,"Building pos")
-        print(self.matrixPosition,"Building matrix")
-
+        if self.side == "Enemy":
+            self.root.click_on_map("Attack", self)
 
     def auto_attack(self):
 
@@ -240,7 +238,6 @@ class Building(Button):
                     self.root.move_queue.append(auto_attack)
 
     def remove_object(self):
-
         for order in self.root.move_queue:
             if order[0] == self or order[4] == self:
                 self.root.move_queue.remove(order)

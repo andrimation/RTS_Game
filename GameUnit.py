@@ -48,6 +48,10 @@ class GameUnit(Button):
         self.startPos = []
         self.target = []
 
+        self.opponent = self.root.humanPlayer
+        if self == self.root.humanPlayer:
+            self.opponent = self.root.computerPlayer
+
     def create_unit(self):
         if self.unitType == "Tank":
             return Tank(self.root,self.unitType,self.side,self.player,self.combatTeam)
@@ -114,6 +118,8 @@ class GameUnit(Button):
             pass
 
     def remove_object(self):
+
+        # Problem - Obiekty znów gdzies zostają w pamięci !!!!!! Zminimalizować ilość list !, niech sobie będą ify
         for order in self.root.orders_destinations:
             if order[0] == self or order[3] == self:
                 self.root.orders_destinations.remove(order)
@@ -124,6 +130,17 @@ class GameUnit(Button):
             if unit.target == self:
                 unit.target = []
                 unit.attack = False
+
+        for building in self.root.computerPlayer.buildings:
+            if building.target == self:
+                building.target = []
+        for building in self.root.computerPlayer.buildings:
+            if building.target == self:
+                building.target = []
+        for bullet in self.root.bullets:
+            if bullet.target == self:
+                self.root.bullets.remove(bullet)
+
         try:
             self.player.units.remove(self)
         except:

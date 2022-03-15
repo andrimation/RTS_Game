@@ -369,7 +369,7 @@ class MainWindow(FloatLayout):
             if bullet.collide_widget(bullet.target):
                 self.bullets.remove(bullet)
                 self.remove_widget(bullet)
-                bullet.target.health -= bullet.shotPower
+                bullet.target.health -= bullet.root.firePower
                 for bulletTest in self.bullets:
                     if bulletTest.target == bullet.target:
                         bulletTest.target = None

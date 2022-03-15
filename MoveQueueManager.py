@@ -3,6 +3,7 @@ import math
 import copy
 import GameUnit
 from UranMiner import UranMiner
+from Building import Building
 
 class MoveQueueManager():
     def __init__(self,root):
@@ -10,7 +11,7 @@ class MoveQueueManager():
 
     def check_destination_cell(self,destination,unitInMove):
         """Function checks if destination is duplicated in orders_destinations, in move_queue and if position is free
-            - returns new destination if duplication or not-free , or returns destination"""
+            - function returns new destination if cell is duplicated or not-free, or returns destination"""
 
         if isinstance(unitInMove,UranMiner):
             return destination
@@ -37,6 +38,8 @@ class MoveQueueManager():
             return new_destination
 
     def check_order_remove(self,destination):
+        """Function removes orders that probably cannot be executed because of crowd in distance area
+            - it checks if square around destination cell is used by objects in specified percentage"""
         absUnitDistance     = 5
         searchSquareMaxSize = 6
         percentageOfUsedCells = 0.5
@@ -86,6 +89,7 @@ class MoveQueueManager():
             move_target = order_destination[3]
             move_targetFirstPos = order_destination[4]
 
+
             try:
                 computePath = MarsPathfinder_setup.marsPathfinder(unit.matrixPosition,destination,self.root.numpyMapMatrix,move_type)
                 current_order = [unit,destination, computePath, move_type,move_target, move_targetFirstPos]
@@ -125,6 +129,8 @@ class MoveQueueManager():
 
         for order in self.root.move_queue:
             unitInMove, matrixDestination,matrixPath,moveType,moveTarget,moveTargetFirstPosition = order
+            if isinstance(unitInMove,Building):
+                continue
             if refreshMinimap:
                 unitInMove.updade_minimapPos()
             if unitInMove.attack == True:
@@ -228,8 +234,13 @@ class MoveQueueManager():
             if order[3] == "Attack" and order[4] != None and order[4] != []:
                 object = order[0]
                 target = order[4]
-                if math.dist(object.matrixPosition,target.matrixPosition) < object.shotDistance and object.moveX == 0 and object.moveY == 0:
-                    self.root.numpyMapMatrix[object.matrixPosition[0]][object.matrixPosition[1]] = 1
+                objectMatrixPos = object.matrixPosition
+                if isinstance(object,Building):
+                    objectMatrixPos = object.matrixPosition[0]
+
+
+                if math.dist(objectMatrixPos,target.matrixPosition) < object.shotDistance and object.moveX == 0 and object.moveY == 0:
+                    self.root.numpyMapMatrix[objectMatrixPos[0]][object.matrixPosition[1]] = 1
                     object.attack = True
                     object.target = target
                 else:

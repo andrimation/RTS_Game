@@ -185,7 +185,10 @@ class GameUnit(Button):
                 auto_attack = [self,unit.matrixPosition,"Attack",unit,list(unit.matrixPosition.copy())]
                 self.root.orders_destinations.append(auto_attack)
 
-
+                for subUnit in self.root.movableObjects:
+                    if self.side == subUnit.side and self.combatTeam == subUnit.combatTeam and self != subUnit:
+                        auto_attack = [subUnit, unit.matrixPosition, "Attack", unit, list(unit.matrixPosition.copy())]
+                        self.root.orders_destinations.append(auto_attack)
 
 
 

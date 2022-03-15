@@ -279,8 +279,11 @@ class MainWindow(FloatLayout):
         new_Bullet = Bullet()
         new_Bullet.root = startObject
         new_Bullet.targetMatrix = endPos.matrixPosition.copy()
-        new_Bullet.absoluteBulletStartX = self.gameMapMatrix[startObject.matrixPosition[0]][startObject.matrixPosition[1]][0]
-        new_Bullet.absoluteBulletStartY  = self.gameMapMatrix[startObject.matrixPosition[0]][startObject.matrixPosition[1]][1]
+        startPos = startObject.matrixPosition
+        if isinstance(startObject,Building):
+            startPos = startObject.matrixPosition[0]
+        new_Bullet.absoluteBulletStartX = self.gameMapMatrix[startPos[0]][startPos[1]][0]
+        new_Bullet.absoluteBulletStartY  = self.gameMapMatrix[startPos[0]][startPos[1]][1]
         new_Bullet.absoluteTargetX = self.gameMapMatrix[new_Bullet.targetMatrix[0]][new_Bullet.targetMatrix[1]][0]
         new_Bullet.absoluteTargetY = self.gameMapMatrix[new_Bullet.targetMatrix[0]][new_Bullet.targetMatrix[1]][1]
         new_Bullet.distanceToFly = startObject.shotDistance
@@ -311,6 +314,10 @@ class MainWindow(FloatLayout):
     def bullet_shot_execute(self):
         # Jeden problem wykryty - bullet nie znika z self.bullets
         for bullet in self.bullets:
+            bulletRootPos = bullet.root.matrixPosition
+            if isinstance(bullet.root,Building):
+                bulletRootPos = bullet.root.matrixPosition[0]
+
             if bullet.target == None:
                 self.bullets.remove(bullet)
                 self.remove_widget(bullet)
@@ -359,7 +366,7 @@ class MainWindow(FloatLayout):
                 for bulletTest in self.bullets:
                     if bulletTest.target == bullet.target:
                         bulletTest.target = None
-            elif math.dist(bullet.root.matrixPosition,[bullet.root.matrixPosition[0]+bullet.moveX//60,bullet.root.matrixPosition[1]+bullet.moveY//60]) >= bullet.distanceToFly:
+            elif math.dist(bulletRootPos,[bulletRootPos[0]+bullet.moveX//60,bulletRootPos[1]+bullet.moveY//60]) >= bullet.distanceToFly:
                 self.bullets.remove(bullet)
                 self.remove_widget(bullet)
 
@@ -442,8 +449,7 @@ class MainWindow(FloatLayout):
                     self.orders_destinations.append([object, [matrixX, matrixY],move,target,None])
                 elif move == "Attack":
                     self.orders_destinations.append([object, [matrixX, matrixY], move,target,list(target.matrixPosition.copy())])
-        # for order in self.orders_destinations:
-        #     print(order)
+
 
 
     def update_positionX(self):
@@ -473,8 +479,9 @@ class MainWindow(FloatLayout):
 
         for object in self.movableObjects:
             object.auto_attack()
-        # for unit in self.computerPlayer.units:
-        #     unit.attack_human()
+
+        for building in self.buildings:
+            building.auto_attack()
 
 
 

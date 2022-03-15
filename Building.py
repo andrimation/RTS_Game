@@ -25,6 +25,8 @@ class Building(Button):
         self.wait = 0
         self.minimapUnit = None
         self.minimapName = None
+        self.moveX = 0
+        self.moveY = 0
 
         self.root = root
         self.selected = BooleanProperty(False)
@@ -34,9 +36,9 @@ class Building(Button):
                                     "WarFactory":(1500,-500),"DefenceTower":(500,-250)}
         self.side = side
         self.health = 100
-        self.shotDistance = 5
-        self.firePower = 10
-        self.reloadTime = 30
+        self.shotDistance = 10
+        self.firePower = 50
+        self.reloadTime = 20
         self.reloadCounter = 0
         self.attack = False
         self.startPos = []
@@ -110,8 +112,8 @@ class Building(Button):
 
             elif self.buildingType == "DefenceTower":
                 self.buildingType = "DefenceTower"
-                self.size = (60, 120)
-                self.matrixSize = [2, 1]
+                self.size = (120, 120)
+                self.matrixSize = [2, 2]
                 self.buildMode = True
                 self.HP = 400
                 if self.side != "Enemy":
@@ -220,5 +222,20 @@ class Building(Button):
     def on_press(self):
         print(self.pos,"Building pos")
         print(self.matrixPosition,"Building matrix")
+
+
+    def auto_attack(self):
+
+        if self.buildingType == "DefenceTower":
+            for order in self.root.move_queue:
+                if order[0] == self:
+                    return
+            # Żeby zrobić auto-atakującego kompa, wystarczy zrobić dla jednostek kompa distance obejmujący całą mapę !, i niech losują co zaatakują !
+            for unit in self.root.movableObjects:
+                if unit.player != self.player and math.dist(self.matrixPosition[0],unit.matrixPosition) < self.shotDistance:
+                    auto_attack = [self,unit.matrixPosition,[self.matrixPosition[0]],"Attack",unit,list(unit.matrixPosition.copy())]
+                    self.root.move_queue.append(auto_attack)
+
+
 
 

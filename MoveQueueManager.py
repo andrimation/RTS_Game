@@ -89,35 +89,35 @@ class MoveQueueManager():
             move_target = order_destination[3]
             move_targetFirstPos = order_destination[4]
 
+            if not isinstance(unit,Building):
+                try:
+                    computePath = MarsPathfinder_setup.marsPathfinder(unit.matrixPosition,destination,self.root.numpyMapMatrix,move_type)
+                    current_order = [unit,destination, computePath, move_type,move_target, move_targetFirstPos]
+                    unit.moveEndPosition = destination
+                except:
+                    self.root.updateGameMatrix()
+                    computePath = None
 
-            try:
-                computePath = MarsPathfinder_setup.marsPathfinder(unit.matrixPosition,destination,self.root.numpyMapMatrix,move_type)
-                current_order = [unit,destination, computePath, move_type,move_target, move_targetFirstPos]
-                unit.moveEndPosition = destination
-            except:
-                self.root.updateGameMatrix()
-                computePath = None
+                # Normal order case
+                if computePath != None:
+                    # Remove old order if object got new during old
+                    for order in self.root.move_queue:
+                        if order[0] == current_order[0]:
+                            self.root.move_queue.remove(order)
+                    self.root.move_queue.append(current_order)
+                    unit.attack = False
+                    return
 
-            # Normal order case
-            if computePath != None:
-                # Remove old order if object got new during old
-                for order in self.root.move_queue:
-                    if order[0] == current_order[0]:
-                        self.root.move_queue.remove(order)
-                self.root.move_queue.append(current_order)
-                unit.attack = False
-                return
-
-            if computePath == None:
-                if (math.dist(unit.matrixPosition, destination) <= 7 and self.check_order_remove(destination)
-                    and not isinstance(unit,UranMiner)) and move_type == "Move":
-                    try:
-                        self.root.orders_destinations.remove(order_destination)
-                        unit.movePending = False
-                    except:
-                        pass
-                else:
-                    self.root.orders_destinations.append(order_destination)
+                if computePath == None:
+                    if (math.dist(unit.matrixPosition, destination) <= 7 and self.check_order_remove(destination)
+                        and not isinstance(unit,UranMiner)) and move_type == "Move":
+                        try:
+                            self.root.orders_destinations.remove(order_destination)
+                            unit.movePending = False
+                        except:
+                            pass
+                    else:
+                        self.root.orders_destinations.append(order_destination)
 
     def execute_units_movement(self):
         # Avoid updating minimap in every step
@@ -237,7 +237,8 @@ class MoveQueueManager():
                 objectMatrixPos = object.matrixPosition
                 if isinstance(object,Building):
                     objectMatrixPos = object.matrixPosition[0]
-
+                    if math.dist(objectMatrixPos, target.matrixPosition) > object.shotDistance:
+                        self.root.move_queue.remove(order)
 
                 if math.dist(objectMatrixPos,target.matrixPosition) < object.shotDistance and object.moveX == 0 and object.moveY == 0:
                     self.root.numpyMapMatrix[objectMatrixPos[0]][object.matrixPosition[1]] = 1
@@ -258,7 +259,7 @@ class MoveQueueManager():
                         object.target.remove_unit()
                         object.attack = False
                         object.target = []
-                        # prawdopodobnie zbędne
+
 
 
     def computer_attack(self):

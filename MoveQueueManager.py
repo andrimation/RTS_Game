@@ -240,7 +240,11 @@ class MoveQueueManager():
                     if math.dist(objectMatrixPos, target.matrixPosition) > object.shotDistance:
                         self.root.move_queue.remove(order)
 
-                if math.dist(objectMatrixPos,target.matrixPosition) < object.shotDistance and object.moveX == 0 and object.moveY == 0:
+                targetMatrixPos = target.matrixPosition
+                if isinstance(target,Building):
+                    targetMatrixPos = target.matrixPosition[0]
+
+                if math.dist(objectMatrixPos,targetMatrixPos) < object.shotDistance and object.moveX == 0 and object.moveY == 0:
                     self.root.numpyMapMatrix[objectMatrixPos[0]][object.matrixPosition[1]] = 1
                     object.attack = True
                     object.target = target
@@ -256,11 +260,9 @@ class MoveQueueManager():
                     else:
                         object.reloadCounter += 1
                     if  object.target.health <= 0:# Też musze usunąć order jednostki która zginęła !!
-                        object.target.remove_unit()
+                        object.target.remove_object()
                         object.attack = False
                         object.target = []
-
-
 
     def computer_attack(self):
         for order in self.root.move_queue:

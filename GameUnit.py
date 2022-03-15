@@ -113,7 +113,7 @@ class GameUnit(Button):
         except:
             pass
 
-    def remove_unit(self):
+    def remove_object(self):
         for order in self.root.orders_destinations:
             if order[0] == self or order[3] == self:
                 self.root.orders_destinations.remove(order)
@@ -163,7 +163,7 @@ class GameUnit(Button):
     def attack_human(self):
         if self.movingToTarget == False:
             self.movingToTarget = True
-            print(self.movingToTarget)
+
             # Chuj wie co tu się dzieje - po wybraniu jakiegoś obiektu na target, on zaczyna jakby znikać z matrixa i porusza się po całym polu ?!
             for unit in self.root.humanPlayer.units:
                 self.root.updateGameMatrix()

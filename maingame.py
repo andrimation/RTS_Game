@@ -279,13 +279,20 @@ class MainWindow(FloatLayout):
         new_Bullet = Bullet()
         new_Bullet.root = startObject
         new_Bullet.targetMatrix = endPos.matrixPosition.copy()
+
         startPos = startObject.matrixPosition
         if isinstance(startObject,Building):
             startPos = startObject.matrixPosition[0]
+
         new_Bullet.absoluteBulletStartX = self.gameMapMatrix[startPos[0]][startPos[1]][0]
         new_Bullet.absoluteBulletStartY  = self.gameMapMatrix[startPos[0]][startPos[1]][1]
-        new_Bullet.absoluteTargetX = self.gameMapMatrix[new_Bullet.targetMatrix[0]][new_Bullet.targetMatrix[1]][0]
-        new_Bullet.absoluteTargetY = self.gameMapMatrix[new_Bullet.targetMatrix[0]][new_Bullet.targetMatrix[1]][1]
+
+        targetMatrixPos = new_Bullet.root.target.matrixPosition
+        if isinstance(new_Bullet.root.target,Building):
+            targetMatrixPos = new_Bullet.root.target.matrixPosition[0]
+
+        new_Bullet.absoluteTargetX = self.gameMapMatrix[targetMatrixPos[0]][targetMatrixPos[1]][0]
+        new_Bullet.absoluteTargetY = self.gameMapMatrix[targetMatrixPos[0]][targetMatrixPos[1]][1]
         new_Bullet.distanceToFly = startObject.shotDistance
         new_Bullet.pos   = [startObject.pos[0],startObject.pos[1]]
         new_Bullet.id = f"Bullet{self.obj_add_index}"
@@ -417,7 +424,6 @@ class MainWindow(FloatLayout):
         except:
             pass
         if args[0] != "Attack":
-
             # Deselect
             if args[1].button =="right":
                 self.deselect_all_objects_on_map()
@@ -430,7 +436,10 @@ class MainWindow(FloatLayout):
 
         # Add object,coords to orders compute
         elif args[0] == "Attack":
-            matrixX,matrixY = args[1].matrixPosition
+            if isinstance(args[1],Building):
+                matrixX, matrixY = args[1].matrixPosition[0]
+            else:
+                matrixX, matrixY = args[1].matrixPosition
         selectedObjectsList = []
         for object in self.movableObjects:
             if  object.selected == True : #and object.side == "Friend":

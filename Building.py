@@ -60,6 +60,9 @@ class Building(Button):
         if self.buildMode == True:
             self.addCounter += 1
 
+        else:
+            self.root.click_on_map("Attack",self)
+
     def add_to_game(self):
         """Set building stats, depending on building type and add building on game map, adds building widget to game map"""
         if self.player.money > self.buildAndEnergyCosts[self.buildingType][0]:
@@ -236,6 +239,34 @@ class Building(Button):
                     auto_attack = [self,unit.matrixPosition,[self.matrixPosition[0]],"Attack",unit,list(unit.matrixPosition.copy())]
                     self.root.move_queue.append(auto_attack)
 
+    def remove_object(self):
+
+        for order in self.root.move_queue:
+            if order[0] == self or order[4] == self:
+                self.root.move_queue.remove(order)
+        for unit in self.player.buildings:
+            if unit.target == self:
+                unit.target = []
+                unit.attack = False
+        try:
+            self.player.units.remove(self)
+        except:
+            pass
+        try:
+            self.root.remove_widget(self)
+        except:
+            pass
+        try:
+            self.root.movableObjects.remove(self)
+        except:
+            pass
+        try:
+            self.root.minimapObject.remove_widget(self.minimapUnit)
+            del self.root.miniMapUnits[self.minimapName]
+            self.minimapName = None
+            self.minimapUnit = None
+        except:
+            pass
 
 
 

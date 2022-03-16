@@ -226,16 +226,18 @@ class Building(Button):
             self.root.click_on_map("Attack", self)
 
     def auto_attack(self):
-
+        # Tu jest jakiś problem że na raz atakuje kilka unitów~! i to może robić jakąś korupcję z istnieniem zniszczonych jednostek
         if self.buildingType == "DefenceTower":
-            for order in self.root.move_queue:
-                if order[0] == self:
-                    return
-            # Żeby zrobić auto-atakującego kompa, wystarczy zrobić dla jednostek kompa distance obejmujący całą mapę !, i niech losują co zaatakują !
-            for unit in self.root.movableObjects:
-                if unit.player != self.player and math.dist(self.matrixPosition[0],unit.matrixPosition) < self.shotDistance:
-                    auto_attack = [self,unit.matrixPosition,[self.matrixPosition[0]],"Attack",unit,list(unit.matrixPosition.copy())]
-                    self.root.move_queue.append(auto_attack)
+            if self.target == [] and self.attack == False:
+                for unit in self.root.movableObjects:
+                    if unit.player != self.player and math.dist(self.matrixPosition[0],unit.matrixPosition) < self.shotDistance:
+                        auto_attack = [self, unit.matrixPosition, [self.matrixPosition[0]], "Attack", unit,list(unit.matrixPosition.copy())]
+                        self.root.move_queue.append(auto_attack)
+                        return
+            else:
+                return
+
+
 
     def remove_object(self):
         for order in self.root.move_queue:
@@ -245,8 +247,13 @@ class Building(Button):
             if unit.target == self:
                 unit.target = []
                 unit.attack = False
+
         try:
-            self.player.units.remove(self)
+            self.root.buildings.remove(self)
+        except:
+            pass
+        try:
+            self.player.buildings.remove(self)
         except:
             pass
         try:

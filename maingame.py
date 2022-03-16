@@ -337,7 +337,7 @@ class MainWindow(FloatLayout):
             x = abs(bullet.absoluteBulletStartX-bullet.absoluteTargetX)/60
             y = abs(bullet.absoluteBulletStartY-bullet.absoluteTargetY)/60
 
-            if bullet.target.health <= 0 or bullet.target == None:
+            if bullet.target.health <= 0 or bullet.target == None or bullet.target == []:
                 self.bullets.remove(bullet)
                 self.remove_widget(bullet)
                 continue
@@ -367,12 +367,13 @@ class MainWindow(FloatLayout):
                 except:
                     pass
             if bullet.collide_widget(bullet.target):
+                bullet.target.health -= bullet.root.firePower
                 self.bullets.remove(bullet)
                 self.remove_widget(bullet)
-                bullet.target.health -= bullet.root.firePower
                 for bulletTest in self.bullets:
                     if bulletTest.target == bullet.target:
                         bulletTest.target = None
+
             elif math.dist(bulletRootPos,[bulletRootPos[0]+bullet.moveX//60,bulletRootPos[1]+bullet.moveY//60]) >= bullet.distanceToFly:
                 self.bullets.remove(bullet)
                 self.remove_widget(bullet)
@@ -492,7 +493,12 @@ class MainWindow(FloatLayout):
         for building in self.buildings:
             building.auto_attack()
 
-
+    def order_cleaner(self):
+        for order in self.move_queue:
+            if isinstance(order[0],GameUnit) and order[0] not in self.movableObjects:
+                self.move_queue.remove(order)
+            if isinstance(order[0],Building) and order[4] not in self.movableObjects:
+                self.move_queue.remove(order)
 
 
 ###########################################################################
@@ -542,9 +548,11 @@ class MainWindow(FloatLayout):
         self.build_queue_execute()
         end = time.time()
         # print(end - start, "self.build_queue_execute()")
+        # Clean orders
+        self.order_cleaner()
         # Computer
-        if self.computerPlayerEnabled:
-            self.computerPlayer.execute_Computer_Play()
+        # if self.computerPlayerEnabled:
+        #     self.computerPlayer.execute_Computer_Play()
 
         # self.counter += 1
         # if self.counter == 300:

@@ -39,6 +39,7 @@ class ComputerPlayer():
                                       ["DefenceTower",[1,34]],["DefenceTower",[1,19]],["DefenceTower",[20,54]],
                                       ["DefenceTower",[5,24]],["DefenceTower",[10,28]],["DefenceTower",[14,33]],
                                       ["DefenceTower",[16,39]],["DefenceTower",[18,46]]]
+        # self.computerBuildingQueue = [["DefenceTower",[10,28]]]
         self.buildUnitsQueue = []
         self.rafineries = 0
         self.MainBase = None

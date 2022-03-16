@@ -48,9 +48,7 @@ class GameUnit(Button):
         self.startPos = []
         self.target = []
 
-        self.opponent = self.root.humanPlayer
-        if self == self.root.humanPlayer:
-            self.opponent = self.root.computerPlayer
+
 
     def create_unit(self):
         if self.unitType == "Tank":
@@ -119,27 +117,10 @@ class GameUnit(Button):
 
     def remove_object(self):
 
-        # Problem - Obiekty znów gdzies zostają w pamięci !!!!!! Zminimalizować ilość list !, niech sobie będą ify
-        for order in self.root.orders_destinations:
-            if order[0] == self or order[3] == self:
-                self.root.orders_destinations.remove(order)
-        for order in self.root.move_queue:
-            if order[0] == self or order[4] == self:
-                self.root.move_queue.remove(order)
         for unit in self.root.movableObjects:
             if unit.target == self:
                 unit.target = []
                 unit.attack = False
-
-        for building in self.root.computerPlayer.buildings:
-            if building.target == self:
-                building.target = []
-        for building in self.root.computerPlayer.buildings:
-            if building.target == self:
-                building.target = []
-        for bullet in self.root.bullets:
-            if bullet.target == self:
-                self.root.bullets.remove(bullet)
 
         try:
             self.player.units.remove(self)
@@ -151,6 +132,10 @@ class GameUnit(Button):
             pass
         try:
             self.root.movableObjects.remove(self)
+        except:
+            pass
+        try:
+            self.root.onMapObjectsToShift.remove(self)
         except:
             pass
         try:
@@ -226,6 +211,7 @@ class RocketLauncher(GameUnit):
     def __init__(self,root,unitType,side,player,combatTeam):
         super(RocketLauncher, self).__init__(root,unitType,side,player,combatTeam)
 
+        self.shotDistance = 12
         self.buildCost = 2500
         self.buildTime = 300
         self.speed = 1

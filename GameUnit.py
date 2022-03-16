@@ -115,8 +115,8 @@ class GameUnit(Button):
         except:
             pass
 
+    # Z jakiegoś powodu, gdy zostaje zniszczonych kilka jednostek, minimapa przestaje sie dla innych updejtować ;0
     def remove_object(self):
-
         for unit in self.root.movableObjects:
             if unit.target == self:
                 unit.target = []
@@ -140,7 +140,7 @@ class GameUnit(Button):
             pass
         try:
             self.root.minimapObject.remove_widget(self.minimapUnit)
-            del self.root.miniMapUnits[self.minimapName]
+            self.root.miniMapUnits.remove(self.minimapName)
             self.minimapName = None
             self.minimapUnit = None
         except:

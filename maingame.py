@@ -300,7 +300,7 @@ class MainWindow(FloatLayout):
         new_Bullet.target = endPos
         new_Bullet.size = (20, 20)
         self.bullets.append(new_Bullet)
-        self.add_widget(new_Bullet)
+        self.add_widget(new_Bullet,1)
         self.obj_add_index += 1
         self.ids["SidePanelWidget"].index = 0
 
@@ -550,6 +550,9 @@ class MainWindow(FloatLayout):
         # print(end - start, "self.build_queue_execute()")
         # Clean orders
         self.order_cleaner()
+
+        self.ids["SidePanelWidget"].index = 0
+
         # Computer
         # if self.computerPlayerEnabled:
         #     self.computerPlayer.execute_Computer_Play()

@@ -133,7 +133,7 @@ class MainWindow(FloatLayout):
                 selectBox.size_hint = (None,None)
                 selectBox.width = touch.pos[0]-boxStartPos[0]
                 selectBox.height = touch.pos[1]-boxStartPos[1]
-                self.add_widget(selectBox)
+                self.add_widget(selectBox,index=self.ids["SidePanelWidget"].index+1)
                 self.selectBoxesObjects.append(selectBox)
                 if len(self.selectBoxesObjects) >= 2:
                     boxToRemove = self.selectBoxesObjects.pop(-2)
@@ -215,7 +215,7 @@ class MainWindow(FloatLayout):
                     uranOnMap.add_on_minimap()
                     self.urans.append(uranOnMap)
                     self.onMapObjectsToShift.append(uranOnMap)
-                    self.add_widget(uranOnMap,canvas="before",index=self.obj_add_index)
+                    self.add_widget(uranOnMap,canvas="before",index=self.ids["SidePanelWidget"].index+1)
 
     def scroll_game_map(self):
         if self.scrollEnabled:
@@ -300,7 +300,7 @@ class MainWindow(FloatLayout):
         new_Bullet.target = endPos
         new_Bullet.size = (20, 20)
         self.bullets.append(new_Bullet)
-        self.add_widget(new_Bullet,1)
+        self.add_widget(new_Bullet,index=self.ids["SidePanelWidget"].index+1,canvas="after")
         self.obj_add_index += 1
         self.ids["SidePanelWidget"].index = 0
 
@@ -498,7 +498,10 @@ class MainWindow(FloatLayout):
             if isinstance(order[0],GameUnit) and order[0] not in self.movableObjects:
                 self.move_queue.remove(order)
             if isinstance(order[0],Building) and order[4] not in self.movableObjects:
+                order[0].attack = False
+                order[0].target = []
                 self.move_queue.remove(order)
+
 
 
 ###########################################################################

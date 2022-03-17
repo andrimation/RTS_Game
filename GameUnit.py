@@ -20,7 +20,7 @@ class GameUnit(Button):
         super(GameUnit, self).__init__()
         self.root = root
         self.player = player
-        self.speed = 10
+        self.speed = 2
         self.matrixObjectSize = 1
         self.matrixPosition = []
         self.moveType =    None
@@ -69,7 +69,7 @@ class GameUnit(Button):
         self.root.movableObjects.append(self)
         self.root.numpyMapMatrix[self.matrixPosition[0]][self.matrixPosition[1]] = 1
         self.root.obj_add_index += 1
-        self.root.add_widget(self,1)
+        self.root.add_widget(self,index=self.root.ids["SidePanelWidget"].index+1)
         self.player.units.append(self)
 
         self.root.onMapObjectsToShift.append(self)
@@ -200,7 +200,7 @@ class Tank(GameUnit):
 
         self.buildCost = 250
         self.buildTime = 10
-        self.speed = 1
+        self.speed = 6
 
         self.size_hint = (None,None)
         self.size = (60,60)

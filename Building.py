@@ -61,7 +61,6 @@ class Building(Button):
             self.addCounter += 1
 
 
-
     def add_to_game(self):
         """Set building stats, depending on building type and add building on game map, adds building widget to game map"""
         if self.player.money > self.buildAndEnergyCosts[self.buildingType][0]:
@@ -211,7 +210,7 @@ class Building(Button):
         self.root.autoUnits.append(uranMiner)
         self.root.onMapObjectsToShift.append(uranMiner)
         self.root.movableObjects.append(uranMiner)
-        self.root.add_widget(uranMiner,canvas="after",index=self.root.obj_add_index)
+        self.root.add_widget(uranMiner,canvas="after",index=1)
         self.root.updateGameMatrix()
         self.player.buildings.append(self)
 

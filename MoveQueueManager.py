@@ -74,7 +74,8 @@ class MoveQueueManager():
                 allCellsCount += 1
                 if self.root.numpyMapMatrix[yLine][xLine] == 1:
                     usedCellsCount += 1
-
+        if usedCellsCount == 0:
+            usedCellsCount = 1
         if allCellsCount/usedCellsCount > percentageOfUsedCells:
             return True
         else:
@@ -201,20 +202,20 @@ class MoveQueueManager():
                     unitInMove.matrixPosition = currentPosition
 
             if unitInMove.moveX > 0:
-                unitInMove.x += 2
-                unitInMove.moveX -= 2
+                unitInMove.x += unitInMove.speed
+                unitInMove.moveX -= unitInMove.speed
             elif unitInMove.moveX < 0:
-                unitInMove.x -= 2
-                unitInMove.moveX += 2
+                unitInMove.x -= unitInMove.speed
+                unitInMove.moveX += unitInMove.speed
             else:
                 pass
 
             if unitInMove.moveY > 0:
-                unitInMove.y += 2
-                unitInMove.moveY -= 2
+                unitInMove.y += unitInMove.speed
+                unitInMove.moveY -= unitInMove.speed
             elif unitInMove.moveY < 0:
-                unitInMove.y -= 2
-                unitInMove.moveY += 2
+                unitInMove.y -= unitInMove.speed
+                unitInMove.moveY += unitInMove.speed
             else:
                 pass
 
@@ -238,6 +239,8 @@ class MoveQueueManager():
                 if isinstance(object,Building):
                     objectMatrixPos = object.matrixPosition[0]
                     if math.dist(objectMatrixPos, target.matrixPosition) > object.shotDistance:
+                        object.attack = False
+                        object.target = []
                         self.root.move_queue.remove(order)
 
                 targetMatrixPos = target.matrixPosition

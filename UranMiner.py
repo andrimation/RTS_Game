@@ -16,7 +16,7 @@ class UranMiner(GameUnit):
     def __init__(self,root,unitType,side,player,combatTeam):
         super(UranMiner, self).__init__(root,unitType,side,player,combatTeam)
         self.root = ""
-        self.speed = 1
+        self.speed = 2
         self.matrixObjectSize = 1
         self.matrixPosition = []
         self.moveEndPosition = []

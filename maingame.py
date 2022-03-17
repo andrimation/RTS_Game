@@ -557,8 +557,8 @@ class MainWindow(FloatLayout):
         self.ids["SidePanelWidget"].index = 0
 
         # Computer
-        # if self.computerPlayerEnabled:
-        #     self.computerPlayer.execute_Computer_Play()
+        if self.computerPlayerEnabled:
+            self.computerPlayer.execute_Computer_Play()
 
         # self.counter += 1
         # if self.counter == 300:

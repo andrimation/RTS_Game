@@ -4,12 +4,13 @@ import copy
 import GameUnit
 from UranMiner import UranMiner
 from Building import Building
+import GameUnit
 
 class MoveQueueManager():
     def __init__(self,root):
         self.root = root
 
-    def check_destination_cell(self,destination,unitInMove):
+    def check_destination_cell(self,destination,unitInMove,move_Type):
         """Function checks if destination is duplicated in orders_destinations, in move_queue and if position is free
             - function returns new destination if cell is duplicated or not-free, or returns destination"""
 
@@ -29,7 +30,7 @@ class MoveQueueManager():
             if unit.matrixPosition == destination:
                 cellOccurCounter += 1
 
-        if cellOccurCounter == 0:
+        if cellOccurCounter == 0 and move_Type != "Attack":
             return destination
         else:
             new_destination = MarsPathfinder_setup.find_Closesd_Free(self.root.numpyMapMatrix,destination)
@@ -85,16 +86,20 @@ class MoveQueueManager():
         if self.root.orders_destinations:
             order_destination = self.root.orders_destinations.pop(0)
             unit = order_destination[0]
-            destination = self.check_destination_cell(order_destination[1],unit)
             move_type = order_destination[2]
+            destination = self.check_destination_cell(order_destination[1],unit,move_type)
             move_target = order_destination[3]
             move_targetFirstPos = order_destination[4]
-
+            if isinstance(unit,GameUnit.Tank):
+                print(order_destination)
+                print(destination)
             if not isinstance(unit,Building):
                 try:
                     computePath = MarsPathfinder_setup.marsPathfinder(unit.matrixPosition,destination,self.root.numpyMapMatrix,move_type)
                     current_order = [unit,destination, computePath, move_type,move_target, move_targetFirstPos]
                     unit.moveEndPosition = destination
+                    # if isinstance(unit, GameUnit.Tank):
+                    #     print(current_order)
                 except:
                     self.root.updateGameMatrix()
                     computePath = None

@@ -228,7 +228,7 @@ class MoveQueueManager():
                 except:
                     pass
 
-    # Tu jest coś zjebane
+    # Tu jest coś zjebane - jedna jednostka nie rusza do ataku ?!
     def attack(self):
         for order in self.root.move_queue:
             if order[3] == "Attack" and order[4] != None and order[4] != []:

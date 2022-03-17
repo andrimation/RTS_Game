@@ -29,7 +29,7 @@ class HumanPlayer():
         self.root.ids["Money_label"].text = str(self.money)
 
     def build_unit(self,unitType,side):
-        if len(self.units) % 5 == 0 and len(self.units) < self.playerMaxUnitsCount:
+        if len(self.units) <= self.playerMaxUnitsCount-5:
             for x in range(5):
                 newUnit = GameUnit(self.root,unitType,side,self,self.combatTeams).create_unit()
                 if self.money >= newUnit.buildCost:

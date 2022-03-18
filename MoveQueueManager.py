@@ -90,16 +90,12 @@ class MoveQueueManager():
             destination = self.check_destination_cell(order_destination[1],unit,move_type)
             move_target = order_destination[3]
             move_targetFirstPos = order_destination[4]
-            if isinstance(unit,GameUnit.Tank):
-                print(order_destination)
-                print(destination)
+
             if not isinstance(unit,Building):
                 try:
                     computePath = MarsPathfinder_setup.marsPathfinder(unit.matrixPosition,destination,self.root.numpyMapMatrix,move_type)
                     current_order = [unit,destination, computePath, move_type,move_target, move_targetFirstPos]
                     unit.moveEndPosition = destination
-                    # if isinstance(unit, GameUnit.Tank):
-                    #     print(current_order)
                 except:
                     self.root.updateGameMatrix()
                     computePath = None
@@ -236,8 +232,10 @@ class MoveQueueManager():
 
     # Tu jest coś zjebane - jedna jednostka nie rusza do ataku ?!
     def attack(self):
+        # Jednostki wroga mogą atakować swoje unity !
         for order in self.root.move_queue:
             if order[3] == "Attack" and order[4] != None and order[4] != []:
+
                 object = order[0]
                 target = order[4]
                 objectMatrixPos = object.matrixPosition
@@ -247,6 +245,7 @@ class MoveQueueManager():
                         object.attack = False
                         object.target = []
                         self.root.move_queue.remove(order)
+                        continue
 
                 targetMatrixPos = target.matrixPosition
                 if isinstance(target,Building):

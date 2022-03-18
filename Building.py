@@ -195,7 +195,6 @@ class Building(Button):
         self.root.minimapObject.add_widget(self.minimapUnit)
         self.root.ids["SidePanelWidget"].index = 0
 
-
     # Rafinery only
     def add_uranMiner(self):
         """Add uranMiner next to rafinery - need separate invoke when building matrix position is known"""
@@ -219,24 +218,24 @@ class Building(Button):
         for position in self.matrixPosition:
             self.root.numpyMapMatrix[position[0]][position[1]] = 1
 
-
     def on_press(self):
         if self.side == "Enemy":
             self.root.click_on_map("Attack", self)
 
     def auto_attack(self):
         # Tu jest jakiś problem że na raz atakuje kilka unitów~! i to może robić jakąś korupcję z istnieniem zniszczonych jednostek
-        if self.buildingType == "DefenceTower":
-            if self.target == [] and self.attack == False:
-                for unit in self.root.movableObjects:
-                    if unit.player != self.player and math.dist(self.matrixPosition[0],unit.matrixPosition) < self.shotDistance:
-                        auto_attack = [self, unit.matrixPosition, [self.matrixPosition[0]], "Attack", unit,list(unit.matrixPosition.copy())]
-                        self.root.move_queue.append(auto_attack)
-                        return
-            else:
-                return
-
-
+        try:
+            if self.buildingType == "DefenceTower":
+                if self.target == [] and self.attack == False:
+                    for unit in self.root.movableObjects:
+                        if unit.player != self.player and math.dist(self.matrixPosition[0],unit.matrixPosition) < self.shotDistance:
+                            auto_attack = [self, unit.matrixPosition, [self.matrixPosition[0]], "Attack", unit,list(unit.matrixPosition.copy())]
+                            self.root.move_queue.append(auto_attack)
+                            return
+                else:
+                    return
+        except:
+            return
 
     def remove_object(self):
         for order in self.root.move_queue:

@@ -457,9 +457,14 @@ class MainWindow(FloatLayout):
             for object in selectedObjectsList:
                 if move == "Move":
                     self.orders_destinations.append([object, [matrixX, matrixY],move,target,None])
-                elif move == "Attack":
+                    continue
+                elif move == "Attack" and isinstance(object,UranMiner):
+                    move = "Move"
                     self.orders_destinations.append([object, [matrixX, matrixY], move,target,list(target.matrixPosition.copy())])
-
+                    continue
+                elif move == "Attack":
+                    self.orders_destinations.append([object, [matrixX, matrixY], move, target, list(target.matrixPosition.copy())])
+                    continue
 
 
     def update_positionX(self):
@@ -493,8 +498,19 @@ class MainWindow(FloatLayout):
         for building in self.buildings:
             building.auto_attack()
 
-    def order_cleaner(self):
+    def order_and_units_cleaner(self):
+        for order in self.orders_destinations:
+            if isinstance(order[0],GameUnit) and order[3] not in self.movableObjects and order[2] == "Attack":
+                order[0].attack = False
+                order[0].target = []
+                self.orders_destinations.remove(order)
+            if isinstance(order[0],GameUnit) and order[0] not in self.movableObjects:
+                self.orders_destinations.remove(order)
         for order in self.move_queue:
+            if isinstance(order[0],GameUnit) and order[4] not in self.movableObjects and order[3] == "Attack":
+                order[0].attack = False
+                order[0].target = []
+                self.move_queue.remove(order)
             if isinstance(order[0],GameUnit) and order[0] not in self.movableObjects:
                 self.move_queue.remove(order)
             if isinstance(order[0],Building) and order[4] not in self.movableObjects:
@@ -552,7 +568,7 @@ class MainWindow(FloatLayout):
         end = time.time()
         # print(end - start, "self.build_queue_execute()")
         # Clean orders
-        self.order_cleaner()
+        self.order_and_units_cleaner()
 
         self.ids["SidePanelWidget"].index = 0
 

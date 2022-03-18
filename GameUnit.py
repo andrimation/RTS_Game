@@ -48,8 +48,6 @@ class GameUnit(Button):
         self.startPos = []
         self.target = []
 
-
-
     def create_unit(self):
         if self.unitType == "Tank":
             return Tank(self.root,self.unitType,self.side,self.player,self.combatTeam)
@@ -84,7 +82,6 @@ class GameUnit(Button):
         else:
             self.root.click_on_map("Attack",self)
 
-
     def add_unit_to_build_queue(self):
         self.player.buildUnitsQueue.append(self)
 
@@ -117,6 +114,8 @@ class GameUnit(Button):
 
     # Z jakiegoś powodu, gdy zostaje zniszczonych kilka jednostek, minimapa przestaje sie dla innych updejtować ;0
     def remove_object(self):
+        if isinstance(self,RocketLauncher):
+            print("Zniszczony !: ",self)
         for unit in self.root.movableObjects:
             if unit.target == self:
                 unit.target = []
@@ -174,25 +173,39 @@ class GameUnit(Button):
 
     # Tu się dzieje coś grubo, prawdopodobnie z self.attack ?
     def auto_attack(self):
-        make_Auto_Attack = True
+
         for destination in self.root.orders_destinations:
             if destination[0] == self:
                 return
         for order in self.root.move_queue:
             if order[0] == self:
                 return
-        # Żeby zrobić auto-atakującego kompa, wystarczy zrobić dla jednostek kompa distance obejmujący całą mapę !, i niech losują co zaatakują !
-        for unit in self.root.movableObjects:
-            if unit.player != self.player and math.dist(self.matrixPosition,unit.matrixPosition) < 10:
-                auto_attack = [self,unit.matrixPosition,"Attack",unit,list(unit.matrixPosition.copy())]
-                self.root.orders_destinations.append(auto_attack)
 
-                for subUnit in self.root.movableObjects:
-                    if self.side == subUnit.side and self.combatTeam == subUnit.combatTeam and self != subUnit:
-                        auto_attack = [subUnit, unit.matrixPosition, "Attack", unit, list(unit.matrixPosition.copy())]
+        if isinstance(self,Tank) or isinstance(self,RocketLauncher):
+            if self.target == [] and self.attack == False:
+                for unit in self.root.movableObjects:
+                    if unit.player != self.player and math.dist(self.matrixPosition,unit.matrixPosition) <= self.shotDistance:
+                        auto_attack = [self, unit.matrixPosition, "Attack", unit,list(unit.matrixPosition.copy())]
                         self.root.orders_destinations.append(auto_attack)
+                        return
+        else:
+            return
 
 
+
+
+        # # Żeby zrobić auto-atakującego kompa, wystarczy zrobić dla jednostek kompa distance obejmujący całą mapę !, i niech losują co zaatakują !
+        # # Coś się zacina gdy jednostki zaczynają walczyć w dużej liczbie. - zacinają sie i strzelają sobie "gdzieś" w siebie jakby
+        # # + wieże nadal się blokują -> poprawić to jak poprawione jest w buildingach
+        # for unit in self.root.movableObjects:
+        #     if unit.player != self.player and math.dist(self.matrixPosition,unit.matrixPosition) < 10:
+        #         auto_attack = [self,unit.matrixPosition,"Attack",unit,list(unit.matrixPosition.copy())]
+        #         self.root.orders_destinations.append(auto_attack)
+        #
+        #         for subUnit in self.root.movableObjects:
+        #             if self.side == subUnit.side and self.combatTeam == subUnit.combatTeam and self != subUnit:
+        #                 auto_attack = [subUnit, unit.matrixPosition, "Attack", unit, list(unit.matrixPosition.copy())]
+        #                 self.root.orders_destinations.append(auto_attack)
 
 class Tank(GameUnit):
     def __init__(self,root,unitType,side,player,combatTeam):
@@ -200,12 +213,10 @@ class Tank(GameUnit):
 
         self.buildCost = 250
         self.buildTime = 10
-        self.speed = 6
+        self.speed = 2
 
         self.size_hint = (None,None)
         self.size = (60,60)
-
-
 
 class RocketLauncher(GameUnit):
     def __init__(self,root,unitType,side,player,combatTeam):
@@ -213,17 +224,11 @@ class RocketLauncher(GameUnit):
 
         self.shotDistance = 12
         self.buildCost = 2500
-        self.buildTime = 300
-        self.speed = 1
+        self.buildTime = 5
+        self.speed = 6
 
         self.size_hint = (None, None)
         self.size = (60, 60)
-
-
-
-
-
-
 
 class Bullet(GameUnit):
     def __init__(self):

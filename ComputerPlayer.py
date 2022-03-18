@@ -52,6 +52,7 @@ class ComputerPlayer():
         self.attackCounter = 0
         self.side = "Enemy"
 
+
     # Delay Functions
     def build_Delay(self):
         if self.computerBuildDelay != self.computerBuildDelayTIME:

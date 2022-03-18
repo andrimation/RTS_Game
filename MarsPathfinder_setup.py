@@ -55,9 +55,12 @@ def find_Closesd_Free(gameMatrix,endPosition):
             for y in range(-n,n):
                 q = random.choice([-1, 1])
                 y *= q
-                if (endPosition[0] + x >= 0) and (endPosition[1] + y >= 0) and (endPosition[0] + x < len(gameMatrix)-1) and (endPosition[1] + y < len(gameMatrix[0])-1):
-                    if gameMatrix[endPosition[0] + x][endPosition[1] + y] != 1:
-                        results.append([endPosition[0]+x,endPosition[1]+y])
+                try:
+                    if (endPosition[0] + x >= 0) and (endPosition[1] + y >= 0) and (endPosition[0] + x < len(gameMatrix)-1) and (endPosition[1] + y < len(gameMatrix[0])-1):
+                        if gameMatrix[endPosition[0] + x][endPosition[1] + y] != 1:
+                            results.append([endPosition[0]+x,endPosition[1]+y])
+                except:
+                    pass
 
     results.sort(key= lambda x: abs(x[0]-endPosition[0])+abs(x[1]-endPosition[1]))
     results = results[:5]

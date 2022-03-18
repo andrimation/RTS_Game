@@ -5,6 +5,7 @@ class HumanPlayer():
         self.root = root
         self.money = 100_000
         self.buildings = []
+        self.autoAttackDistance = 10
 
         self.aviableEnergy = 0
         self.buildUnitsQueue = []

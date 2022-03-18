@@ -230,6 +230,7 @@ class Building(Button):
                     for unit in self.root.movableObjects:
                         if unit.player != self.player and math.dist(self.matrixPosition[0],unit.matrixPosition) < self.shotDistance:
                             auto_attack = [self, unit.matrixPosition, [self.matrixPosition[0]], "Attack", unit,list(unit.matrixPosition.copy())]
+                            print(auto_attack)
                             self.root.move_queue.append(auto_attack)
                             return
                 else:

@@ -74,7 +74,7 @@ class GameUnit(Button):
         self.root.ids["SidePanelWidget"].index = 0
 
     def on_release(self):
-        if self.side == "Friend":
+        if self.player == self.root.humanPlayer:
             self.selected = not self.selected
             for unit in self.root.movableObjects:
                 if unit.combatTeam == self.combatTeam and unit.side == self.side:
@@ -236,7 +236,7 @@ class Bullet(GameUnit):
 
         self.root = ""
         self.selected = BooleanProperty(False)
-        self.speed = 1500
+        self.speed = 1000
         self.matrixPosition = []
         self.go = False
 

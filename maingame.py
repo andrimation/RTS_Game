@@ -319,7 +319,7 @@ class MainWindow(FloatLayout):
 
 
     def bullet_shot_execute(self):
-        # Jeden problem wykryty - bullet nie znika z self.bullets
+        # W momencie kiedy jeden bullet trafia w cel, wszystkie wystrzelone w danym momencie pociski znikają !! ( chuj wie o co chodzi )
         for bullet in self.bullets:
             bulletRootPos = bullet.root.matrixPosition
             if isinstance(bullet.root,Building):
@@ -500,14 +500,14 @@ class MainWindow(FloatLayout):
 
     def order_and_units_cleaner(self):
         for order in self.orders_destinations:
-            if isinstance(order[0],GameUnit) and order[3] not in self.movableObjects and order[2] == "Attack":
+            if isinstance(order[0],GameUnit)and not isinstance(order[3],Building) and order[3] not in self.movableObjects and order[2] == "Attack":
                 order[0].attack = False
                 order[0].target = []
                 self.orders_destinations.remove(order)
             if isinstance(order[0],GameUnit) and order[0] not in self.movableObjects:
                 self.orders_destinations.remove(order)
         for order in self.move_queue:
-            if isinstance(order[0],GameUnit) and order[4] not in self.movableObjects and order[3] == "Attack":
+            if isinstance(order[0],GameUnit) and not isinstance(order[4],Building) and order[4] not in self.movableObjects and order[3] == "Attack":
                 order[0].attack = False
                 order[0].target = []
                 self.move_queue.remove(order)

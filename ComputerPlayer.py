@@ -28,7 +28,8 @@ import time
 class ComputerPlayer():
     def __init__(self,root):
         self.root = root
-        self.money = 15_000
+        self.money = 150_000
+        self.power = 50_000
 
         self.computerBuildDelay = 0
         self.computerBuildDelayTIME = 0
@@ -117,58 +118,24 @@ class ComputerPlayer():
         self.execute_units_build_queue()
         # self.attack_human()
 
-        # Zrobić jakoś tak, żeby nie za jednym razem wydawał rozkazy wszystkim, ale żeby za 1 razem 1 grupie, za 2 razem drugiej grupie itp.
-        # if self.attackCounter == 100:
-        #     self.attack_human()
-        #     self.attackCounter = 0
-        # else:
-        #     self.attackCounter += 1
-        #
-        # # Attack/defend tasks
-        # pass
 
     def execute_units_build_queue(self):
         if self.root.humanPlayer.units:
             if len(self.units) % 5 == 0 and len(self.units) < self.playerMaxUnitsCount:
-                for x in range(5):
-                    if self.WarFactory != None:
-                        unitType = random.choice(self.aviableUnits)
-                        currentUnit = GameUnit(self.root,unitType,"Enemy",self,self.combatTeams).create_unit()
+                unitType = random.randint(1,100)
+                if unitType % 7 == 0:
+                    unitType = ["RocketLauncher",2500]
+                else:
+                    unitType = ["Tank",650]
+                if self.WarFactory != None:
+                    for x in range(5):
+                        currentUnit = GameUnit(self.root,unitType[0],"Enemy",self,self.combatTeams).create_unit()
                         currentUnit.build_unit_in_factory()
-                # self.attack_human()
                 self.combatTeams += 1
 
     def update_money(self):
         self.root.ids["Money_labelComp"].text = str(self.money)
 
-    def find_attack_target(self,teamNumber):
-        if teamNumber in [4,3,2]:
-            if self.root.humanPlayer.units:
-                target = random.choice(self.root.humanPlayer.units)
-                return target
-            elif self.root.humanPlayer.buildings:
-                target = random.choice(self.root.humanPlayer.buildings)
-                return target
-        else:
-            if self.root.humanPlayer.buildings:
-                target = random.choice(self.root.humanPlayer.buildings)
-                return target
-            elif self.root.humanPlayer.units:
-                target = random.choice(self.root.humanPlayer.units)
-                return target
 
 
-    # def attack_human(self):
-    #     # plan jest taki - jest 5 teamów, 3 atakują najpierw rocket launchery i tanki ( min 1 rocket launchery, pozostałe 2 losowo ), 2 atakują najpierw budynki.
-    #     targets = []
-    #     if self.root.humanPlayer.units:
-    #         target = self.find_attack_target(4)
-    #         for unit in self.units:
-    #             if unit.combatTeam == 4 and unit.target == []:
-    #                 unit.target = target
-    #                 self.root.orders_destinations.append([unit, target.matrixPosition, "Attack", target])
-    #                 self.root.updateGameMatrix()
-    #                 print("dodaje")
 
-
-        pass

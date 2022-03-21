@@ -122,10 +122,26 @@ class Building(Button):
                     self.root.buildingToAdd.append(self)
                 self.root.ids["SidePanelWidget"].index = 0
 
-            self.root.humanPlayer.money -= self.buildAndEnergyCosts[self.buildingType][0]
-            self.root.humanPlayer.update_money()
-            self.root.humanPlayer.aviableEnergy += self.buildAndEnergyCosts[self.buildingType][1]
+            if self.player == self.root.humanPlayer:
+                self.player.money -= self.buildAndEnergyCosts[self.buildingType][0]
+                self.player.power += self.buildAndEnergyCosts[self.buildingType][1]
+                self.player.update_money()
+                self.player.update_power()
+                self.low_power()
+                self.player.aviableEnergy += self.buildAndEnergyCosts[self.buildingType][1]
             return self
+
+    def low_power(self):
+        if self.player.power <= 0:
+            self.root.ids["MenuButton_BuildTank"].disabled = True
+            self.root.ids["MenuButton_BuildTank"].text = "Low Power"
+            self.root.ids["MenuButton_BuildRocketLauncher"].disabled = True
+            self.root.ids["MenuButton_BuildRocketLauncher"].text = "Low Power"
+        else:
+            self.root.ids["MenuButton_BuildTank"].disabled = False
+            self.root.ids["MenuButton_BuildTank"].text = "Tank"
+            self.root.ids["MenuButton_BuildRocketLauncher"].disabled = False
+            self.root.ids["MenuButton_BuildRocketLauncher"].text = "RocketLauncher"
 
     def move_building_widget_along_cursor(self):
         mouseX = (((Window.mouse_pos[0] - Window.size[0] * 0.1) // 60)) * 60
@@ -157,10 +173,11 @@ class Building(Button):
                 self.root.buildings.append(self)
                 self.root.buildingToAdd = []
                 self.root.recomupute_all_orders()
+                self.root.humanPlayer.update_power()
                 pass
 
     def build_position_possible(self,matrixY,matrixX):
-        """Checking if all fields for build are free and distance"""
+        """Checking if all fields for build are free and distance from main base"""
         maxBuildDistance = 25
         for y in range(self.matrixSize[0]):
             for x in range(self.matrixSize[1]):
@@ -223,20 +240,16 @@ class Building(Button):
             self.root.click_on_map("Attack", self)
 
     def auto_attack(self):
-        # Tu jest jakiś problem że na raz atakuje kilka unitów~! i to może robić jakąś korupcję z istnieniem zniszczonych jednostek
-        try:
-            if self.buildingType == "DefenceTower":
-                if self.target == [] and self.attack == False:
-                    for unit in self.root.movableObjects:
-                        if unit.player != self.player and math.dist(self.matrixPosition[0],unit.matrixPosition) < self.shotDistance:
-                            auto_attack = [self, unit.matrixPosition, [self.matrixPosition[0]], "Attack", unit,list(unit.matrixPosition.copy())]
-                            print(auto_attack)
-                            self.root.move_queue.append(auto_attack)
-                            return
-                else:
-                    return
-        except:
+        if self.buildingType == "DefenceTower":
+            if self.target == [] and self.attack == False:
+                for unit in self.root.movableObjects:
+                    if unit.player != self.player and math.dist(self.matrixPosition[0],unit.matrixPosition) < self.shotDistance:
+                        auto_attack = [self, unit.matrixPosition, [self.matrixPosition[0]], "Attack", unit,list(unit.matrixPosition.copy())]
+                        self.root.move_queue.append(auto_attack)
+                        return
+        else:
             return
+
 
     def remove_object(self):
         for order in self.root.move_queue:
@@ -271,5 +284,10 @@ class Building(Button):
         except:
             pass
 
+        if self.buildingType == "WarFactory" and self.player == self.root.humanPlayer:
+            self.root.ids["MenuButton_BuildTank"].disabled = True
+            self.root.ids["MenuButton_BuildRocketLauncher"].disabled = True
+
+        self.player.WarFactory = None
 
 

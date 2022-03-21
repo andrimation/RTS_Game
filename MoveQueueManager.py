@@ -123,6 +123,7 @@ class MoveQueueManager():
 
     def execute_units_movement(self):
         # Avoid updating minimap in every step
+        # Z jakiegoś powodu nie updejtuje mi wrogich jednostek ?? albo wszystkich, które działają w auto-ataku
         self.root.miniMapCounter += 1
         refreshMinimap = False
         if self.root.miniMapCounter == 30:
@@ -230,12 +231,11 @@ class MoveQueueManager():
                 except:
                     pass
 
-    # Tu jest coś zjebane - jedna jednostka nie rusza do ataku ?!
+    # Coś jest zjebane z atakiem - jednostki jakby atakują zlą pozycję targetu ( ale tylko czasem )
     def attack(self):
         # Jednostki wroga mogą atakować swoje unity !
         for order in self.root.move_queue:
             if order[3] == "Attack" and order[4] != None and order[4] != []:
-
                 object = order[0]
                 target = order[4]
                 objectMatrixPos = object.matrixPosition

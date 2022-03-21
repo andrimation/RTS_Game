@@ -105,6 +105,7 @@ class MainWindow(FloatLayout):
 
     def start(self):
         self.remove_widget(self.ids["StartButton"])
+        self.ids["MenuButton_BuildMainBase"].disabled = False
         self.positionX = Window.size[0] * 0.1
         self.create_minimap()
         self.add_uran()
@@ -157,7 +158,7 @@ class MainWindow(FloatLayout):
                 rangeYStart,rangeYEnd = rangeYEnd,rangeYStart
 
             for object in self.movableObjects:
-                if object.pos[0] in range(rangeXStart,rangeXEnd) and object.pos[1] in range(rangeYStart,rangeYEnd):
+                if object.pos[0] in range(rangeXStart,rangeXEnd) and object.pos[1] in range(rangeYStart,rangeYEnd) and object.player == self.humanPlayer:
                     object.selected = True
                     for unit in self.movableObjects:
                         if unit.combatTeam == object.combatTeam and unit.side == object.side:
@@ -265,7 +266,7 @@ class MainWindow(FloatLayout):
 
 
 
-    # Pamiętać żeby jak wcisnę jakiś guzik z dodawaniem czegokolwiek, to żeby odznaczac wszystkie jednostki !!! - albo w ogóle zatrzymać całą grę !
+
 
     def build_HumanPlayerUnit(self,unitType,side):
         self.humanPlayer.build_unit(unitType,side)
@@ -319,7 +320,6 @@ class MainWindow(FloatLayout):
 
 
     def bullet_shot_execute(self):
-        # W momencie kiedy jeden bullet trafia w cel, wszystkie wystrzelone w danym momencie pociski znikają !! ( chuj wie o co chodzi )
         for bullet in self.bullets:
             bulletRootPos = bullet.root.matrixPosition
             if isinstance(bullet.root,Building):
@@ -370,9 +370,7 @@ class MainWindow(FloatLayout):
                 bullet.target.health -= bullet.root.firePower
                 self.bullets.remove(bullet)
                 self.remove_widget(bullet)
-                for bulletTest in self.bullets:
-                    if bulletTest.target == bullet.target:
-                        bulletTest.target = None
+
 
             elif math.dist(bulletRootPos,[bulletRootPos[0]+bullet.moveX//60,bulletRootPos[1]+bullet.moveY//60]) >= bullet.distanceToFly:
                 self.bullets.remove(bullet)
@@ -493,11 +491,13 @@ class MainWindow(FloatLayout):
             object.mineUran()
 
         for object in self.movableObjects:
+            # Błedem jest to że w jednej klatce chcę obliczyć dla wszystkich unitów ?
             object.auto_attack()
 
         for building in self.buildings:
             building.auto_attack()
 
+    # Z jakiegoś powodu towery dalej gubią cel ! i przestają strzelać w ogóle
     def order_and_units_cleaner(self):
         for order in self.orders_destinations:
             if isinstance(order[0],GameUnit)and not isinstance(order[3],Building) and order[3] not in self.movableObjects and order[2] == "Attack":
@@ -510,13 +510,22 @@ class MainWindow(FloatLayout):
             if isinstance(order[0],GameUnit) and not isinstance(order[4],Building) and order[4] not in self.movableObjects and order[3] == "Attack":
                 order[0].attack = False
                 order[0].target = []
-                self.move_queue.remove(order)
+                try:
+                    self.move_queue.remove(order)
+                except:
+                    pass
             if isinstance(order[0],GameUnit) and order[0] not in self.movableObjects:
-                self.move_queue.remove(order)
+                try:
+                    self.move_queue.remove(order)
+                except:
+                    pass
             if isinstance(order[0],Building) and order[4] not in self.movableObjects:
                 order[0].attack = False
                 order[0].target = []
-                self.move_queue.remove(order)
+                try:
+                    self.move_queue.remove(order)
+                except:
+                    pass
 
 
 

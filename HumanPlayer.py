@@ -4,6 +4,7 @@ class HumanPlayer():
     def __init__(self,root):
         self.root = root
         self.money = 100_000
+        self.power = 1000
         self.buildings = []
         self.autoAttackDistance = 10
 
@@ -29,12 +30,15 @@ class HumanPlayer():
     def update_money(self):
         self.root.ids["Money_label"].text = str(self.money)
 
+    def update_power(self):
+        self.root.ids["Power_label"].text = str(self.power)
+
+
     def build_unit(self,unitType,side):
         if len(self.units) <= self.playerMaxUnitsCount-5:
             for x in range(5):
                 newUnit = GameUnit(self.root,unitType,side,self,self.combatTeams).create_unit()
                 if self.money >= newUnit.buildCost:
                     newUnit.add_unit_to_build_queue()
-                    self.money -= newUnit.buildCost
-                    self.update_money()
+
             self.combatTeams += 1

@@ -31,6 +31,9 @@ class GameUnit(Button):
         self.minimapName = None
         self.selected = False
         self.combatTeam = combatTeam
+        self.auto_attack_distance = 5
+
+
 
         self.moveX = 0
         self.moveY = 0
@@ -54,24 +57,30 @@ class GameUnit(Button):
         elif self.unitType == "RocketLauncher":
             return RocketLauncher(self.root,self.unitType,self.side,self.player,self.combatTeam)
 
-    def build_unit_in_factory(self):
-        currentWarFactory = self.player.WarFactory
-        self.root.updateGameMatrix()
-        origin = currentWarFactory.matrixPosition[0]
-        self.matrixPosition = MarsPathfinder_setup.find_Closesd_Free_NoRandom(self.root.numpyMapMatrix,origin)
-        posX = self.root.gameMapMatrix[self.matrixPosition[0]][self.matrixPosition[1]][0]+self.root.positionX
-        posY = self.root.gameMapMatrix[self.matrixPosition[0]][self.matrixPosition[1]][1]+self.root.positionY
-        self.pos = (posX,posY)
-        self.add_on_minimap()
-        self.root.update_money()
-        self.root.movableObjects.append(self)
-        self.root.numpyMapMatrix[self.matrixPosition[0]][self.matrixPosition[1]] = 1
-        self.root.obj_add_index += 1
-        self.root.add_widget(self,index=self.root.ids["SidePanelWidget"].index+1)
-        self.player.units.append(self)
 
-        self.root.onMapObjectsToShift.append(self)
-        self.root.ids["SidePanelWidget"].index = 0
+    def build_unit_in_factory(self):
+        # Dodać sprawdzenie czy dany gracz ma war factory !! że np jak je zniszczymy to żeby komp dalej nie produkował
+        if self.player.WarFactory != None and self.player.power > 0:
+            currentWarFactory = self.player.WarFactory
+            self.root.updateGameMatrix()
+            origin = currentWarFactory.matrixPosition[0]
+            self.matrixPosition = MarsPathfinder_setup.find_Closesd_Free_NoRandom(self.root.numpyMapMatrix,origin)
+            posX = self.root.gameMapMatrix[self.matrixPosition[0]][self.matrixPosition[1]][0]+self.root.positionX
+            posY = self.root.gameMapMatrix[self.matrixPosition[0]][self.matrixPosition[1]][1]+self.root.positionY
+            self.player.money -= self.buildCost
+            self.pos = (posX,posY)
+            self.add_on_minimap()
+            self.root.update_money()
+            self.root.movableObjects.append(self)
+            self.root.numpyMapMatrix[self.matrixPosition[0]][self.matrixPosition[1]] = 1
+            self.root.obj_add_index += 1
+            self.root.add_widget(self,index=self.root.ids["SidePanelWidget"].index+1)
+            self.player.units.append(self)
+
+            self.root.onMapObjectsToShift.append(self)
+            self.root.ids["SidePanelWidget"].index = 0
+        else:
+            self.player.buildUnitsQueue = []
 
     def on_release(self):
         if self.player == self.root.humanPlayer:
@@ -114,8 +123,7 @@ class GameUnit(Button):
 
     # Z jakiegoś powodu, gdy zostaje zniszczonych kilka jednostek, minimapa przestaje sie dla innych updejtować ;0
     def remove_object(self):
-        if isinstance(self,RocketLauncher):
-            print("Zniszczony !: ",self)
+
         for unit in self.root.movableObjects:
             if unit.target == self:
                 unit.target = []
@@ -165,13 +173,11 @@ class GameUnit(Button):
         if self.movingToTarget == False:
             self.movingToTarget = True
 
-            # Chuj wie co tu się dzieje - po wybraniu jakiegoś obiektu na target, on zaczyna jakby znikać z matrixa i porusza się po całym polu ?!
             for unit in self.root.humanPlayer.units:
                 self.root.updateGameMatrix()
                 if unit.matrixPosition != []:
                     self.root.orders_destinations.append([self,unit.matrixPosition,"Attack",unit,list(unit.matrixPosition.copy())])
 
-    # Tu się dzieje coś grubo, prawdopodobnie z self.attack ?
     def auto_attack(self):
 
         for destination in self.root.orders_destinations:
@@ -183,37 +189,31 @@ class GameUnit(Button):
 
         if isinstance(self,Tank) or isinstance(self,RocketLauncher):
             if self.target == [] and self.attack == False:
+                self.root.movableObjects.sort(key=lambda x: math.dist(x.matrixPosition, self.matrixPosition))
                 for unit in self.root.movableObjects:
-                    if unit.player != self.player and math.dist(self.matrixPosition,unit.matrixPosition) <= self.shotDistance:
+                    if self.player == self.root.computerPlayer:
+                        self.auto_attack_distance = 200
+                    if unit.player != self.player and math.dist(self.matrixPosition,unit.matrixPosition) <= self.auto_attack_distance:
                         auto_attack = [self, unit.matrixPosition, "Attack", unit,list(unit.matrixPosition.copy())]
                         self.root.orders_destinations.append(auto_attack)
+                        # Add attack order to all units in combat team
+                        for subUnit in self.root.movableObjects:
+                            if self.side == subUnit.side and self.combatTeam == subUnit.combatTeam and self != subUnit:
+                                            auto_attack = [subUnit, unit.matrixPosition, "Attack", unit, list(unit.matrixPosition.copy())]
+                                            self.root.orders_destinations.append(auto_attack)
                         return
         else:
             return
 
 
-
-
-        # # Żeby zrobić auto-atakującego kompa, wystarczy zrobić dla jednostek kompa distance obejmujący całą mapę !, i niech losują co zaatakują !
-        # # Coś się zacina gdy jednostki zaczynają walczyć w dużej liczbie. - zacinają sie i strzelają sobie "gdzieś" w siebie jakby
-        # # + wieże nadal się blokują -> poprawić to jak poprawione jest w buildingach
-        # for unit in self.root.movableObjects:
-        #     if unit.player != self.player and math.dist(self.matrixPosition,unit.matrixPosition) < 10:
-        #         auto_attack = [self,unit.matrixPosition,"Attack",unit,list(unit.matrixPosition.copy())]
-        #         self.root.orders_destinations.append(auto_attack)
-        #
-        #         for subUnit in self.root.movableObjects:
-        #             if self.side == subUnit.side and self.combatTeam == subUnit.combatTeam and self != subUnit:
-        #                 auto_attack = [subUnit, unit.matrixPosition, "Attack", unit, list(unit.matrixPosition.copy())]
-        #                 self.root.orders_destinations.append(auto_attack)
-
 class Tank(GameUnit):
     def __init__(self,root,unitType,side,player,combatTeam):
         super(Tank,self).__init__(root,unitType,side,player,combatTeam)
 
-        self.buildCost = 250
+        self.buildCost = 650
         self.buildTime = 10
         self.speed = 2
+        self.auto_attack_distance = 5
 
         self.size_hint = (None,None)
         self.size = (60,60)
@@ -226,6 +226,7 @@ class RocketLauncher(GameUnit):
         self.buildCost = 2500
         self.buildTime = 5
         self.speed = 6
+        self.auto_attack_distance = 12
 
         self.size_hint = (None, None)
         self.size = (60, 60)

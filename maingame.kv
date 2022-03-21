@@ -51,14 +51,18 @@
 
         Label:
             id: Dollars
-            text: "$$$"
-            pos: SidePanelWidget.width * 0.001,SidePanelWidget.height * 0.765
+            text: "Money:"
+            pos: SidePanelWidget.width * 0.001,SidePanelWidget.height * 0.775
             size: SidePanelWidget.width*0.045,SidePanelWidget.height *0.08
-
+        Label:
+            id: Dollars
+            text: "Power:"
+            pos: SidePanelWidget.width * 0.001,SidePanelWidget.height * 0.755
+            size: SidePanelWidget.width*0.045,SidePanelWidget.height *0.08
         Label:
             id: Money_label
             text: self.text
-            pos: SidePanelWidget.width * 0.05,SidePanelWidget.height * 0.765
+            pos: SidePanelWidget.width * 0.05,SidePanelWidget.height * 0.775
             size: SidePanelWidget.width*0.045,SidePanelWidget.height *0.08
 
         Label:
@@ -66,6 +70,11 @@
             text: self.text
             pos: SidePanelWidget.width * 0.05,SidePanelWidget.height * 0.2
             size: SidePanelWidget.width*0.045,SidePanelWidget.height *0.1
+        Label:
+            id: Power_label
+            text: self.text
+            pos: SidePanelWidget.width * 0.05,SidePanelWidget.height * 0.76
+            size: SidePanelWidget.width*0.045,SidePanelWidget.height *0.08
         Label:
             id: Energy_labelComp
             text: self.text
@@ -80,25 +89,25 @@
             pos: SidePanelWidget.width * 0.003,SidePanelWidget.height * 0.7
             size: SidePanelWidget.width*0.045,SidePanelWidget.height *0.08
             on_release: root.add_building("MainBase","Friend")
-            disabled: False
+            disabled: True
 
         MenuButton:
             id: MenuButton_BuildRafinery
-            text: "Rafinery" if not self.selected else "ADD mode ON"
+            text: "Rafinery"
             pos: SidePanelWidget.width * 0.05,SidePanelWidget.height * 0.7
             size: SidePanelWidget.width*0.045,SidePanelWidget.height *0.08
             on_release: root.add_building("Rafinery","Friend")
             disabled: True
         MenuButton:
             id: MenuButton_BuildPowerPlant
-            text: "PowerPlant" if not self.selected else "ADD mode ON"
+            text: "PowerPlant"
             pos: SidePanelWidget.width * 0.003,SidePanelWidget.height * 0.6185
             size: SidePanelWidget.width*0.045,SidePanelWidget.height *0.08
             on_release: root.add_building("PowerPlant","Friend")
             disabled: True
         MenuButton:
             id: MenuButton_BuildWarFactory
-            text: "WarFactory" if not self.selected else "ADD mode ON"
+            text: "WarFactory"
             pos: SidePanelWidget.width * 0.05,SidePanelWidget.height * 0.6185
             size: SidePanelWidget.width*0.045,SidePanelWidget.height *0.08
             on_release: root.add_building("WarFactory","Friend")
@@ -106,7 +115,7 @@
         # Odstępy miedzy buttonami - 0.0815
         MenuButton:
             id: MenuButton_BuildDefenceTower
-            text: "Defence_Tower" if not self.selected else "ADD mode ON"
+            text: "Defence_Tower"
             pos: SidePanelWidget.width * 0.003,SidePanelWidget.height * 0.537
             size: SidePanelWidget.width*0.045,SidePanelWidget.height *0.08
             on_release: root.add_building("DefenceTower","Friend")
@@ -120,7 +129,7 @@
             disabled: True
         MenuButton:
             id: MenuButton_BuildRocketLauncher
-            text: "RocketLauncher" if not self.selected else "ADD mode ON"
+            text: "RocketLauncher"
             pos: SidePanelWidget.width * 0.05,SidePanelWidget.height * 0.4
             size: SidePanelWidget.width*0.045,SidePanelWidget.height *0.08
             on_release: root.build_HumanPlayerUnit("RocketLauncher","Friend")

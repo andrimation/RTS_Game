@@ -17,7 +17,7 @@ from Storage import Storage
 class GameUnit(Button):
     selected = BooleanProperty(False)
     def __init__(self,root,unitType,side,player,combatTeam):
-        super(GameUnit, self).__init__()
+        super(Button,self).__init__()
         self.root = root
         self.player = player
         self.speed = 2
@@ -85,6 +85,7 @@ class GameUnit(Button):
     def on_release(self):
         if self.player == self.root.humanPlayer:
             self.selected = not self.selected
+            self.angle += 1
             for unit in self.root.movableObjects:
                 if unit.combatTeam == self.combatTeam and unit.side == self.side:
                     unit.selected = self.selected

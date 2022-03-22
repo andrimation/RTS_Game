@@ -406,6 +406,8 @@ class MainWindow(FloatLayout):
         self.moveQueueManager.compute_paths_for_orders()
 
     # Funkcja czyści wszystkie pending rozkazy i dodaje zje znów do orders destinations.
+    # Jakby tu zrobić że oznacza tylko rozkazy do usunięcia, a później co jedną klatkę usuwa i przelicza 1 rozkaz
+    # - to by nie bylo takiego laga w momencie dodawania budynku
     def recomupute_all_orders(self):
         self.orders_destinations = []
         for order in self.move_queue:

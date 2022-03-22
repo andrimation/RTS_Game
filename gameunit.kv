@@ -1,7 +1,28 @@
 <GameUnit>:
-    canvas.after:
+    angle: 0
+    text: 'hello world'
+    size_hint: None, None
+    pos: self.x,self.y
+    background_color: 0, 0, 0, 0
+    canvas.before:
+        PushMatrix
+        Rotate:
+            angle: self.angle
+            origin: self.center
         Color:
             rgb: (0.2,0.7,1) if self.selected else (0,1,0)
+
         Rectangle:
             size: self.width, self.height
             pos: self.x, self.y
+    canvas.after:
+        PopMatrix
+
+
+
+
+
+
+
+
+

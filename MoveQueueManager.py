@@ -241,9 +241,8 @@ class MoveQueueManager():
                 objectMatrixPos = object.matrixPosition
                 if isinstance(object,Building):
                     objectMatrixPos = object.matrixPosition[0]
-                    if math.dist(objectMatrixPos, target.matrixPosition) > object.shotDistance:
-                        object.attack = False
-                        object.target = []
+                    if math.dist(objectMatrixPos, target.matrixPosition) >= object.shotDistance:
+                        object.reset_attack()
                         self.root.move_queue.remove(order)
                         continue
 
@@ -256,8 +255,7 @@ class MoveQueueManager():
                     object.attack = True
                     object.target = target
                 else:
-                    object.attack = False
-                    object.target = []
+                    object.reset_attack()
                     continue
 
                 if object.attack == True:
@@ -268,8 +266,7 @@ class MoveQueueManager():
                         object.reloadCounter += 1
                     if  object.target.health <= 0:# Też musze usunąć order jednostki która zginęła !!
                         object.target.remove_object()
-                        object.attack = False
-                        object.target = []
+                        object.reset_attack()
 
     def computer_attack(self):
         for order in self.root.move_queue:

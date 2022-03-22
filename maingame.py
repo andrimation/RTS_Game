@@ -411,6 +411,8 @@ class MainWindow(FloatLayout):
         for order in self.move_queue:
             try:
                 self.orders_destinations.append([order[0],order[2][-1],order[3],order[4],None])
+                if isinstance(order[0],Building):
+                    order[0].reset_attack()
             except:
                 pass
         self.move_queue = []

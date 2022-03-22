@@ -240,7 +240,11 @@ class Building(Button):
             self.root.click_on_map("Attack", self)
 
     def auto_attack(self):
-        if self.buildingType == "DefenceTower":
+        for order in self.root.move_queue:
+            if order[0] == self:
+                return
+
+        if self.buildingType == "DefenceTower" and self.player == self.root.humanPlayer:
             if self.target == [] and self.attack == False:
                 for unit in self.root.movableObjects:
                     if unit.player != self.player and math.dist(self.matrixPosition[0],unit.matrixPosition) < self.shotDistance:
@@ -250,6 +254,9 @@ class Building(Button):
         else:
             return
 
+    def reset_attack(self):
+        self.attack = False
+        self.target = []
 
     def remove_object(self):
         for order in self.root.move_queue:

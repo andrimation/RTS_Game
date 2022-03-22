@@ -178,8 +178,11 @@ class GameUnit(Button):
                 if unit.matrixPosition != []:
                     self.root.orders_destinations.append([self,unit.matrixPosition,"Attack",unit,list(unit.matrixPosition.copy())])
 
-    def auto_attack(self):
+    def reset_attack(self):
+        self.attack = False
+        self.target = []
 
+    def auto_attack(self):
         for destination in self.root.orders_destinations:
             if destination[0] == self:
                 return
@@ -212,7 +215,7 @@ class Tank(GameUnit):
 
         self.buildCost = 650
         self.buildTime = 10
-        self.speed = 2
+        self.speed = 4
         self.auto_attack_distance = 5
 
         self.size_hint = (None,None)
@@ -225,7 +228,7 @@ class RocketLauncher(GameUnit):
         self.shotDistance = 12
         self.buildCost = 2500
         self.buildTime = 5
-        self.speed = 6
+        self.speed = 2
         self.auto_attack_distance = 12
 
         self.size_hint = (None, None)

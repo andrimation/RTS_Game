@@ -127,7 +127,7 @@ class ComputerPlayer():
                     unitType = ["RocketLauncher",2500]
                 else:
                     unitType = ["Tank",650]
-                if self.WarFactory != None:
+                if self.WarFactory != None and self.money >= 5*unitType[1]:
                     for x in range(5):
                         currentUnit = GameUnit(self.root,unitType[0],"Enemy",self,self.combatTeams).create_unit()
                         currentUnit.build_unit_in_factory()

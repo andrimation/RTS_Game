@@ -264,17 +264,11 @@ class MainWindow(FloatLayout):
                     pass
         # Tu usunąłem shiftowanie rozkazów - przez to były dziwne pozycje
 
-
-
-
-
     def build_HumanPlayerUnit(self,unitType,side):
         self.humanPlayer.build_unit(unitType,side)
 
-
     def build_queue_execute(self):
         self.humanPlayer.execute_build_queue()
-
 
     def make_bullet(self, startObject, endPos):
         new_Bullet = Bullet()
@@ -317,7 +311,6 @@ class MainWindow(FloatLayout):
 
     def update_money(self):
         self.ids["Money_label"].text = str(self.humanPlayer.money)
-
 
     def bullet_shot_execute(self):
         for bullet in self.bullets:
@@ -468,7 +461,6 @@ class MainWindow(FloatLayout):
                     self.orders_destinations.append([object, [matrixX, matrixY], move, target, list(target.matrixPosition.copy())])
                     continue
 
-
     def update_positionX(self):
         self.positionX = Window.size[0] * 0.1
 
@@ -530,8 +522,6 @@ class MainWindow(FloatLayout):
                     self.move_queue.remove(order)
                 except:
                     pass
-
-
 
 ###########################################################################
 

@@ -171,7 +171,6 @@ class MoveQueueManager():
                 if matrixPath and len(matrixPath) >= 2:
                     newPosition = matrixPath[1]
 
-                    # Colission -> next cell taken
                     if self.root.numpyMapMatrix[newPosition[0]][newPosition[1]] == 1:
                         if (math.dist(matrixPath[0],matrixDestination) <= 7 and self.check_order_remove(matrixDestination)
                                 and not isinstance(unitInMove,UranMiner) and moveType == "Move"):
@@ -202,6 +201,8 @@ class MoveQueueManager():
                         pass
                 else:
                     unitInMove.matrixPosition = currentPosition
+
+########### Dodać tu rotację. Mieć pozycję aktualną, i kąt do pozycji do której ma się przemieścić.
 
             if unitInMove.moveX > 0:
                 unitInMove.x += unitInMove.speed

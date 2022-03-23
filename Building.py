@@ -178,7 +178,7 @@ class Building(Button):
 
     def build_position_possible(self,matrixY,matrixX):
         """Checking if all fields for build are free and distance from main base"""
-        maxBuildDistance = 25
+        maxBuildDistance = 35
         for y in range(self.matrixSize[0]):
             for x in range(self.matrixSize[1]):
                 self.matrixPosition.append([matrixY - y, matrixX + x])
@@ -244,10 +244,10 @@ class Building(Button):
             if order[0] == self:
                 return
 
-        if self.buildingType == "DefenceTower" and self.player == self.root.humanPlayer:
+        if self.buildingType == "DefenceTower":
             if self.target == [] and self.attack == False:
                 for unit in self.root.movableObjects:
-                    if unit.player != self.player and math.dist(self.matrixPosition[0],unit.matrixPosition) < self.shotDistance:
+                    if unit.player != self.player and math.dist(self.matrixPosition[0],unit.matrixPosition) < self.shotDistance and not isinstance(unit,UranMiner):
                         auto_attack = [self, unit.matrixPosition, [self.matrixPosition[0]], "Attack", unit,list(unit.matrixPosition.copy())]
                         self.root.move_queue.append(auto_attack)
                         return

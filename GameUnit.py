@@ -33,7 +33,8 @@ class GameUnit(Button):
         self.combatTeam = combatTeam
         self.auto_attack_distance = 5
 
-
+        self.angle_to_rotate = 0
+        self.rotate_finish = False
 
         self.moveX = 0
         self.moveY = 0

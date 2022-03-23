@@ -132,6 +132,8 @@ class MoveQueueManager():
 
         for order in self.root.move_queue:
             unitInMove, matrixDestination,matrixPath,moveType,moveTarget,moveTargetFirstPosition = order
+            newPosition = []
+            currentPosition = []
             if isinstance(unitInMove,Building):
                 continue
             if refreshMinimap:
@@ -162,6 +164,7 @@ class MoveQueueManager():
                         continue
                     else:
                         pass
+
 
             if matrixPath and unitInMove.moveX == 0 and unitInMove.moveY == 0:
                 try:
@@ -202,7 +205,16 @@ class MoveQueueManager():
                 else:
                     unitInMove.matrixPosition = currentPosition
 
-########### Dodać tu rotację. Mieć pozycję aktualną, i kąt do pozycji do której ma się przemieścić.
+            if unitInMove.rotate_finish == False:
+                try:
+                    print("rotate")
+                    self.rotate_unit(unitInMove, currentPosition, newPosition)
+                    print(unitInMove.angle)
+                    print(unitInMove.angle_to_rotate)
+                    continue
+                except:
+                    continue
+
 
             if unitInMove.moveX > 0:
                 unitInMove.x += unitInMove.speed
@@ -221,6 +233,11 @@ class MoveQueueManager():
                 unitInMove.moveY += unitInMove.speed
             else:
                 pass
+
+
+
+            if unitInMove.moveX == 0 and unitInMove.moveY == 0:
+                unitInMove.rotate_finish = False
 
         for order in self.root.move_queue:
             if order[2] == [] and order[3] == "Move":
@@ -278,4 +295,46 @@ class MoveQueueManager():
                         self.root.orders_destinations.append([unit, target.matrixPosition, "Attack", target])
 
 
+    def rotate_unit(self,unit,currentMatrixPosition,newMatrixPosition):
+        # Move to right = angle 0 -> base angle
+        # Jeżeli wartość o którą ma się obrócić jest większa niż 180* to nie doawać, a odejmować
+        if unit.rotate_finish == False:
+            if unit.angle_to_rotate == 0:
+                if newMatrixPosition[0] == currentMatrixPosition[0] and newMatrixPosition[1] > currentMatrixPosition[1]:
+                    desiredAngle = 0
+                elif newMatrixPosition[0] < currentMatrixPosition[0] and newMatrixPosition[1] > currentMatrixPosition[1]:
+                    desiredAngle = 45
+                elif newMatrixPosition[0] < currentMatrixPosition[0] and newMatrixPosition[1] == currentMatrixPosition[1]:
+                    desiredAngle = 90
+                elif newMatrixPosition[0] < currentMatrixPosition[0] and newMatrixPosition[1] < currentMatrixPosition[1]:
+                    desiredAngle = 135
+                elif newMatrixPosition[0] == currentMatrixPosition[0] and newMatrixPosition[1] < currentMatrixPosition[1]:
+                    desiredAngle = 180
+                elif newMatrixPosition[0] > currentMatrixPosition[0] and newMatrixPosition[1] < currentMatrixPosition[1]:
+                    desiredAngle = 225
+                elif newMatrixPosition[0] > currentMatrixPosition[0] and newMatrixPosition[1] == currentMatrixPosition[1]:
+                    desiredAngle = 270
+                elif newMatrixPosition[0] > currentMatrixPosition[0] and newMatrixPosition[1] > currentMatrixPosition[1]:
+                    desiredAngle = 315
+
+                anglePrepare = desiredAngle - unit.angle
+                if anglePrepare > 180:
+                    anglePrepare = (360-desiredAngle) + unit.angle
+                unit.angle_to_rotate = anglePrepare
+
+            else:
+                if unit.angle_to_rotate > 0:
+                    unit.angle += 1
+                    unit.angle_to_rotate -= 1
+
+                elif unit.angle_to_rotate < 0:
+                    unit.angle -= 1
+                    unit.angle_to_rotate += 1
+                if unit.angle_to_rotate > 0:
+                    unit.rotate_finish = False
+                    return
+
+                elif unit.angle_to_rotate == 0:
+                    unit.rotate_finish = True
+                    return
 

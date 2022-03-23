@@ -253,6 +253,7 @@ class Building(Button):
                         return
         else:
             return
+        # Czasem pomimo tego że celu nie ma, towery walą dalej w jedno miejsce.
 
     def reset_attack(self):
         self.attack = False

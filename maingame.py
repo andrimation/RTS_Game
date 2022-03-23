@@ -493,7 +493,7 @@ class MainWindow(FloatLayout):
         for building in self.buildings:
             building.auto_attack()
 
-    # Z jakiegoś powodu towery dalej gubią cel ! i przestają strzelać w ogóle
+
     def order_and_units_cleaner(self):
         for order in self.orders_destinations:
             if isinstance(order[0],GameUnit)and not isinstance(order[3],Building) and order[3] not in self.movableObjects and order[2] == "Attack":

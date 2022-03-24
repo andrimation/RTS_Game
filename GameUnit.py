@@ -154,44 +154,22 @@ class GameUnit(Button):
         except:
             pass
 
-    def find_attack_target(self):
-        if self.combatTeam in [4,3,2]:
-            if self.root.humanPlayer.units:
-                target = random.choice(self.root.humanPlayer.units)
-                return target
-            elif self.root.humanPlayer.buildings:
-                target = random.choice(self.root.humanPlayer.buildings)
-                return target
-        else:
-            if self.root.humanPlayer.buildings:
-                target = random.choice(self.root.humanPlayer.buildings)
-                return target
-            elif self.root.humanPlayer.units:
-                target = random.choice(self.root.humanPlayer.units)
-                return target
-
-    def attack_human(self):
-        if self.movingToTarget == False:
-            self.movingToTarget = True
-
-            for unit in self.root.humanPlayer.units:
-                self.root.updateGameMatrix()
-                if unit.matrixPosition != []:
-                    self.root.orders_destinations.append([self,unit.matrixPosition,"Attack",unit,list(unit.matrixPosition.copy())])
 
     def reset_attack(self):
         self.attack = False
         self.target = []
 
     def auto_attack(self):
-        for destination in self.root.orders_destinations:
-            if destination[0] == self:
-                return
-        for order in self.root.move_queue:
-            if order[0] == self:
-                return
+        if isinstance(self, Tank) or isinstance(self, RocketLauncher) and self.target == [] and self.attack == False:
 
-        if isinstance(self,Tank) or isinstance(self,RocketLauncher):
+            for destination in self.root.orders_destinations:
+                if destination[0] == self:
+                    return
+            for order in self.root.move_queue:
+                if order[0] == self:
+                    return
+
+            # Tu się dzieje coś grubego jak chcę zaatakować budynki
             if self.target == [] and self.attack == False:
                 self.root.movableObjects.sort(key=lambda x: math.dist(x.matrixPosition, self.matrixPosition))
                 for unit in self.root.movableObjects:
@@ -206,8 +184,7 @@ class GameUnit(Button):
                                             auto_attack = [subUnit, unit.matrixPosition, "Attack", unit, list(unit.matrixPosition.copy())]
                                             self.root.orders_destinations.append(auto_attack)
                         return
-        else:
-            return
+
 
 
 class Tank(GameUnit):

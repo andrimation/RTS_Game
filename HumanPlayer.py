@@ -16,6 +16,7 @@ class HumanPlayer():
         self.playerMaxUnitsCount = 25
         self.combatTeams = 0
         self.side = "Friend"
+        self.unitsCost = {"Tank":650,"RocketLauncher":2500}
 
 
     def execute_build_queue(self):
@@ -35,8 +36,8 @@ class HumanPlayer():
 
 
     def build_unit(self,unitType,side):
-        if len(self.units) <= self.playerMaxUnitsCount-5:
-            for x in range(1):
+        if len(self.units) <= self.playerMaxUnitsCount-5 and self.money >= self.unitsCost[unitType]*5:
+            for x in range(5):
                 newUnit = GameUnit(self.root,unitType,side,self,self.combatTeams).create_unit()
                 if self.money >= newUnit.buildCost:
                     newUnit.add_unit_to_build_queue()

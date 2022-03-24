@@ -562,7 +562,7 @@ class MainWindow(FloatLayout):
         # print(end - start, "self.move_building_on_map()")
         # manage auto units
         start = time.time()
-        # self.manage_auto_units()
+        self.manage_auto_units()
         end = time.time()
         # print(end - start, "self.manage_auto_units()")
         # execute build queue
@@ -576,8 +576,8 @@ class MainWindow(FloatLayout):
         self.ids["SidePanelWidget"].index = 0
 
         # Computer
-        # if self.computerPlayerEnabled:
-        #     self.computerPlayer.execute_Computer_Play()
+        if self.computerPlayerEnabled:
+            self.computerPlayer.execute_Computer_Play()
 
         # self.counter += 1
         # if self.counter == 300:

@@ -127,8 +127,10 @@ class Building(Button):
                 self.player.power += self.buildAndEnergyCosts[self.buildingType][1]
                 self.player.update_money()
                 self.player.update_power()
-                self.low_power()
                 self.player.aviableEnergy += self.buildAndEnergyCosts[self.buildingType][1]
+                if self.buildingType != "MainBase":
+                    self.low_power()
+
             return self
 
     def low_power(self):

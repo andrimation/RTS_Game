@@ -207,10 +207,6 @@ class MoveQueueManager():
 
             if unitInMove.rotate_finish == False:
                 try:
-                    print("rotate")
-                    print(unitInMove.rotate_finish)
-                    print(unitInMove.angle)
-                    print(unitInMove.angle_to_rotate)
                     self.rotate_unit(unitInMove, currentPosition, newPosition)
 
                     continue
@@ -298,10 +294,7 @@ class MoveQueueManager():
 
 
     def rotate_unit(self,unit,currentMatrixPosition,newMatrixPosition):
-        # Move to right = angle 0 -> base angle
-        # Jeżeli wartość o którą ma się obrócić jest większa niż 180* to nie doawać, a odejmować
-        # Jednostki chujowo zawracają czasem - na okrętkę, a nie najkrótszym obrotem
-        # + jednostki zapętjajś sie i kręcą w miejscu ( np te kóre startują z "wewnątrz" )
+
         if unit.rotate_finish == False:
             if unit.angle_to_rotate == 0:
                 if newMatrixPosition[0] == currentMatrixPosition[0] and newMatrixPosition[1] > currentMatrixPosition[1]:
@@ -323,7 +316,7 @@ class MoveQueueManager():
 
                 anglePrepare = desiredAngle - unit.angle
                 if anglePrepare > 180:
-                    anglePrepare = (360-desiredAngle) + unit.angle
+                    anglePrepare = -1*((360-desiredAngle) + unit.angle)
                 unit.angle_to_rotate = anglePrepare
 
                 if unit.angle_to_rotate == 0:

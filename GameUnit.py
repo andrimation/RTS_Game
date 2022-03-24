@@ -86,7 +86,6 @@ class GameUnit(Button):
     def on_release(self):
         if self.player == self.root.humanPlayer:
             self.selected = not self.selected
-            self.angle += 1
             for unit in self.root.movableObjects:
                 if unit.combatTeam == self.combatTeam and unit.side == self.side:
                     unit.selected = self.selected

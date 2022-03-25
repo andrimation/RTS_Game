@@ -3,7 +3,7 @@ from GameUnit import GameUnit
 class HumanPlayer():
     def __init__(self,root):
         self.root = root
-        self.money = 100_000
+        self.money = 10_000
         self.power = 1000
         self.buildings = []
         self.autoAttackDistance = 10
@@ -17,6 +17,7 @@ class HumanPlayer():
         self.combatTeams = 0
         self.side = "Friend"
         self.unitsCost = {"Tank":650,"RocketLauncher":2500}
+        self.defenceTowers = 0
 
 
     def execute_build_queue(self):
@@ -36,10 +37,11 @@ class HumanPlayer():
 
 
     def build_unit(self,unitType,side):
-        if len(self.units) <= self.playerMaxUnitsCount-5 and self.money >= self.unitsCost[unitType]*5:
+        if len(self.units) <= self.playerMaxUnitsCount-5 and self.money >= self.unitsCost[unitType]*5 and len(self.buildUnitsQueue) == 0:
             for x in range(5):
                 newUnit = GameUnit(self.root,unitType,side,self,self.combatTeams).create_unit()
                 if self.money >= newUnit.buildCost:
                     newUnit.add_unit_to_build_queue()
 
             self.combatTeams += 1
+

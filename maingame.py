@@ -27,6 +27,7 @@ from MoveQueueManager import MoveQueueManager
 from MoveQueueManager2 import MoveQueueManager2
 from UranMiner import UranMiner
 from miniMap import miniMap
+from reset_game import Game_state_reset
 # Others
 import random
 import pyautogui
@@ -50,11 +51,11 @@ class MainWindow(FloatLayout):
     def __init__(self):
         super(MainWindow, self).__init__()
         self.miniMap = None
+        self.reset = Game_state_reset(self)
         self.humanPlayer = HumanPlayer(self)
         self.computerPlayer = ComputerPlayer(self)
         self.computerPlayerEnabled = False
         self.moveQueueManager = MoveQueueManager(self)
-        self.MoveQueueManager2 = MoveQueueManager2(self)
 
         Window.fullscreen = 'auto'
 
@@ -77,10 +78,6 @@ class MainWindow(FloatLayout):
         self.buildingToAdd = []
         self.miniMapObject = None
         self.miniMapUnits = {}
-        self.humanPlayerUnits = []
-        self.computerPlayerUnits = []
-        self.combatTeamsCounterHuman = 0
-        self.combatTeamsCounterComp = 0
 
 
         # Separated objects lists   - more memory, but saves many "if" checking
@@ -94,7 +91,7 @@ class MainWindow(FloatLayout):
         self.urans     = []
         self.ids["MapView"].root = self
         self.ids["MainMapPicture"].root = self
-        self.ids["MapView"].scroll_timeout = 1  # Zsisablować multitouch
+        self.ids["MapView"].scroll_timeout = 1
         self.ids["MapView"].scroll_distance = 100000000
         self.ids["MainMapPicture"].scroll_timeout = 1
         self.ids["MainMapPicture"].scroll_distance = 100000000
@@ -104,6 +101,9 @@ class MainWindow(FloatLayout):
         self.selectBoxesObjects = []
 
     def start(self):
+        self.startChildren = self.children.copy()
+        self.create_map_matrix()
+        self.convertMapNumpy()
         self.remove_widget(self.ids["StartButton"])
         self.ids["MenuButton_BuildMainBase"].disabled = False
         self.positionX = Window.size[0] * 0.1
@@ -523,66 +523,51 @@ class MainWindow(FloatLayout):
                 except:
                     pass
 
+    def check_if_loose(self):
+        if self.humanPlayer.money < 650 * 5 and self.humanPlayer.units == []:
+            self.reset.reset_everything()
+        elif self.computerPlayer.money < 650 * 5 and self.computerPlayer.units == []:
+            self.reset.reset_everything()
+
 ###########################################################################
 
     def next_frame(self,*args):
-        start = time.time()
+
         # Check mouse position, and move map.
         self.scroll_game_map()
-        end = time.time()
-        # print(end-start,"self.scroll_game_map()")
-        # self.updateGameMatrix()
-        # start = time.time()
+
+        # Compute paths
         self.compute_orders_paths()
-        # end = time.time()
-        # result = end - start
-        # if result > 0:
-        #     print(end - start, "self.compute_orders_paths()")
+
         # Attack
-        start = time.time()
         self.make_attack()
-        end = time.time()
-        # print(end - start, "self.make_attack()")
+
         # Bulet shot
-        start = time.time()
         self.bullet_shot_execute()
-        end = time.time()
-        # print(end - start, "self.bullet_shot_execute()")
+
         # Move units on map
-        start = time.time()
         self.move_queue_execute()
-        end = time.time()
-        result = end-start
-        # if result > 0:
-        #     print(end - start, "self.move_queue_execute()")
+
         # Adding buildings
-        start = time.time()
         self.move_building_on_map()
-        end = time.time()
-        # print(end - start, "self.move_building_on_map()")
-        # manage auto units
-        start = time.time()
+
+        # Auto units behave
         self.manage_auto_units()
-        end = time.time()
-        # print(end - start, "self.manage_auto_units()")
+
         # execute build queue
-        start = time.time()
         self.build_queue_execute()
-        end = time.time()
-        # print(end - start, "self.build_queue_execute()")
+
         # Clean orders
         self.order_and_units_cleaner()
 
+        # Make sure panel inex is 0
         self.ids["SidePanelWidget"].index = 0
 
-        # Computer
+        # Computer Player
         if self.computerPlayerEnabled:
             self.computerPlayer.execute_Computer_Play()
 
-        # self.counter += 1
-        # if self.counter == 300:
-        #     gc.collect()
-        #     self.counter = 0
+        self.check_if_loose()
 
     pass
 
@@ -592,8 +577,6 @@ class MainGameApp(App):
 
     def build(self):
         mainwindow = MainWindow()
-        mainwindow.create_map_matrix()
-        mainwindow.convertMapNumpy()
         Clock.schedule_interval(mainwindow.next_frame,0.01)
         return mainwindow
 

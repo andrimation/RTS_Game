@@ -15,7 +15,7 @@ class UranMiner(GameUnit):
     selected = BooleanProperty(False)
     def __init__(self,root,unitType,side,player,combatTeam):
         super(UranMiner, self).__init__(root,unitType,side,player,combatTeam)
-        self.root = ""
+        self.root = root
         self.speed = 2
         self.matrixObjectSize = 1
         self.matrixPosition = []

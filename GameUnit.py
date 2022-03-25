@@ -7,6 +7,7 @@ from kivy.core.window import Window
 from kivy.app import App
 from kivy.uix.label import Label
 
+
 import MarsPathfinder_setup
 import math
 import random
@@ -160,6 +161,7 @@ class GameUnit(Button):
         self.target = []
 
     def auto_attack(self):
+
         if isinstance(self, Tank) or isinstance(self, RocketLauncher) and self.target == [] and self.attack == False:
 
             for destination in self.root.orders_destinations:
@@ -168,22 +170,21 @@ class GameUnit(Button):
             for order in self.root.move_queue:
                 if order[0] == self:
                     return
-
-            # Tu się dzieje coś grubego jak chcę zaatakować budynki
-            if self.target == [] and self.attack == False:
-                self.root.movableObjects.sort(key=lambda x: math.dist(x.matrixPosition, self.matrixPosition))
-                for unit in self.root.movableObjects:
-                    if self.player == self.root.computerPlayer:
-                        self.auto_attack_distance = 200
-                    if unit.player != self.player and math.dist(self.matrixPosition,unit.matrixPosition) <= self.auto_attack_distance:
-                        auto_attack = [self, unit.matrixPosition, "Attack", unit,list(unit.matrixPosition.copy())]
-                        self.root.orders_destinations.append(auto_attack)
-                        # Add attack order to all units in combat team
-                        for subUnit in self.root.movableObjects:
-                            if self.side == subUnit.side and self.combatTeam == subUnit.combatTeam and self != subUnit:
-                                            auto_attack = [subUnit, unit.matrixPosition, "Attack", unit, list(unit.matrixPosition.copy())]
-                                            self.root.orders_destinations.append(auto_attack)
-                        return
+    # Rozkminić jak atakować budynki ?!!?!?!
+    # W pewnym momencie komp przestaje grać ??
+            self.root.movableObjects.sort(key=lambda x: math.dist(x.matrixPosition, self.matrixPosition))  # Tu sortować tylko human playera units zamiast wszystko
+            for unit in self.root.movableObjects:
+                if self.player == self.root.computerPlayer:
+                    self.auto_attack_distance = 200
+                if unit.player != self.player and math.dist(self.matrixPosition,unit.matrixPosition) <= self.auto_attack_distance:
+                    auto_attack = [self, unit.matrixPosition, "Attack", unit,list(unit.matrixPosition.copy())]
+                    self.root.orders_destinations.append(auto_attack)
+                    # Add attack order to all units in combat team
+                    for subUnit in self.root.movableObjects:
+                        if self.side == subUnit.side and self.combatTeam == subUnit.combatTeam and self != subUnit:
+                                        auto_attack = [subUnit, unit.matrixPosition, "Attack", unit, list(unit.matrixPosition.copy())]
+                                        self.root.orders_destinations.append(auto_attack)
+                    return
 
 
 
@@ -191,6 +192,7 @@ class Tank(GameUnit):
     def __init__(self,root,unitType,side,player,combatTeam):
         super(Tank,self).__init__(root,unitType,side,player,combatTeam)
 
+        self.health = 1
         self.buildCost = 650
         self.buildTime = 10
         self.speed = 4

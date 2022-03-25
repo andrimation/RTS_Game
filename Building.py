@@ -48,7 +48,7 @@ class Building(Button):
         self.size_hint = (None,None)
 
     def on_release(self):
-        if self.side == "Friend":
+        if self.side == "Friend" and self.buildingType == "MainBase":
             self.root.ids["MenuButton_BuildMainBase"].disabled = True
             self.root.ids["MenuButton_BuildRafinery"].disabled = False
             self.root.ids["MenuButton_BuildPowerPlant"].disabled = False
@@ -60,6 +60,8 @@ class Building(Button):
         if self.buildMode == True:
             self.addCounter += 1
 
+    def matrixPositionFunc(self):
+        return self.matrixPosition[0]
 
     def add_to_game(self):
         """Set building stats, depending on building type and add building on game map, adds building widget to game map"""
@@ -121,6 +123,10 @@ class Building(Button):
                     self.root.add_widget(self, canvas="before", index=self.root.building_add_index)
                     self.root.buildingToAdd.append(self)
                 self.root.ids["SidePanelWidget"].index = 0
+                if self.player == self.root.humanPlayer:
+                    self.player.defenceTowers += 1
+                    if self.player.defenceTowers == 3:
+                        self.root.ids["MenuButton_BuildDefenceTower"].disabled = True
 
             if self.player == self.root.humanPlayer:
                 self.player.money -= self.buildAndEnergyCosts[self.buildingType][0]

@@ -6,15 +6,17 @@ from UranMiner import UranMiner
 from Building import Building
 import GameUnit
 
+
 class MoveQueueManager():
-    def __init__(self,root):
+    def __init__(self, root):
         self.root = root
 
-    def check_destination_cell(self,destination,unitInMove,move_Type):
+    def check_destination_cell(self, destination, unitInMove, move_Type):
         """Function checks if destination is duplicated in orders_destinations, in move_queue and if position is free
             - function returns new destination if cell is duplicated or not-free, or returns destination"""
-
-        if isinstance(unitInMove,UranMiner):
+        # Tu jest coś zjebane, bo jak zamieniam wszystko na tuple to tracę kontrolę nad jednostkami ?!!
+        # Zrobić dla budynków i jednostek funkcje .matrixPosition() i niech ona zwraca w rozkazach pozycję
+        if isinstance(unitInMove, UranMiner):
             return destination
         cellOccurCounter = 0
         allDestinations = set()
@@ -33,30 +35,30 @@ class MoveQueueManager():
         if cellOccurCounter == 0 and move_Type != "Attack":
             return destination
         else:
-            new_destination = MarsPathfinder_setup.find_Closesd_Free(self.root.numpyMapMatrix,destination)
+            new_destination = MarsPathfinder_setup.find_Closesd_Free(self.root.numpyMapMatrix, destination)
             while tuple(new_destination) in destination:
                 new_destination = MarsPathfinder_setup.find_Closesd_Free(self.root.numpyMapMatrix, destination)
             return new_destination
 
-    def check_order_remove(self,destination):
+    def check_order_remove(self, destination):
         """Function removes orders that probably cannot be executed because of crowd in distance area
             - it checks if square around destination cell is used by objects in specified percentage"""
-        absUnitDistance     = 5
+        absUnitDistance = 5
         searchSquareMaxSize = 6
         percentageOfUsedCells = 0.5
 
-        allCellsCount  = 0
+        allCellsCount = 0
         usedCellsCount = 0
         y = destination[0]
         x = destination[1]
 
         # Check square max-size
         if y > searchSquareMaxSize:
-            yRangeStart = y-searchSquareMaxSize
+            yRangeStart = y - searchSquareMaxSize
         else:
             yRangeStart = 0
         if x > searchSquareMaxSize:
-            xRangeStart = x-searchSquareMaxSize
+            xRangeStart = x - searchSquareMaxSize
         else:
             xRangeStart = 0
 
@@ -66,18 +68,18 @@ class MoveQueueManager():
             yRangeStop = y + searchSquareMaxSize
 
         if x + searchSquareMaxSize > len(self.root.numpyMapMatrix[0]):
-            xRangeStop  = len(self.root.numpyMapMatrix[0])
+            xRangeStop = len(self.root.numpyMapMatrix[0])
         else:
-            xRangeStop  = x + searchSquareMaxSize
+            xRangeStop = x + searchSquareMaxSize
 
-        for yLine in range(yRangeStart,yRangeStop):
-            for xLine in range(xRangeStart,xRangeStop):
+        for yLine in range(yRangeStart, yRangeStop):
+            for xLine in range(xRangeStart, xRangeStop):
                 allCellsCount += 1
                 if self.root.numpyMapMatrix[yLine][xLine] == 1:
                     usedCellsCount += 1
         if usedCellsCount == 0:
             usedCellsCount = 1
-        if allCellsCount/usedCellsCount > percentageOfUsedCells:
+        if allCellsCount / usedCellsCount > percentageOfUsedCells:
             return True
         else:
             return False
@@ -87,14 +89,15 @@ class MoveQueueManager():
             order_destination = self.root.orders_destinations.pop(0)
             unit = order_destination[0]
             move_type = order_destination[2]
-            destination = self.check_destination_cell(order_destination[1],unit,move_type)
+            destination = self.check_destination_cell(order_destination[1], unit, move_type)
             move_target = order_destination[3]
             move_targetFirstPos = order_destination[4]
 
-            if not isinstance(unit,Building):
+            if not isinstance(unit, Building):
                 try:
-                    computePath = MarsPathfinder_setup.marsPathfinder(unit.matrixPosition,destination,self.root.numpyMapMatrix,move_type)
-                    current_order = [unit,destination, computePath, move_type,move_target, move_targetFirstPos]
+                    computePath = MarsPathfinder_setup.marsPathfinder(unit.matrixPosition, destination,
+                                                                      self.root.numpyMapMatrix, move_type)
+                    current_order = [unit, destination, computePath, move_type, move_target, move_targetFirstPos]
                     unit.moveEndPosition = destination
                 except:
                     self.root.updateGameMatrix()
@@ -112,7 +115,7 @@ class MoveQueueManager():
 
                 if computePath == None:
                     if (math.dist(unit.matrixPosition, destination) <= 7 and self.check_order_remove(destination)
-                        and not isinstance(unit,UranMiner)) and move_type == "Move":
+                        and not isinstance(unit, UranMiner)) and move_type == "Move":
                         try:
                             self.root.orders_destinations.remove(order_destination)
                             unit.movePending = False
@@ -131,10 +134,10 @@ class MoveQueueManager():
             self.root.miniMapCounter = 0
 
         for order in self.root.move_queue:
-            unitInMove, matrixDestination,matrixPath,moveType,moveTarget,moveTargetFirstPosition = order
+            unitInMove, matrixDestination, matrixPath, moveType, moveTarget, moveTargetFirstPosition = order
             newPosition = []
             currentPosition = []
-            if isinstance(unitInMove,Building):
+            if isinstance(unitInMove, Building):
                 continue
             if refreshMinimap:
                 unitInMove.updade_minimapPos()
@@ -142,11 +145,10 @@ class MoveQueueManager():
                 continue
             if matrixPath == None and unitInMove.moveX == 0 and unitInMove.moveY == 0:
                 if moveType == "Move":
-                    self.root.orders_destinations.append([unitInMove,matrixDestination,moveType,moveTarget,None])
+                    self.root.orders_destinations.append([unitInMove, matrixDestination, moveType, moveTarget, None])
                 elif moveType == "Attack":
                     unitInMove.attack = False
-                    self.root.orders_destinations.append([unitInMove,moveTarget.matrixPosition,
-                                                          moveType,moveTarget,list(moveTarget.matrixPosition.copy())])
+                    self.root.orders_destinations.append([unitInMove, moveTarget.matrixPosition,moveType, moveTarget, list(moveTarget.matrixPosition.copy())])
                 self.root.move_queue.remove(order)
                 continue
             if moveType == "Move":
@@ -158,13 +160,13 @@ class MoveQueueManager():
                     if unitInMove.wait == 50:
                         unitInMove.attack = False
                         self.root.orders_destinations.append([unitInMove, moveTarget.matrixPosition,
-                                                              moveType, moveTarget,list(moveTarget.matrixPosition.copy())])
+                                                              moveType, moveTarget,
+                                                              list(moveTarget.matrixPosition.copy())])
                         self.root.move_queue.remove(order)
                         unitInMove.wait = 0
                         continue
                     else:
                         pass
-
 
             if matrixPath and unitInMove.moveX == 0 and unitInMove.moveY == 0:
                 try:
@@ -175,15 +177,17 @@ class MoveQueueManager():
                     newPosition = matrixPath[1]
 
                     if self.root.numpyMapMatrix[newPosition[0]][newPosition[1]] == 1:
-                        if (math.dist(matrixPath[0],matrixDestination) <= 7 and self.check_order_remove(matrixDestination)
-                                and not isinstance(unitInMove,UranMiner) and moveType == "Move"):
+                        if (math.dist(matrixPath[0], matrixDestination) <= 7 and self.check_order_remove(
+                                matrixDestination)
+                                and not isinstance(unitInMove, UranMiner) and moveType == "Move"):
                             for destination in self.root.orders_destinations:
                                 if destination[0] == unitInMove:
                                     self.root.orders_destinations.remove(destination)
                             self.root.move_queue.remove(order)
                             continue
                         else:
-                            self.root.orders_destinations.append([unitInMove,matrixDestination,moveType,moveTarget,moveTargetFirstPosition])
+                            self.root.orders_destinations.append(
+                                [unitInMove, matrixDestination, moveType, moveTarget, moveTargetFirstPosition])
                             self.root.move_queue.remove(order)
                             continue
 
@@ -207,12 +211,11 @@ class MoveQueueManager():
 
             if unitInMove.rotate_finish == False:
                 try:
-                    self.rotate_unit(unitInMove, currentPosition, newPosition)
 
+                    self.rotate_unit(unitInMove, currentPosition, newPosition)
                     continue
                 except:
                     continue
-
 
             if unitInMove.moveX > 0:
                 unitInMove.x += unitInMove.speed
@@ -231,8 +234,6 @@ class MoveQueueManager():
                 unitInMove.moveY += unitInMove.speed
             else:
                 pass
-
-
 
             if unitInMove.moveX == 0 and unitInMove.moveY == 0:
                 unitInMove.rotate_finish = False
@@ -255,7 +256,7 @@ class MoveQueueManager():
                 object = order[0]
                 target = order[4]
                 objectMatrixPos = object.matrixPosition
-                if isinstance(object,Building):
+                if isinstance(object, Building):
                     objectMatrixPos = object.matrixPosition[0]
                     if math.dist(objectMatrixPos, target.matrixPosition) >= object.shotDistance:
                         object.reset_attack()
@@ -263,10 +264,11 @@ class MoveQueueManager():
                         continue
 
                 targetMatrixPos = target.matrixPosition
-                if isinstance(target,Building):
+                if isinstance(target, Building):
                     targetMatrixPos = target.matrixPosition[0]
 
-                if math.dist(objectMatrixPos,targetMatrixPos) < object.shotDistance and object.moveX == 0 and object.moveY == 0:
+                if math.dist(objectMatrixPos,
+                             targetMatrixPos) < object.shotDistance and object.moveX == 0 and object.moveY == 0:
                     self.root.numpyMapMatrix[objectMatrixPos[0]][object.matrixPosition[1]] = 1
                     object.attack = True
                     object.target = target
@@ -280,7 +282,7 @@ class MoveQueueManager():
                         object.reloadCounter = 0
                     else:
                         object.reloadCounter += 1
-                    if  object.target.health <= 0:# Też musze usunąć order jednostki która zginęła !!
+                    if object.target.health <= 0:  # Też musze usunąć order jednostki która zginęła !!
                         object.target.remove_object()
                         object.reset_attack()
 
@@ -292,31 +294,37 @@ class MoveQueueManager():
                     if unit.combatTeam == order[0].combatTeam:
                         self.root.orders_destinations.append([unit, target.matrixPosition, "Attack", target])
 
-
-    def rotate_unit(self,unit,currentMatrixPosition,newMatrixPosition):
+    def rotate_unit(self, unit, currentMatrixPosition, newMatrixPosition):
 
         if unit.rotate_finish == False:
             if unit.angle_to_rotate == 0:
                 if newMatrixPosition[0] == currentMatrixPosition[0] and newMatrixPosition[1] > currentMatrixPosition[1]:
                     desiredAngle = 0
-                elif newMatrixPosition[0] < currentMatrixPosition[0] and newMatrixPosition[1] > currentMatrixPosition[1]:
+                elif newMatrixPosition[0] < currentMatrixPosition[0] and newMatrixPosition[1] > currentMatrixPosition[
+                    1]:
                     desiredAngle = 45
-                elif newMatrixPosition[0] < currentMatrixPosition[0] and newMatrixPosition[1] == currentMatrixPosition[1]:
+                elif newMatrixPosition[0] < currentMatrixPosition[0] and newMatrixPosition[1] == currentMatrixPosition[
+                    1]:
                     desiredAngle = 90
-                elif newMatrixPosition[0] < currentMatrixPosition[0] and newMatrixPosition[1] < currentMatrixPosition[1]:
+                elif newMatrixPosition[0] < currentMatrixPosition[0] and newMatrixPosition[1] < currentMatrixPosition[
+                    1]:
                     desiredAngle = 135
-                elif newMatrixPosition[0] == currentMatrixPosition[0] and newMatrixPosition[1] < currentMatrixPosition[1]:
+                elif newMatrixPosition[0] == currentMatrixPosition[0] and newMatrixPosition[1] < currentMatrixPosition[
+                    1]:
                     desiredAngle = 180
-                elif newMatrixPosition[0] > currentMatrixPosition[0] and newMatrixPosition[1] < currentMatrixPosition[1]:
+                elif newMatrixPosition[0] > currentMatrixPosition[0] and newMatrixPosition[1] < currentMatrixPosition[
+                    1]:
                     desiredAngle = 225
-                elif newMatrixPosition[0] > currentMatrixPosition[0] and newMatrixPosition[1] == currentMatrixPosition[1]:
+                elif newMatrixPosition[0] > currentMatrixPosition[0] and newMatrixPosition[1] == currentMatrixPosition[
+                    1]:
                     desiredAngle = 270
-                elif newMatrixPosition[0] > currentMatrixPosition[0] and newMatrixPosition[1] > currentMatrixPosition[1]:
+                elif newMatrixPosition[0] > currentMatrixPosition[0] and newMatrixPosition[1] > currentMatrixPosition[
+                    1]:
                     desiredAngle = 315
 
                 anglePrepare = desiredAngle - unit.angle
                 if anglePrepare > 180:
-                    anglePrepare = -1*((360-desiredAngle) + unit.angle)
+                    anglePrepare = -1 * ((360 - desiredAngle) + unit.angle)
                 unit.angle_to_rotate = anglePrepare
 
                 if unit.angle_to_rotate == 0:
@@ -330,6 +338,7 @@ class MoveQueueManager():
                 elif unit.angle_to_rotate < 0:
                     unit.angle -= 5
                     unit.angle_to_rotate += 5
+
                 if unit.angle_to_rotate > 0:
                     unit.rotate_finish = False
                     return

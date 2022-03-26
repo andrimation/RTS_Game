@@ -2,7 +2,10 @@ from HumanPlayer import HumanPlayer
 from ComputerPlayer import ComputerPlayer
 from MoveQueueManager import MoveQueueManager
 from kivy.core.window import Window
-
+from GameUnit import GameUnit
+from Building import Building
+from Uran import Uran
+from UranMiner import UranMiner
 class Game_state_reset():
     def __init__(self,root):
         self.root = root
@@ -10,6 +13,32 @@ class Game_state_reset():
         self.root.clickOnMapEnabled = True
 
     def reset_everything(self):
+        for uranMiner in self.root.onMapObjectsToShift:
+            if isinstance(uranMiner,UranMiner):
+                self.root.urans.remove(uranMiner.closestUranSpot)
+                self.root.onMapObjectsToShift.remove(uranMiner.closestUranSpot)
+                self.root.remove_widget(uranMiner.closestUranSpot)
+                for uran in uranMiner.uranSpots:
+                    self.root.remove_widget(uran)
+                if uranMiner.closestUran != None:
+                    self.root.remove_widget(uranMiner.closestUran)
+
+        for unit in self.root.onMapObjectsToShift:
+            if isinstance(unit, GameUnit):
+                unit.remove_object()
+        for building in self.root.onMapObjectsToShift:
+            if isinstance(building, Building):
+                building.remove_object()
+
+        for uran in self.root.onMapObjectsToShift:
+            if isinstance(uran,Uran):
+                uran.remove_minimap_widget()
+                self.root.urans.remove(uran)
+                self.root.onMapObjectsToShift.remove(uran)
+                self.root.remove_widget(uran)
+
+
+
         self.root.miniMap = None
         self.root.reset = Game_state_reset(self.root)
         self.root.humanPlayer = HumanPlayer(self.root)
@@ -75,3 +104,4 @@ class Game_state_reset():
         self.root.selectBoxesObjects = []
 
         self.root.start()
+

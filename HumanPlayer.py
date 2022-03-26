@@ -3,7 +3,7 @@ from GameUnit import GameUnit
 class HumanPlayer():
     def __init__(self,root):
         self.root = root
-        self.money = 10_000
+        self.money = 5_000
         self.power = 1000
         self.buildings = []
         self.autoAttackDistance = 10

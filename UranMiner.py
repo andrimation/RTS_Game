@@ -41,7 +41,10 @@ class UranMiner(GameUnit):
         self.target = []
         self.uranLoad = 0
         self.working = False
+
         self.closestUranSpot = []
+        self.uranSpots = []
+        self.closestUran = None
 
     def on_release(self):
         if self.side == "Friend":
@@ -51,22 +54,22 @@ class UranMiner(GameUnit):
     def mineUran(self):
         if self.closestUranSpot == []:
             if self.working == False:
-                uranSpots = []
+                self.uranSpots = []
                 for object in self.root.urans:
-                    uranSpots.append(object)
-                if uranSpots and len(uranSpots) > 1:
-                    closestUran = uranSpots.pop(0)
-                    for uran in uranSpots:
-                        if math.dist(self.matrixPosition,closestUran.matrixPosition) > math.dist(self.matrixPosition,uran.matrixPosition) and self.root.gameMapMatrix[uran.matrixPosition[0]][uran.matrixPosition[1]][-1] != "uranMiner":
-                            closestUran = uran
-                    self.closestUranSpot = closestUran
-                    self.root.gameMapMatrix[closestUran.matrixPosition[0]][closestUran.matrixPosition[1]].append("uranMiner")
+                    self.uranSpots.append(object)
+                if self.uranSpots and len(self.uranSpots) > 1:
+                    self.closestUran = self.uranSpots.pop(0)
+                    for uran in self.uranSpots:
+                        if math.dist(self.matrixPosition,self.closestUran.matrixPosition) > math.dist(self.matrixPosition,uran.matrixPosition) and self.root.gameMapMatrix[uran.matrixPosition[0]][uran.matrixPosition[1]][-1] != "uranMiner":
+                            self.closestUran = uran
+                    self.closestUranSpot = self.closestUran
+                    self.root.gameMapMatrix[self.closestUran.matrixPosition[0]][self.closestUran.matrixPosition[1]].append("uranMiner")
                     self.go_to_uran()
-                    return closestUran
+                    return self.closestUran
                 else:
                     try:
-                        closestUran = uranSpots[0]
-                        self.closestUranSpot = closestUran
+                        self.closestUran = self.uranSpots[0]
+                        self.closestUranSpot = self.closestUran
                         self.go_to_uran()
                     except:
                         pass

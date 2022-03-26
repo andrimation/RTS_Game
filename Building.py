@@ -107,8 +107,7 @@ class Building(Button):
                         self.root.add_widget(self, canvas="before", index=self.root.building_add_index)
                         self.root.buildingToAdd.append(self)
                         self.root.ids["SidePanelWidget"].index = 0
-                        self.root.ids["MenuButton_BuildTank"].disabled = False
-                        self.root.ids["MenuButton_BuildRocketLauncher"].disabled = False
+
                     self.player.WarFactory = self
                 else:
                     return self
@@ -128,14 +127,7 @@ class Building(Button):
                     if self.player.defenceTowers == 3:
                         self.root.ids["MenuButton_BuildDefenceTower"].disabled = True
 
-            if self.player == self.root.humanPlayer:
-                self.player.money -= self.buildAndEnergyCosts[self.buildingType][0]
-                self.player.power += self.buildAndEnergyCosts[self.buildingType][1]
-                self.player.update_money()
-                self.player.update_power()
-                self.player.aviableEnergy += self.buildAndEnergyCosts[self.buildingType][1]
-                if self.buildingType != "MainBase":
-                    self.low_power()
+
 
             return self
 
@@ -182,6 +174,17 @@ class Building(Button):
                 self.root.buildingToAdd = []
                 self.root.recomupute_all_orders()
                 self.root.humanPlayer.update_power()
+                if self.player == self.root.humanPlayer:
+                    self.player.money -= self.buildAndEnergyCosts[self.buildingType][0]
+                    self.player.power += self.buildAndEnergyCosts[self.buildingType][1]
+                    self.player.update_money()
+                    self.player.update_power()
+                    self.player.aviableEnergy += self.buildAndEnergyCosts[self.buildingType][1]
+                    if self.buildingType == "WarFactory":
+                        self.root.ids["MenuButton_BuildTank"].disabled = False
+                        self.root.ids["MenuButton_BuildRocketLauncher"].disabled = False
+                    if self.buildingType != "MainBase":
+                        self.low_power()
                 pass
 
     def build_position_possible(self,matrixY,matrixX):

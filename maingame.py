@@ -27,7 +27,7 @@ from MoveQueueManager import MoveQueueManager
 from MoveQueueManager2 import MoveQueueManager2
 from UranMiner import UranMiner
 from miniMap import miniMap
-from reset_game import Game_state_reset
+from gameDataManager import Game_state_reset
 # Others
 import random
 import pyautogui
@@ -50,69 +50,13 @@ class MainWindow(FloatLayout):
 
     def __init__(self):
         super(MainWindow, self).__init__()
-        self.miniMap = None
-        self.reset = Game_state_reset(self)
-        self.humanPlayer = HumanPlayer(self)
-        self.computerPlayer = ComputerPlayer(self)
-        self.computerPlayerEnabled = False
-        self.moveQueueManager = MoveQueueManager(self)
 
+        self.gameDataObject = Game_state_reset(self)
+        self.gameDataObject.set_game_data()
         Window.fullscreen = 'auto'
 
-        self.building_add_index = 1
-        self.obj_add_index = 1 # Indeks obiektów będzie zawsze wyższy niż budynków, więc obiekty będą zawsze chować się za budynkami
-        self.positionX = Window.size[0]*0.1   # Ta wartość na początku jest 800x600 - musi być później zaktualizowana ! ale tylko jednorazowo -> np przycisk start, albo coś
-        self.positionY = 0
-        self.shiftX = 0
-        self.shiftY = 0
-        self.scrollEnabled = True
-        self.clickOnMapEnabled = True
-        self.counter = 0
-        self.miniMapCounter = 0
-
-        self.gameMapMatrix = []
-        self.numpyMapMatrix = []
-        self.move_queue = []
-        self.orders_destinations = []
-
-        self.buildingToAdd = []
-        self.miniMapObject = None
-        self.miniMapUnits = {}
-
-
-        # Separated objects lists   - more memory, but saves many "if" checking
-        # Remember to remove object representation from all lists
-        self.selectedUnits = False
-        self.onMapObjectsToShift = []
-        self.movableObjects = []
-        self.buildings = []
-        self.bullets   = []
-        self.autoUnits = []
-        self.urans     = []
-        self.ids["MapView"].root = self
-        self.ids["MainMapPicture"].root = self
-        self.ids["MapView"].scroll_timeout = 1
-        self.ids["MapView"].scroll_distance = 100000000
-        self.ids["MainMapPicture"].scroll_timeout = 1
-        self.ids["MainMapPicture"].scroll_distance = 100000000
-
-        # Select box
-        self.selectBoxSizes = []
-        self.selectBoxesObjects = []
-
     def start(self):
-        self.startChildren = self.children.copy()
-        self.create_map_matrix()
-        self.convertMapNumpy()
-        self.remove_widget(self.ids["StartButton"])
-        self.ids["MenuButton_BuildMainBase"].disabled = False
-        self.positionX = Window.size[0] * 0.1
-        self.create_minimap()
-        self.add_uran()
-        self.update_money()
-        self.computerPlayerEnabled = True
-        self.computerPlayer.execute_build_plan()
-
+        self.gameDataObject.start_game()
 
     def create_minimap(self):
         miniMapInit  = miniMap(self)
@@ -525,9 +469,12 @@ class MainWindow(FloatLayout):
 
     def check_if_loose(self):
         if self.humanPlayer.money < 650 * 5 and self.humanPlayer.units == []:
-            self.reset.reset_everything()
+            self.gameDataObject.reset_game_objects()
+            self.gameDataObject.set_game_data()
+            self.start()
         elif self.computerPlayer.money < 650 * 5 and self.computerPlayer.units == []:
-            self.reset.reset_everything()
+            self.gameDataObject.reset_game_objects()
+            self.gameDataObject.set_game_data()
 
 ###########################################################################
 

@@ -50,7 +50,7 @@ class MainWindow(FloatLayout):
 
     def __init__(self):
         super(MainWindow, self).__init__()
-
+        self.restart = 0
         self.gameDataObject = Game_state_reset(self)
         self.gameDataObject.set_game_data()
         Window.fullscreen = 'auto'
@@ -58,12 +58,11 @@ class MainWindow(FloatLayout):
     def start(self):
         self.gameDataObject.start_game()
 
+
     def create_minimap(self):
         miniMapInit  = miniMap(self)
         miniMapInit.create_minimap()
         self.miniMap = miniMapInit
-
-
 
     # Selecting
     def on_touch_move(self, touch):   # Create select box
@@ -243,6 +242,7 @@ class MainWindow(FloatLayout):
         self.obj_add_index += 1
         self.ids["SidePanelWidget"].index = 0
 
+
     def add_building(self,*args):
         self.deselect_all_objects_on_map()
         buildingAdd = Building(self,args[1],self.humanPlayer,args[0])
@@ -275,6 +275,8 @@ class MainWindow(FloatLayout):
             y = abs(bullet.absoluteBulletStartY-bullet.absoluteTargetY)/60
 
             if bullet.target.health <= 0 or bullet.target == None or bullet.target == []:
+                bullet.target = []
+                bullet.source = []
                 self.bullets.remove(bullet)
                 self.remove_widget(bullet)
                 continue
@@ -305,11 +307,15 @@ class MainWindow(FloatLayout):
                     pass
             if bullet.collide_widget(bullet.target):
                 bullet.target.health -= bullet.root.firePower
+                bullet.source = []
+                bullet.target = []
                 self.bullets.remove(bullet)
                 self.remove_widget(bullet)
 
 
             elif math.dist(bulletRootPos,[bulletRootPos[0]+bullet.moveX//60,bulletRootPos[1]+bullet.moveY//60]) >= bullet.distanceToFly:
+                bullet.source = []
+                bullet.target = []
                 self.bullets.remove(bullet)
                 self.remove_widget(bullet)
 
@@ -469,12 +475,16 @@ class MainWindow(FloatLayout):
 
     def check_if_loose(self):
         if self.humanPlayer.money < 650 * 5 and self.humanPlayer.units == []:
+            self.time = 0.5
             self.gameDataObject.reset_game_objects()
             self.gameDataObject.set_game_data()
             self.start()
         elif self.computerPlayer.money < 650 * 5 and self.computerPlayer.units == []:
             self.gameDataObject.reset_game_objects()
             self.gameDataObject.set_game_data()
+
+    def time(self):
+        return self.time_
 
 ###########################################################################
 
@@ -524,7 +534,7 @@ class MainGameApp(App):
 
     def build(self):
         mainwindow = MainWindow()
-        Clock.schedule_interval(mainwindow.next_frame,0.01)
+        Clock.schedule_interval(mainwindow.next_frame,0.007)
         return mainwindow
 
 if __name__ == "__main__":

@@ -123,13 +123,14 @@ class GameUnit(Button):
         except:
             pass
 
-    # Z jakiegoś powodu, gdy zostaje zniszczonych kilka jednostek, minimapa przestaje sie dla innych updejtować ;0
     def remove_object(self):
 
         for unit in self.root.movableObjects:
             if unit.target == self:
                 unit.target = []
                 unit.attack = False
+
+        self.reset_attack()
 
         try:
             self.player.units.remove(self)
@@ -154,6 +155,30 @@ class GameUnit(Button):
             self.minimapUnit = None
         except:
             pass
+
+        for order in self.root.orders_destinations:
+            if order[0] == self:
+                try:
+                    self.root.orders_destinations.remove(order)
+                except:
+                    pass
+            elif order[3] == self:
+                try:
+                    self.root.orders_destinations.remove(order)
+                except:
+                    pass
+
+        for order in self.root.move_queue:
+            if order[0] == self:
+                try:
+                    self.root.move_queue.remove(order)
+                except:
+                    pass
+            elif order[4] == self:
+                try:
+                    self.root.move_queue.remove(order)
+                except:
+                    pass
 
 
     def reset_attack(self):

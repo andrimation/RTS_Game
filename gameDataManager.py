@@ -3,9 +3,12 @@ from ComputerPlayer import ComputerPlayer
 from MoveQueueManager import MoveQueueManager
 from kivy.core.window import Window
 from GameUnit import GameUnit
+from GameUnit import Tank
+from GameUnit import RocketLauncher
 from Building import Building
 from Uran import Uran
 from UranMiner import UranMiner
+import gc
 
 class Game_state_reset():
     def __init__(self,root):
@@ -74,12 +77,12 @@ class Game_state_reset():
         self.root.ids["MenuButton_BuildWarFactory"].disabled = True
         self.root.ids["MenuButton_BuildDefenceTower"].disabled = True
 
-    def start_game(self):
 
-        self.root.startChildren = self.root.children.copy()
+    def start_game(self):
+        if self.root.restart == 0:
+            self.root.remove_widget(self.root.ids["StartButton"])
         self.root.create_map_matrix()
         self.root.convertMapNumpy()
-        self.root.remove_widget(self.root.ids["StartButton"])
         self.root.ids["MenuButton_BuildMainBase"].disabled = False
         self.root.positionX = Window.size[0] * 0.1
         self.root.create_minimap()
@@ -87,30 +90,16 @@ class Game_state_reset():
         self.root.update_money()
         self.root.computerPlayerEnabled = True
         self.root.computerPlayer.execute_build_plan()
+        self.root.restart += 1
 
     def reset_game_objects(self):
-        for uranMiner in self.root.onMapObjectsToShift:
-            if isinstance(uranMiner,UranMiner):
-                self.root.urans.remove(uranMiner.closestUranSpot)
-                self.root.onMapObjectsToShift.remove(uranMiner.closestUranSpot)
-                self.root.remove_widget(uranMiner.closestUranSpot)
-                for uran in uranMiner.uranSpots:
-                    self.root.remove_widget(uran)
-                if uranMiner.closestUran != None:
-                    self.root.remove_widget(uranMiner.closestUran)
+        # Tu może zjaść potrzeba pobrania tych elementów imiennie, nie po indeksie.
+        widgetKivy = self.root.children.pop(0)
+        mapView    = self.root.children.pop(-1)
+        self.root.clear_widgets()
+        self.root.children = [widgetKivy,mapView]
 
-        for unit in self.root.onMapObjectsToShift:
-            if isinstance(unit, GameUnit):
-                unit.remove_object()
-        for building in self.root.onMapObjectsToShift:
-            if isinstance(building, Building):
-                building.remove_object()
+        self.root.children = [widgetKivy,mapView]
 
-        for uran in self.root.onMapObjectsToShift:
-            if isinstance(uran,Uran):
-                uran.remove_minimap_widget()
-                self.root.urans.remove(uran)
-                self.root.onMapObjectsToShift.remove(uran)
-                self.root.remove_widget(uran)
 
 

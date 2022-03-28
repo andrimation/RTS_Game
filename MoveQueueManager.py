@@ -257,15 +257,12 @@ class MoveQueueManager():
                 target = order[4]
                 objectMatrixPos = object.matrixPosition
                 if isinstance(object, Building):
-                    objectMatrixPos = object.matrixPosition[0]
                     if math.dist(objectMatrixPos, target.matrixPosition) >= object.shotDistance:
                         object.reset_attack()
                         self.root.move_queue.remove(order)
                         continue
 
                 targetMatrixPos = target.matrixPosition
-                if isinstance(target, Building):
-                    targetMatrixPos = target.matrixPosition[0]
 
                 if math.dist(objectMatrixPos,
                              targetMatrixPos) < object.shotDistance and object.moveX == 0 and object.moveY == 0:

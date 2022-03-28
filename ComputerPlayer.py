@@ -92,9 +92,9 @@ class ComputerPlayer():
                     for x in range(currentBuilding.matrixSize[1]):
                         spotArea.append([buildingInitMatrix[0] - y, buildingInitMatrix[1] + x])
 
-                currentBuilding.matrixPosition = spotArea
-                currentBuilding.originMatrix = currentBuilding.matrixPosition[0]
-                matrixPos = currentBuilding.matrixPosition[0]
+                currentBuilding.fullMatrixPosition = spotArea
+                currentBuilding.matrixPosition = currentBuilding.fullMatrixPosition[0]
+                matrixPos = currentBuilding.fullMatrixPosition[0]
                 posX,posY = self.root.gameMapMatrix[matrixPos[0]][matrixPos[1]][0]+self.root.positionX,self.root.gameMapMatrix[matrixPos[0]][matrixPos[1]][1]+self.root.positionY
                 currentBuilding.pos = (posX,posY)
                 currentBuilding.mark_position_as_used()

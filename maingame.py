@@ -219,15 +219,15 @@ class MainWindow(FloatLayout):
         new_Bullet.targetMatrix = endPos.matrixPosition.copy()
 
         startPos = startObject.matrixPosition
-        if isinstance(startObject,Building):
-            startPos = startObject.matrixPosition[0]
+        # if isinstance(startObject,Building):
+        #     startPos = startObject.matrixPosition[0]
 
         new_Bullet.absoluteBulletStartX = self.gameMapMatrix[startPos[0]][startPos[1]][0]
         new_Bullet.absoluteBulletStartY  = self.gameMapMatrix[startPos[0]][startPos[1]][1]
 
         targetMatrixPos = new_Bullet.root.target.matrixPosition
-        if isinstance(new_Bullet.root.target,Building):
-            targetMatrixPos = new_Bullet.root.target.matrixPosition[0]
+        # if isinstance(new_Bullet.root.target,Building):
+        #     targetMatrixPos = new_Bullet.root.target.matrixPosition[0]
 
         new_Bullet.absoluteTargetX = self.gameMapMatrix[targetMatrixPos[0]][targetMatrixPos[1]][0]
         new_Bullet.absoluteTargetY = self.gameMapMatrix[targetMatrixPos[0]][targetMatrixPos[1]][1]
@@ -259,8 +259,6 @@ class MainWindow(FloatLayout):
     def bullet_shot_execute(self):
         for bullet in self.bullets:
             bulletRootPos = bullet.root.matrixPosition
-            if isinstance(bullet.root,Building):
-                bulletRootPos = bullet.root.matrixPosition[0]
 
             if bullet.target == None:
                 self.bullets.remove(bullet)
@@ -380,9 +378,9 @@ class MainWindow(FloatLayout):
         # Add object,coords to orders compute
         elif args[0] == "Attack":
             if isinstance(args[1],Building):
-                matrixX, matrixY = args[1].matrixPosition[0]
+                matrixX, matrixY = args[1].fullMatrixPosition[0]
             else:
-                matrixX, matrixY = args[1].matrixPosition
+                matrixX, matrixY = args[1].fullMatrixPosition
         selectedObjectsList = []
         for object in self.movableObjects:
             if  object.selected == True : #and object.side == "Friend":
@@ -418,7 +416,7 @@ class MainWindow(FloatLayout):
             if isinstance(object, GameUnit):
                 positions.append(object.matrixPosition)
             elif isinstance(object, Building):
-                for smallPos in object.matrixPosition:
+                for smallPos in object.fullMatrixPosition:
                     positions.append(smallPos)
 
         for x in range(len(self.gameMapMatrix)-1):

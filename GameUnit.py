@@ -65,7 +65,7 @@ class GameUnit(Button):
         if self.player.WarFactory != None and self.player.power > 0:
             currentWarFactory = self.player.WarFactory
             self.root.updateGameMatrix()
-            origin = currentWarFactory.matrixPosition[0]
+            origin = currentWarFactory.matrixPosition
             self.matrixPosition = MarsPathfinder_setup.find_Closesd_Free_NoRandom(self.root.numpyMapMatrix,origin)
             posX = self.root.gameMapMatrix[self.matrixPosition[0]][self.matrixPosition[1]][0]+self.root.positionX
             posY = self.root.gameMapMatrix[self.matrixPosition[0]][self.matrixPosition[1]][1]+self.root.positionY
@@ -198,8 +198,9 @@ class GameUnit(Button):
                     return
     # Rozkminić jak atakować budynki ?!!?!?!
     # W pewnym momencie komp przestaje grać ??
-            self.root.movableObjects.sort(key=lambda x: math.dist(x.matrixPosition, self.matrixPosition))  # Tu sortować tylko human playera units zamiast wszystko
-            for unit in self.root.movableObjects:
+            targets = self.root.movableObjects + self.root.buildings
+            targets.sort(key=lambda x: math.dist(x.matrixPosition, self.matrixPosition))  # Tu sortować tylko human playera units zamiast wszystko
+            for unit in targets:
                 if self.player == self.root.computerPlayer:
                     self.auto_attack_distance = 200
                 if unit.player != self.player and math.dist(self.matrixPosition,unit.matrixPosition) <= self.auto_attack_distance:

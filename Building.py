@@ -21,6 +21,7 @@ class Building(Button):
         self.HP = 0
         self.matrixPosition = []
         self.originMatrix = originMatrix
+        self.fullMatrixPosition = []
         self.addCounter = 0
         self.wait = 0
         self.minimapUnit = None
@@ -192,20 +193,22 @@ class Building(Button):
         maxBuildDistance = 35
         for y in range(self.matrixSize[0]):
             for x in range(self.matrixSize[1]):
-                self.matrixPosition.append([matrixY - y, matrixX + x])
+                self.fullMatrixPosition.append([matrixY - y, matrixX + x])
                 if (self.root.numpyMapMatrix[matrixY - y][matrixX + x] == 1
                         or math.dist([len(self.root.numpyMapMatrix)-1,0],[matrixY,matrixX]) > maxBuildDistance):
-                    self.matrixPosition = []
+                    self.fullMatrixPosition = []
                     self.addCounter = 0
                     return False
+        if self.player == self.root.humanPlayer:
+            self.matrixPosition = self.fullMatrixPosition[0]
         return True
 
     def compute_minimapXY(self):
         """Returns building position on minimap"""
         imageX, imageY = self.root.ids["MainMapPicture"].ids["main_map_image"].size
         zeroX, zeroY = ((Window.size[0] * 0.1) * 0.025, self.root.ids["SidePanelWidget"].height * 0.83)
-        posX = int((self.originMatrix[1] * ((Window.size[0] * 0.1) * 0.95)) / len(self.root.gameMapMatrix[0]))
-        posY = math.ceil((abs((self.originMatrix[0] - (len(self.root.gameMapMatrix)))) * ( imageY * (Window.size[0] * 0.1)) / imageX) / len(self.root.gameMapMatrix[0]))
+        posX = int((self.matrixPosition[1] * ((Window.size[0] * 0.1) * 0.95)) / len(self.root.gameMapMatrix[0]))
+        posY = math.ceil((abs((self.matrixPosition[0] - (len(self.root.gameMapMatrix)))) * ( imageY * (Window.size[0] * 0.1)) / imageX) / len(self.root.gameMapMatrix[0]))
         sizeX = int((self.size[0] * ((Window.size[0] * 0.1) * 0.95)) / imageX)
         sizeY = math.ceil((abs((self.size[1] * (imageY * (Window.size[0] * 0.1)) / imageX) / imageY)))
         return zeroX,zeroY,posX,posY,sizeX,sizeY
@@ -226,8 +229,9 @@ class Building(Button):
     # Rafinery only
     def add_uranMiner(self):
         """Add uranMiner next to rafinery - need separate invoke when building matrix position is known"""
-        self.matrixPosition.sort(key= lambda x: x[0])
-        freePlace = [self.matrixPosition[0][0]+self.matrixSize[0],self.matrixPosition[0][1]]
+        print(self.fullMatrixPosition)
+        self.fullMatrixPosition.sort(key= lambda x: x[0])
+        freePlace = [self.fullMatrixPosition[0][0]+self.matrixSize[0],self.fullMatrixPosition[0][1]]
         uranMiner = UranMiner(self.root,"UranMiner",self.side,self.player,None)
         uranMiner.motherRafinery = freePlace
         uranMiner.matrixPosition = freePlace
@@ -243,7 +247,7 @@ class Building(Button):
 
     def mark_position_as_used(self):
         """Sets all matrix fields under building as used"""
-        for position in self.matrixPosition:
+        for position in self.fullMatrixPosition:
             self.root.numpyMapMatrix[position[0]][position[1]] = 1
 
     def on_press(self):
@@ -259,8 +263,8 @@ class Building(Button):
         if self.buildingType == "DefenceTower":
             if self.target == [] and self.attack == False:
                 for unit in self.root.movableObjects:
-                    if unit.player != self.player and math.dist(self.matrixPosition[0],unit.matrixPosition) < self.shotDistance and not isinstance(unit,UranMiner):
-                        auto_attack = [self, unit.matrixPosition, [self.matrixPosition[0]], "Attack", unit,list(unit.matrixPosition.copy())]
+                    if unit.player != self.player and math.dist(self.matrixPosition,unit.matrixPosition) < self.shotDistance and not isinstance(unit,UranMiner):
+                        auto_attack = [self, unit.matrixPosition, [self.matrixPosition], "Attack", unit,list(unit.matrixPosition.copy())]
                         self.root.move_queue.append(auto_attack)
                         return
         else:

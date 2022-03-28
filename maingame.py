@@ -304,7 +304,7 @@ class MainWindow(FloatLayout):
             # Bullet hit
             if bullet.collide_widget(bullet.target):
                 bullet.target.health -= bullet.root.firePower
-                self.ids["MainMapPicture"].draw_explosion([bullet.absoluteTargetY,bullet.absoluteTargetX])
+                self.ids["MainMapPicture"].draw_shadow_triangles(bullet.target)
                 self.bullets.remove(bullet)
                 self.remove_widget(bullet)
 
@@ -377,10 +377,7 @@ class MainWindow(FloatLayout):
 
         # Add object,coords to orders compute
         elif args[0] == "Attack":
-            if isinstance(args[1],Building):
-                matrixX, matrixY = args[1].fullMatrixPosition[0]
-            else:
-                matrixX, matrixY = args[1].fullMatrixPosition
+                matrixX, matrixY = args[1].matrixPosition
         selectedObjectsList = []
         for object in self.movableObjects:
             if  object.selected == True : #and object.side == "Friend":

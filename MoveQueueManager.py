@@ -283,13 +283,6 @@ class MoveQueueManager():
                         object.target.remove_object()
                         object.reset_attack()
 
-    def computer_attack(self):
-        for order in self.root.move_queue:
-            if order[0].player == self.root.computerPlayer and (order[2] == None or order[2] == []):
-                target = self.root.computerPlayer.find_attack_target(order[0].combatTeam)
-                for unit in self.root.computerPlayer.units:
-                    if unit.combatTeam == order[0].combatTeam:
-                        self.root.orders_destinations.append([unit, target.matrixPosition, "Attack", target])
 
     def rotate_unit(self, unit, currentMatrixPosition, newMatrixPosition):
 

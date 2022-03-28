@@ -251,6 +251,7 @@ class Building(Button):
             self.root.click_on_map("Attack", self)
 
     def auto_attack(self):
+        # Znów defence towery nie strzelają jak należy
         for order in self.root.move_queue:
             if order[0] == self:
                 return
@@ -264,7 +265,7 @@ class Building(Button):
                         return
         else:
             return
-        # Czasem pomimo tego że celu nie ma, towery walą dalej w jedno miejsce.
+
 
     def reset_attack(self):
         self.attack = False

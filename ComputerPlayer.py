@@ -130,6 +130,7 @@ class ComputerPlayer():
                 if self.WarFactory != None and self.money >= 5*unitType[1]:
                     for x in range(5):
                         currentUnit = GameUnit(self.root,unitType[0],"Enemy",self,self.combatTeams).create_unit()
+                        currentUnit.color = (1,0,0)
                         currentUnit.build_unit_in_factory()
                 self.combatTeams += 1
 

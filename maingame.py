@@ -275,8 +275,6 @@ class MainWindow(FloatLayout):
             y = abs(bullet.absoluteBulletStartY-bullet.absoluteTargetY)/60
 
             if bullet.target.health <= 0 or bullet.target == None or bullet.target == []:
-                bullet.target = []
-                bullet.source = []
                 self.bullets.remove(bullet)
                 self.remove_widget(bullet)
                 continue
@@ -305,19 +303,18 @@ class MainWindow(FloatLayout):
                     bullet.moveY -= bullet.speed*y/distance
                 except:
                     pass
+            # Bullet hit
             if bullet.collide_widget(bullet.target):
                 bullet.target.health -= bullet.root.firePower
-                bullet.source = []
-                bullet.target = []
+                self.ids["MainMapPicture"].draw_explosion([bullet.absoluteTargetY,bullet.absoluteTargetX])
                 self.bullets.remove(bullet)
                 self.remove_widget(bullet)
-
 
             elif math.dist(bulletRootPos,[bulletRootPos[0]+bullet.moveX//60,bulletRootPos[1]+bullet.moveY//60]) >= bullet.distanceToFly:
-                bullet.source = []
-                bullet.target = []
                 self.bullets.remove(bullet)
                 self.remove_widget(bullet)
+
+
 
     def move_queue_execute(self):
         self.moveQueueManager.execute_units_movement()
@@ -525,6 +522,8 @@ class MainWindow(FloatLayout):
             self.computerPlayer.execute_Computer_Play()
 
         self.check_if_loose()
+
+        self.ids["MainMapPicture"].clear_explosions()
 
     pass
 

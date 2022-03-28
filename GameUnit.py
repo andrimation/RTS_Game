@@ -125,12 +125,12 @@ class GameUnit(Button):
 
     def remove_object(self):
 
+        self.reset_attack()
+
         for unit in self.root.movableObjects:
             if unit.target == self:
                 unit.target = []
                 unit.attack = False
-
-        self.reset_attack()
 
         try:
             self.player.units.remove(self)
@@ -176,6 +176,7 @@ class GameUnit(Button):
                     pass
             elif order[4] == self:
                 try:
+                    order[0].reset_attack()
                     self.root.move_queue.remove(order)
                 except:
                     pass

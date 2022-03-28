@@ -3,6 +3,8 @@ from kivy.properties import StringProperty
 from kivy.uix.widget import Widget
 from SelectBox import SelectBox
 from kivy.core.window import Window
+from kivy.graphics import *
+from kivy.graphics import InstructionGroup
 
 import time
 import math
@@ -13,11 +15,13 @@ SCROLL_SPEED = 60  # Scroll speed must be power of 2
 class MainMapPicture(Scatter):
     # Jak się pozbyć tego czarnego paska z prawej ? -> jak przesuę obraz o odpowiednią wartość, to ostatnią
     # wartość +/- zrobić mniejszą
+    canvasCleaner = 0
     root = ""
     source = StringProperty()
     draw_mode = StringProperty()
     shiftXCounter = 0
     shiftYCounter = 0
+    explosions = []
     def moveX(self,mouseX,screenWidth):
         if self.root.scrollEnabled == True:
             if mouseX == 0:
@@ -44,6 +48,27 @@ class MainMapPicture(Scatter):
                     self.top -= SCROLL_SPEED
                     self.shiftYCounter += SCROLL_SPEED
                     return -SCROLL_SPEED
+
+    def draw_explosion(self,pos):
+        explosion = InstructionGroup()
+        explosion.add(Color(1,1,0))
+        explosion.add(Ellipse(pos=(pos[1]-30,pos[0]-30),size=(120,120)))
+        self.explosions.append(explosion)
+        self.canvas.add(explosion)
+
+
+    def clear_explosions(self):
+        if self.canvasCleaner == 9:
+            if self.explosions:
+                for x in self.explosions:
+                    self.canvas.remove(x)
+                    self.explosions.remove(x)
+                    self.canvasCleaner = 0
+        else:
+            self.canvasCleaner += 1
+
+
+
 
 
 

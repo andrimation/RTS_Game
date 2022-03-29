@@ -123,10 +123,10 @@ class Building(Button):
                     self.root.add_widget(self, canvas="before", index=self.root.building_add_index)
                     self.root.buildingToAdd.append(self)
                 self.root.ids["SidePanelWidget"].index = 0
-                if self.player == self.root.humanPlayer:
-                    self.player.defenceTowers += 1
-                    if self.player.defenceTowers == 3:
-                        self.root.ids["MenuButton_BuildDefenceTower"].disabled = True
+                # if self.player == self.root.humanPlayer:
+                #     self.player.defenceTowers += 1
+                #     if self.player.defenceTowers == 3:
+                #         self.root.ids["MenuButton_BuildDefenceTower"].disabled = True
 
 
 

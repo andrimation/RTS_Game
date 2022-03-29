@@ -50,34 +50,12 @@ class MainMapPicture(Scatter):
                     self.shiftYCounter += SCROLL_SPEED
                     return -SCROLL_SPEED
 
-
-    # Shadow generator - shadow generated randomly, not every shot
-
-    def find_objects_in_range(self,shadowSource):
-        listOfObjectsPos = []
-        for object in self.root.onMapObjectsToShift:
-            if math.dist(object.matrixPosition,shadowSource.matrixPosition) <= self.shadowRange:
-                listOfObjectsPos.append(object.pos)
-        return listOfObjectsPos
-
-    def draw_shadow_triangles(self,shadowSource):
-        listOfTriangleEnds = self.find_objects_in_range(shadowSource)
-        print(listOfTriangleEnds)
-        if listOfTriangleEnds:
-            for points in listOfTriangleEnds:
-                trtiangle = InstructionGroup()
-                trtiangle.add(Color(1,1,0))
-                trtiangle.add(Triangle(points=(points[1],points[0],points[1]+60,points[0]+60,shadowSource.x+30,shadowSource.y+30)))
-                self.explosions.append(trtiangle)
-                self.canvas.add(trtiangle)
-
-
-    # def draw_explosion(self,pos):
-    #     explosion = InstructionGroup()
-    #     explosion.add(Color(1,1,0))
-    #     explosion.add(Ellipse(pos=(pos[1]-30,pos[0]-30),size=(120,120)))
-    #     self.explosions.append(explosion)
-    #     self.canvas.add(explosion)
+    def draw_explosion(self,pos):
+        explosion = InstructionGroup()
+        explosion.add(Color(1,1,0))
+        explosion.add(Ellipse(pos=(pos[1]-30,pos[0]-30),size=(120,120)))
+        self.explosions.append(explosion)
+        self.canvas.add(explosion)
 
 
     def clear_explosions(self):

@@ -187,9 +187,7 @@ class GameUnit(Button):
         self.target = []
 
     def auto_attack(self):
-
         if isinstance(self, Tank) or isinstance(self, RocketLauncher) and self.target == [] and self.attack == False:
-
             for destination in self.root.orders_destinations:
                 if destination[0] == self:
                     return
@@ -219,7 +217,7 @@ class Tank(GameUnit):
     def __init__(self,root,unitType,side,player,combatTeam):
         super(Tank,self).__init__(root,unitType,side,player,combatTeam)
 
-        self.health = 1
+        self.health = 350
         self.buildCost = 650
         self.buildTime = 10
         self.speed = 4
@@ -233,6 +231,7 @@ class RocketLauncher(GameUnit):
         super(RocketLauncher, self).__init__(root,unitType,side,player,combatTeam)
 
         self.shotDistance = 12
+        self.health = 150
         self.buildCost = 2500
         self.buildTime = 5
         self.speed = 2

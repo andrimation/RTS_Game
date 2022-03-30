@@ -211,7 +211,6 @@ class MoveQueueManager():
 
             if unitInMove.rotate_finish == False:
                 try:
-
                     self.rotate_unit(unitInMove, currentPosition, newPosition)
                     continue
                 except:
@@ -283,7 +282,7 @@ class MoveQueueManager():
                         object.target.remove_object()
                         object.reset_attack()
 
-
+    # Załadować najpierw wszystkie obrazki do ramu, a dopiero potem obracać !!
     def rotate_unit(self, unit, currentMatrixPosition, newMatrixPosition):
 
         if unit.rotate_finish == False:
@@ -312,9 +311,9 @@ class MoveQueueManager():
                     1]:
                     desiredAngle = 315
 
-                anglePrepare = desiredAngle - unit.angle
+                anglePrepare = desiredAngle - unit.angle_
                 if anglePrepare > 180:
-                    anglePrepare = -1 * ((360 - desiredAngle) + unit.angle)
+                    anglePrepare = -1 * ((360 - desiredAngle) + unit.angle_)
                 unit.angle_to_rotate = anglePrepare
 
                 if unit.angle_to_rotate == 0:
@@ -322,12 +321,15 @@ class MoveQueueManager():
 
             else:
                 if unit.angle_to_rotate > 0:
-                    unit.angle += 5
+                    unit.angle_ += 5
                     unit.angle_to_rotate -= 5
 
                 elif unit.angle_to_rotate < 0:
-                    unit.angle -= 5
+                    unit.angle_ -= 5
                     unit.angle_to_rotate += 5
+
+                unit.rotate_model()
+
 
                 if unit.angle_to_rotate > 0:
                     unit.rotate_finish = False

@@ -6,13 +6,15 @@ from MenuButton import MenuButton
 from kivy.core.window import Window
 from kivy.app import App
 from kivy.uix.label import Label
+from kivy.properties import StringProperty
+from kivy.graphics import Rectangle
 
 
 import MarsPathfinder_setup
 import math
 import random
 import copy
-
+import os
 from Storage import Storage
 
 class GameUnit(Button):
@@ -34,12 +36,15 @@ class GameUnit(Button):
         self.combatTeam = combatTeam
         self.auto_attack_distance = 5
 
+        self.angle_ = 0
         self.angle_to_rotate = 0
         self.rotate_finish = False
+        self.source_rectangle = None
+        self.find_source_rectangle()
+
 
         self.moveX = 0
         self.moveY = 0
-
         self.wait = 0
 
         self.buildCost = 0
@@ -53,12 +58,23 @@ class GameUnit(Button):
         self.startPos = []
         self.target = []
 
+
+    def find_source_rectangle(self):
+        for element in self.canvas.before.children:
+            if isinstance(element,Rectangle):
+                self.source_rectangle = element
+
+    def rotate_model(self):
+        if self.angle_ >= 0:
+            self.source_rectangle.source = f"Models/Tank/Rotation/{self.angle_}.png"
+        else:
+            self.source_rectangle.source = f"Models/Tank/Rotation/{360 + self.angle_}.png"
+
     def create_unit(self):
         if self.unitType == "Tank":
             return Tank(self.root,self.unitType,self.side,self.player,self.combatTeam)
         elif self.unitType == "RocketLauncher":
             return RocketLauncher(self.root,self.unitType,self.side,self.player,self.combatTeam)
-
 
     def build_unit_in_factory(self):
         # Dodać sprawdzenie czy dany gracz ma war factory !! że np jak je zniszczymy to żeby komp dalej nie produkował

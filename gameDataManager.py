@@ -8,6 +8,8 @@ from GameUnit import RocketLauncher
 from Building import Building
 from Uran import Uran
 from UranMiner import UranMiner
+import os
+
 import gc
 
 class Game_state_reset():
@@ -76,6 +78,16 @@ class Game_state_reset():
         self.root.ids["MenuButton_BuildPowerPlant"].disabled = True
         self.root.ids["MenuButton_BuildWarFactory"].disabled = True
         self.root.ids["MenuButton_BuildDefenceTower"].disabled = True
+
+
+        self.tank_model_rotation = {}
+        self.load_Tank_models_to_dict()
+
+    def load_Tank_models_to_dict(self):
+        directory = os.listdir("Models/Tank/Rotation")
+        for file in directory:
+            self.tank_model_rotation[file[:-4]] = file
+
 
 
     def start_game(self):

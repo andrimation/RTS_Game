@@ -13,8 +13,7 @@ SCROLL_SPEED = 60  # Scroll speed must be power of 2
 
 
 class MainMapPicture(Scatter):
-    # Jak się pozbyć tego czarnego paska z prawej ? -> jak przesuę obraz o odpowiednią wartość, to ostatnią
-    # wartość +/- zrobić mniejszą
+
     canvasCleaner = 0
     root = ""
     source = StringProperty()

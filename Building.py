@@ -311,7 +311,6 @@ class Building(Button):
         if self.buildingType == "WarFactory" and self.player == self.root.humanPlayer:
             self.root.ids["MenuButton_BuildTank"].disabled = True
             self.root.ids["MenuButton_BuildRocketLauncher"].disabled = True
-
-        self.player.WarFactory = None
+            self.player.WarFactory = None
 
 

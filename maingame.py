@@ -466,7 +466,7 @@ class MainWindow(FloatLayout):
                 except:
                     pass
 
-    def check_if_loose(self):
+    def check_if_loose(self):  # Zmienić że poprostu zniszczenie main base.
         if self.humanPlayer.money < 650 * 5 and self.humanPlayer.units == []:
             self.time = 0.5
             self.gameDataObject.reset_game_objects()

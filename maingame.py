@@ -1,6 +1,5 @@
 # Kivy
 import time
-
 from kivy.app import App
 from kivy.uix.widget import Widget
 from kivy.uix.floatlayout import FloatLayout
@@ -28,6 +27,7 @@ from MoveQueueManager2 import MoveQueueManager2
 from UranMiner import UranMiner
 from miniMap import miniMap
 from gameDataManager import Game_state_reset
+from kivy.core.image import Image as CoreImage
 
 # Others
 import random
@@ -35,10 +35,11 @@ import pyautogui
 import math
 import MarsPathfinder_setup
 import numpy
-import time
 import gc
-import mouseinfo
 import copy
+
+
+
 
 # Fullscreen
 Window.fullscreen = 'auto'    # To nam włacza fullscreen
@@ -50,6 +51,7 @@ class MainWindow(FloatLayout):
 
 
     def __init__(self):
+
         super(MainWindow, self).__init__()
         self.restart = 0
         self.gameDataObject = Game_state_reset(self)
@@ -58,7 +60,6 @@ class MainWindow(FloatLayout):
 
     def start(self):
         self.gameDataObject.start_game()
-
 
     def create_minimap(self):
         miniMapInit  = miniMap(self)
@@ -475,9 +476,9 @@ class MainWindow(FloatLayout):
         elif self.computerPlayer.money < 650 * 5 and self.computerPlayer.units == []:
             self.gameDataObject.reset_game_objects()
             self.gameDataObject.set_game_data()
+            self.start()
 
-    def time(self):
-        return self.time_
+
 
 ###########################################################################
 
@@ -529,7 +530,7 @@ class MainGameApp(App):
 
     def build(self):
         mainwindow = MainWindow()
-        Clock.schedule_interval(mainwindow.next_frame,0.007)
+        Clock.schedule_interval(mainwindow.next_frame,0.009)
         return mainwindow
 
 if __name__ == "__main__":

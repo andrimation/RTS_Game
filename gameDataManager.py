@@ -2,6 +2,7 @@ from HumanPlayer import HumanPlayer
 from ComputerPlayer import ComputerPlayer
 from MoveQueueManager import MoveQueueManager
 from kivy.core.window import Window
+from kivy.core.image import Image
 from GameUnit import GameUnit
 from GameUnit import Tank
 from GameUnit import RocketLauncher
@@ -19,6 +20,7 @@ class Game_state_reset():
         self.root.clickOnMapEnabled = True
 
     def set_game_data(self):
+
         self.root.miniMap = None
         self.root.gameDataObject = Game_state_reset(self.root)
         self.root.humanPlayer = HumanPlayer(self.root)
@@ -84,7 +86,7 @@ class Game_state_reset():
         self.load_Tank_models_to_dict()
 
     def load_Tank_models_to_dict(self):
-        directory = os.listdir("Models/Tank/Rotation")
+        directory = os.listdir("Models/Tank/Tank_friend")
         for file in directory:
             self.tank_model_rotation[file[:-4]] = file
 

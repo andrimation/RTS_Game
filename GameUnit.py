@@ -41,6 +41,7 @@ class GameUnit(Button):
         self.rotate_finish = False
         self.source_rectangle = None
         self.find_source_rectangle()
+        self.set_unit_image()
 
         self.moveX = 0
         self.moveY = 0
@@ -63,7 +64,7 @@ class GameUnit(Button):
             if isinstance(element,Rectangle):
                 self.source_rectangle = element
 
-    def rotate_model(self):
+    def set_unit_image(self):
         if self.player == self.root.humanPlayer:
             if self.unitType == "Tank":
                 path = "Tank_friend"
@@ -74,7 +75,6 @@ class GameUnit(Button):
                 path = "Tank_enemy"
             else:
                 path = "Rocket_enemy"
-
 
         if self.angle_ >= 0:
             self.source_rectangle.source = f"Models/Tank/{path}/{self.angle_}.png"

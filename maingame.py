@@ -11,23 +11,14 @@ from GameUnit import GameUnit,Bullet
 from Building import Building
 from MenuButton import MenuButton
 from MatrixMapWidget import MatrixMapWidget
-from kivy.uix.image import Image
-from kivy.uix.button import Button
 from kivy.config import Config
-from kivy.properties import BooleanProperty
-from kivy.animation import Animation
-from HumanPlayer import HumanPlayer
-from ComputerPlayer import ComputerPlayer
 from Uran import Uran
 from SelectBox import SelectBox
 from kivy.config import Config
-from kivy.input.motionevent import MotionEvent
 from MoveQueueManager import MoveQueueManager
-from MoveQueueManager2 import MoveQueueManager2
 from UranMiner import UranMiner
 from miniMap import miniMap
 from gameDataManager import Game_state_reset
-from kivy.core.image import Image as CoreImage
 
 # Others
 import threading

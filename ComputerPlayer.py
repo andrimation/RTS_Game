@@ -32,7 +32,7 @@ class ComputerPlayer():
         self.power = 50_000
 
         self.computerBuildDelay = 0
-        self.computerBuildDelayTIME = 0
+        self.computerBuildDelayTIME = 1000
         self.computerActDelay   = 0
         self.aviableUnits = ["Tank","RocketLauncher"]
         self.computerBuildingQueue = [["MainBase",[7,52]],["WarFactory",[4,47]],["Rafinery",[12,53]],
@@ -60,6 +60,7 @@ class ComputerPlayer():
             self.computerBuildDelay += 1
         else:
             self.computerBuildDelay = 0
+            self.computerBuildDelayTIME = random.randint(1,500)
             return True
 
     def act_Delay(self):
@@ -72,12 +73,13 @@ class ComputerPlayer():
 
 
     def create_units_build_plan(self):
-        for x in range(5):
-            unitType = random.choice(self.aviableUnits)
-            unitToBuild = GameUnit(self.root,unitType,"Enemy",self,self.combatTeams).create_unit()
-            self.buildUnitsQueue.append(unitToBuild)
-        self.combatTeams += 1
-        pass
+        if self.build_Delay():
+            for x in range(5):
+                unitType = random.choice(self.aviableUnits)
+                unitToBuild = GameUnit(self.root,unitType,"Enemy",self,self.combatTeams).create_unit()
+                self.buildUnitsQueue.append(unitToBuild)
+            self.combatTeams += 1
+            pass
 
 # Można dodać sprawdzanie żeby nie stawiał budynków zaraz przy sobie
 
@@ -114,25 +116,25 @@ class ComputerPlayer():
 
 
     def execute_Computer_Play(self):
-        # Build tasks
         self.execute_units_build_queue()
-        # self.attack_human()
+
 
 
     def execute_units_build_queue(self):
-        if self.root.humanPlayer.units:
-            if len(self.units) % 5 == 0 and len(self.units) < self.playerMaxUnitsCount:
-                unitType = random.randint(1,100)
-                if unitType % 7 == 0:
-                    unitType = ["RocketLauncher",2500]
-                else:
-                    unitType = ["Tank",650]
-                if self.WarFactory != None and self.money >= 5*unitType[1]:
-                    for x in range(5):
-                        currentUnit = GameUnit(self.root,unitType[0],"Enemy",self,self.combatTeams).create_unit()
-                        currentUnit.color = (1,0,0)
-                        currentUnit.build_unit_in_factory()
-                self.combatTeams += 1
+        if self.build_Delay():
+            if self.root.humanPlayer.units:
+                if len(self.units) % 5 == 0 and len(self.units) < self.playerMaxUnitsCount:
+                    unitType = random.randint(1,100)
+                    if unitType % 6 == 0:
+                        unitType = ["RocketLauncher",2500]
+                    else:
+                        unitType = ["Tank",650]
+                    if self.WarFactory != None and self.money >= 5*unitType[1]:
+                        for x in range(5):
+                            currentUnit = GameUnit(self.root,unitType[0],"Enemy",self,self.combatTeams).create_unit()
+                            currentUnit.color = (1,0,0)
+                            currentUnit.build_unit_in_factory()
+                    self.combatTeams += 1
 
     def update_money(self):
         self.root.ids["Money_labelComp"].text = str(self.money)

@@ -15,8 +15,7 @@ class MoveQueueManager():
 
     # ABY rozwiązac problem usuwania elementu z listy po której sie iteruje, można użyć wyrażenia listowego !!
     def pathThreads_creator(self):
-
-        if len(self.root.path_compute_threads) < 10:
+        if len(self.root.path_compute_threads) < 5:
             if self.root.orders_destinations:
                 pathThread = threading.Thread(target=self.compute_paths_for_orders)
                 self.root.path_compute_threads.append(pathThread)
@@ -35,8 +34,6 @@ class MoveQueueManager():
     def check_destination_cell(self, destination, unitInMove, move_Type):
         """Function checks if destination is duplicated in orders_destinations, in move_queue and if position is free
             - function returns new destination if cell is duplicated or not-free, or returns destination"""
-        # Tu jest coś zjebane, bo jak zamieniam wszystko na tuple to tracę kontrolę nad jednostkami ?!!
-        # Zrobić dla budynków i jednostek funkcje .matrixPosition() i niech ona zwraca w rozkazach pozycję
         if isinstance(unitInMove, UranMiner):
             return destination
         cellOccurCounter = 0
@@ -351,7 +348,7 @@ class MoveQueueManager():
                     unit.angle_ -= 5
                     unit.angle_to_rotate += 5
 
-                unit.rotate_model()
+                unit.set_unit_image()
 
 
                 if unit.angle_to_rotate > 0:

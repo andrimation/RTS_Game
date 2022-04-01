@@ -43,6 +43,7 @@ class Game_state_reset():
         self.root.numpyMapMatrix = []
         self.root.move_queue = []
         self.root.orders_destinations = []
+        self.root.path_compute_threads = []
 
         self.root.buildingToAdd = []
         self.root.miniMapObject = None

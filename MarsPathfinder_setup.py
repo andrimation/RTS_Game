@@ -93,9 +93,9 @@ def marsPathfinder(startPosition,endPosition,mapMatrix,moveType):
     openList   = [startNode]
     closedList = []
     counter = 0
-    counterMaxValue = 100
+    counterMaxValue = 250
     if moveType == "Attack":
-        counterMaxValue = 50
+        counterMaxValue = 100
     while openList:
         counter += 1
         try:

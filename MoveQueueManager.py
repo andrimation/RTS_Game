@@ -6,10 +6,31 @@ from UranMiner import UranMiner
 from Building import Building
 import GameUnit
 
+import threading
 
 class MoveQueueManager():
     def __init__(self, root):
         self.root = root
+        self.threads_counter = 0
+
+    # ABY rozwiązac problem usuwania elementu z listy po której sie iteruje, można użyć wyrażenia listowego !!
+    def pathThreads_creator(self):
+
+        if len(self.root.path_compute_threads) < 10:
+            if self.root.orders_destinations:
+                pathThread = threading.Thread(target=self.compute_paths_for_orders)
+                self.root.path_compute_threads.append(pathThread)
+                self.root.path_compute_threads[-1].run()
+
+        self.pathThreadsRemove()
+
+    def pathThreadsRemove(self):
+        if self.threads_counter == 10:
+            self.root.path_compute_threads = [thread for thread in self.root.path_compute_threads if thread.is_alive()]
+            self.threads_counter = 0
+        else:
+            self.threads_counter += 1
+
 
     def check_destination_cell(self, destination, unitInMove, move_Type):
         """Function checks if destination is duplicated in orders_destinations, in move_queue and if position is free
@@ -83,6 +104,8 @@ class MoveQueueManager():
             return True
         else:
             return False
+
+# Zrobić osobny thread dla obliczania trasy.
 
     def compute_paths_for_orders(self):
         if self.root.orders_destinations:

@@ -30,6 +30,7 @@ from gameDataManager import Game_state_reset
 from kivy.core.image import Image as CoreImage
 
 # Others
+import threading
 import random
 import pyautogui
 import math
@@ -49,7 +50,6 @@ Config.set("input","mouse","mouse,disable_multitouch")
 
 class MainWindow(FloatLayout):
 
-
     def __init__(self):
 
         super(MainWindow, self).__init__()
@@ -60,6 +60,7 @@ class MainWindow(FloatLayout):
 
     def start(self):
         self.gameDataObject.start_game()
+
 
     def create_minimap(self):
         miniMapInit  = miniMap(self)
@@ -85,6 +86,8 @@ class MainWindow(FloatLayout):
                     boxToRemove = self.selectBoxesObjects.pop(-2)
                     self.remove_widget(boxToRemove)
                 self.ids["SidePanelWidget"].index = 0
+
+
 
     def on_touch_up(self, touch):
         if self.selectBoxesObjects:
@@ -343,7 +346,9 @@ class MainWindow(FloatLayout):
         return pos_X, pos_Y, bigMatrixY, bigMatrixX
 
     def compute_orders_paths(self):
-        self.moveQueueManager.compute_paths_for_orders()
+        # self.moveQueueManager.compute_paths_for_orders()
+        self.moveQueueManager.pathThreads_creator()
+        # print(self.path_compute_threads)
 
     # Funkcja czyści wszystkie pending rozkazy i dodaje zje znów do orders destinations.
     # Jakby tu zrobić że oznacza tylko rozkazy do usunięcia, a później co jedną klatkę usuwa i przelicza 1 rozkaz
@@ -530,7 +535,7 @@ class MainGameApp(App):
 
     def build(self):
         mainwindow = MainWindow()
-        Clock.schedule_interval(mainwindow.next_frame,0.009)
+        Clock.schedule_interval(mainwindow.next_frame,0.008)
         return mainwindow
 
 if __name__ == "__main__":

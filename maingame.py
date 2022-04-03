@@ -427,7 +427,6 @@ class MainWindow(FloatLayout):
             object.mineUran()
 
         for object in self.movableObjects:
-            # Błedem jest to że w jednej klatce chcę obliczyć dla wszystkich unitów ?
             object.auto_attack()
 
         for building in self.buildings:

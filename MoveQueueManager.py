@@ -268,9 +268,12 @@ class MoveQueueManager():
                     pass
 
     # Coś jest zjebane z atakiem - jednostki jakby atakują zlą pozycję targetu ( ale tylko czasem )
+    # Rozkminić co sie dzieje jak zaczynają dziać się dziwne rzeczy - dodać button do debuowania, że printuje mi
+    # attack tylko jak jest wciśnięty i tylko wybranych jednostek
     def attack(self):
         # Jednostki wroga mogą atakować swoje unity !
         for order in self.root.move_queue:
+            # print(order)
             if order[3] == "Attack" and order[4] != None and order[4] != []:
                 object = order[0]
                 target = order[4]
@@ -283,8 +286,8 @@ class MoveQueueManager():
 
                 targetMatrixPos = target.matrixPosition
 
-                if math.dist(objectMatrixPos,
-                             targetMatrixPos) < object.shotDistance and object.moveX == 0 and object.moveY == 0:
+
+                if math.dist(objectMatrixPos,targetMatrixPos) < object.shotDistance and object.moveX == 0 and object.moveY == 0:
                     self.root.numpyMapMatrix[objectMatrixPos[0]][object.matrixPosition[1]] = 1
                     object.attack = True
                     object.target = target

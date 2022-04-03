@@ -3,6 +3,8 @@ from kivy.uix.button import Button
 from kivy.uix.widget import Widget
 from kivy.properties import BooleanProperty
 from kivy.core.window import Window
+from kivy.graphics import Rectangle
+
 
 import  math
 from MenuButton import MenuButton
@@ -28,6 +30,11 @@ class Building(Button):
         self.minimapName = None
         self.moveX = 0
         self.moveY = 0
+        self.source_rectangle = self.find_source_rectangle()
+        self.set_building_image()
+        self.animation_counter = 0
+        self.frames_counter    = 0
+        self.path = ""
 
         self.root = root
         self.selected = BooleanProperty(False)
@@ -47,6 +54,27 @@ class Building(Button):
         self.active = True
 
         self.size_hint = (None,None)
+
+    def find_source_rectangle(self):
+        for element in self.canvas.before.children:
+            if isinstance(element,Rectangle):
+                return element
+
+    def set_building_image(self):
+        if self.buildingType == "MainBase":
+            self.path = "Main_base/Render_friend"
+            self.source_rectangle.source = f"Models/{self.path}/0.png"
+
+    def animate_building(self):
+        self.path = "Main_base/Render_friend"
+        if self.frames_counter == 80:
+            self.frames_counter = 0
+        self.source_rectangle.source = f"Models/{self.path}/{self.frames_counter}.png"
+        self.frames_counter += 1
+
+
+
+
 
     def on_release(self):
         if self.side == "Friend" and self.buildingType == "MainBase":

@@ -3,6 +3,7 @@ from ComputerPlayer import ComputerPlayer
 from MoveQueueManager import MoveQueueManager
 from kivy.core.window import Window
 from kivy.core.image import Image
+from kivy.uix.image import Image,CoreImage
 from GameUnit import GameUnit
 from GameUnit import Tank
 from GameUnit import RocketLauncher
@@ -12,6 +13,7 @@ from UranMiner import UranMiner
 import os
 
 import gc
+import io
 
 class Game_state_reset():
     def __init__(self,root):
@@ -82,16 +84,24 @@ class Game_state_reset():
         self.root.ids["MenuButton_BuildWarFactory"].disabled = True
         self.root.ids["MenuButton_BuildDefenceTower"].disabled = True
 
+        # Game models
+        self.root.tank_model_rotation = []
+        self.load_Tank_images_to_list()
+        print(self.root.tank_model_rotation)
 
-        self.tank_model_rotation = {}
-        self.load_Tank_models_to_dict()
+    # Działa ładowanie plików do pamięci !!! pliki musza zostać zamienione na textury !!
+    def load_Tank_images_to_list(self):
+        for file in os.listdir("Models/Tank/Tank_friend"):
+            if file.endswith("png"):
+                image = open(f"Models/Tank/Tank_friend/{file}","rb")
+                print(image)
+                binaryImage = image.read()
+                dataImage = io.BytesIO(binaryImage)
+                img = CoreImage(dataImage,ext="png").texture
 
-    def load_Tank_models_to_dict(self):
-        directory = os.listdir("Models/Tank/Tank_friend")
-        for file in directory:
-            self.tank_model_rotation[file[:-4]] = file
-
-
+                new_image = Image()
+                new_image.texture = img
+                self.root.tank_model_rotation.append(img)
 
     def start_game(self):
         if self.root.restart == 0:

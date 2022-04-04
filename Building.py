@@ -72,10 +72,6 @@ class Building(Button):
         self.source_rectangle.source = f"Models/{self.path}/{self.frames_counter}.png"
         self.frames_counter += 1
 
-
-
-
-
     def on_release(self):
         if self.side == "Friend" and self.buildingType == "MainBase":
             self.root.ids["MenuButton_BuildMainBase"].disabled = True
@@ -83,6 +79,9 @@ class Building(Button):
             self.root.ids["MenuButton_BuildPowerPlant"].disabled = False
             self.root.ids["MenuButton_BuildWarFactory"].disabled = False
             self.root.ids["MenuButton_BuildDefenceTower"].disabled = False
+
+            # Tu jest test grafiki !!!
+            self.source_rectangle.texture = self.root.tank_model_rotation[50]
         if Storage.MenuButtonSelected == False:
             self.selected = not self.selected
 

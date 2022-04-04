@@ -22,6 +22,7 @@ from gameDataManager import Game_state_reset
 
 # Others
 import threading
+import PIL
 import random
 import pyautogui
 import math
@@ -29,7 +30,6 @@ import MarsPathfinder_setup
 import numpy
 import gc
 import copy
-
 
 
 
@@ -51,7 +51,6 @@ class MainWindow(FloatLayout):
 
     def start(self):
         self.gameDataObject.start_game()
-
 
     def create_minimap(self):
         miniMapInit  = miniMap(self)
@@ -77,8 +76,6 @@ class MainWindow(FloatLayout):
                     boxToRemove = self.selectBoxesObjects.pop(-2)
                     self.remove_widget(boxToRemove)
                 self.ids["SidePanelWidget"].index = 0
-
-
 
     def on_touch_up(self, touch):
         if self.selectBoxesObjects:
@@ -354,7 +351,6 @@ class MainWindow(FloatLayout):
             except:
                 pass
 
-
     def click_on_map(self,*args):   # Dodac ograniczenie że za jednym razem można np max 7 unitów
         self.updateGameMatrix()
         try:
@@ -432,7 +428,6 @@ class MainWindow(FloatLayout):
         for building in self.buildings:
             building.auto_attack()
 
-
     def order_and_units_cleaner(self):
         for order in self.orders_destinations:
             if isinstance(order[0],GameUnit)and not isinstance(order[3],Building) and order[3] not in self.movableObjects and order[2] == "Attack":
@@ -472,8 +467,6 @@ class MainWindow(FloatLayout):
             self.gameDataObject.reset_game_objects()
             self.gameDataObject.set_game_data()
             self.start()
-
-
 
 ###########################################################################
 
@@ -518,8 +511,6 @@ class MainWindow(FloatLayout):
         self.ids["MainMapPicture"].clear_explosions()
 
     pass
-
-
 
 class MainGameApp(App):
 

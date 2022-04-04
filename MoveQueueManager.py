@@ -30,7 +30,6 @@ class MoveQueueManager():
         else:
             self.threads_counter += 1
 
-
     def check_destination_cell(self, destination, unitInMove, move_Type):
         """Function checks if destination is duplicated in orders_destinations, in move_queue and if position is free
             - function returns new destination if cell is duplicated or not-free, or returns destination"""
@@ -312,26 +311,19 @@ class MoveQueueManager():
             if unit.angle_to_rotate == 0:
                 if newMatrixPosition[0] == currentMatrixPosition[0] and newMatrixPosition[1] > currentMatrixPosition[1]:
                     desiredAngle = 0
-                elif newMatrixPosition[0] < currentMatrixPosition[0] and newMatrixPosition[1] > currentMatrixPosition[
-                    1]:
+                elif newMatrixPosition[0] < currentMatrixPosition[0] and newMatrixPosition[1] > currentMatrixPosition[1]:
                     desiredAngle = 45
-                elif newMatrixPosition[0] < currentMatrixPosition[0] and newMatrixPosition[1] == currentMatrixPosition[
-                    1]:
+                elif newMatrixPosition[0] < currentMatrixPosition[0] and newMatrixPosition[1] == currentMatrixPosition[1]:
                     desiredAngle = 90
-                elif newMatrixPosition[0] < currentMatrixPosition[0] and newMatrixPosition[1] < currentMatrixPosition[
-                    1]:
+                elif newMatrixPosition[0] < currentMatrixPosition[0] and newMatrixPosition[1] < currentMatrixPosition[1]:
                     desiredAngle = 135
-                elif newMatrixPosition[0] == currentMatrixPosition[0] and newMatrixPosition[1] < currentMatrixPosition[
-                    1]:
+                elif newMatrixPosition[0] == currentMatrixPosition[0] and newMatrixPosition[1] < currentMatrixPosition[1]:
                     desiredAngle = 180
-                elif newMatrixPosition[0] > currentMatrixPosition[0] and newMatrixPosition[1] < currentMatrixPosition[
-                    1]:
+                elif newMatrixPosition[0] > currentMatrixPosition[0] and newMatrixPosition[1] < currentMatrixPosition[1]:
                     desiredAngle = 225
-                elif newMatrixPosition[0] > currentMatrixPosition[0] and newMatrixPosition[1] == currentMatrixPosition[
-                    1]:
+                elif newMatrixPosition[0] > currentMatrixPosition[0] and newMatrixPosition[1] == currentMatrixPosition[1]:
                     desiredAngle = 270
-                elif newMatrixPosition[0] > currentMatrixPosition[0] and newMatrixPosition[1] > currentMatrixPosition[
-                    1]:
+                elif newMatrixPosition[0] > currentMatrixPosition[0] and newMatrixPosition[1] > currentMatrixPosition[1]:
                     desiredAngle = 315
 
                 anglePrepare = desiredAngle - unit.angle_

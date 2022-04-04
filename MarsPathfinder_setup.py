@@ -81,7 +81,6 @@ def find_Closesd_Free_NoRandom(gameMatrix,endPosition):
     return results[0]
 
 
-
 def marsPathfinder(startPosition,endPosition,mapMatrix,moveType):
 
 

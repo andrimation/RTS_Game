@@ -129,11 +129,13 @@ class Game_state_reset():
 
 
         # Iterate lists
-        objectNames = ["Tank_friend/","Tank_enemy/","Rocket_friend/","Rocket_enemy/"]
+        objectNames = ["Tank_friend/","Tank_enemy/","Rocket_friend/","Rocket_enemy/","Main_base_friend/","Main_base_enemy/"]
         imagesDicts = [self.root.tank_friend_animation,self.root.tank_enemy_animation,
-                       self.root.rocketLauncher_friend_animation,self.root.rocketLauncher_enemy_animation]
+                       self.root.rocketLauncher_friend_animation,self.root.rocketLauncher_enemy_animation,
+                       self.root.main_base_friend_animation,self.root.main_base_enemy_animation]
         directory = "Models/Models_textures/"
 
+        # Load images to memory
         for name,dictionary in zip(objectNames,imagesDicts):
             print(name,dictionary)
             currentPath = directory + name
@@ -146,7 +148,8 @@ class Game_state_reset():
 
                     dictName = file[:-4]
                     dictionary[dictName] = textureImage
-        
+        print(self.root.main_base_friend_animation)
+
 
 
 # Działa ładowanie plików do pamięci !!! pliki musza zostać zamienione na textury !!

@@ -67,19 +67,19 @@ class GameUnit(Button):
     def set_unit_image(self):
         if self.player == self.root.humanPlayer:
             if self.unitType == "Tank":
-                path = "Tank_friend"
+                dictionary = self.root.tank_friend_animation
             else:
-                path = "Rocket_friend"
+                dictionary = self.root.rocketLauncher_friend_animation
         else:
             if self.unitType == "Tank":
-                path = "Tank_enemy"
+                dictionary = self.root.tank_enemy_animation
             else:
-                path = "Rocket_enemy"
+                dictionary = self.root.rocketLauncher_enemy_animation
 
         if self.angle_ >= 0:
-            self.source_rectangle.source = f"Models/Tank/{path}/{self.angle_}.png"
+            self.source_rectangle.texture = dictionary[str(self.angle_)]
         else:
-            self.source_rectangle.source = f"Models/Tank/{path}/{360 + self.angle_}.png"
+            self.source_rectangle.texture = dictionary[str(360 + self.angle_)]
 
     def create_unit(self):
         if self.unitType == "Tank":

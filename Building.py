@@ -66,13 +66,13 @@ class Building(Button):
             self.source_rectangle.source = f"Models/{self.path}/0.png"
 
     def animate_building(self):
-        self.path = "Main_base/Render_friend"
-        if self.frames_counter == 80:
-            self.frames_counter = 0
-            # DZIAŁA !!!
-            # i nie obniża prędkości !! wjebać wszystko do ramu
-        # self.source_rectangle.texture = self.root.tank_model_rotation[self.frames_counter]
-        self.frames_counter += 1
+        self.animation_counter += 1
+        if self.animation_counter == 2:
+            self.frames_counter += 1
+            self.animation_counter = 0
+            if self.frames_counter == 79:
+                self.frames_counter = 0
+            self.source_rectangle.texture = self.root.main_base_friend_animation[str(self.frames_counter)]
 
     def on_release(self):
         if self.side == "Friend" and self.buildingType == "MainBase":
@@ -82,8 +82,6 @@ class Building(Button):
             self.root.ids["MenuButton_BuildWarFactory"].disabled = False
             self.root.ids["MenuButton_BuildDefenceTower"].disabled = False
 
-            # Tu jest test grafiki !!!
-            self.source_rectangle.texture = self.root.tank_model_rotation[50]
         if Storage.MenuButtonSelected == False:
             self.selected = not self.selected
 

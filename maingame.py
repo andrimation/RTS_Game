@@ -46,6 +46,7 @@ class MainWindow(FloatLayout):
         super(MainWindow, self).__init__()
         self.restart = 0
         self.gameDataObject = Game_state_reset(self)
+        self.gameDataObject.load_models_animations_to_memory()
         self.gameDataObject.set_game_data()
         Window.fullscreen = 'auto'
 
@@ -426,6 +427,7 @@ class MainWindow(FloatLayout):
             object.auto_attack()
 
         for building in self.buildings:
+            building.animate_building()
             building.auto_attack()
 
     def order_and_units_cleaner(self):

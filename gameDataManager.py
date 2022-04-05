@@ -89,19 +89,7 @@ class Game_state_reset():
         self.load_Tank_images_to_list()
         print(self.root.tank_model_rotation)
 
-    # Działa ładowanie plików do pamięci !!! pliki musza zostać zamienione na textury !!
-    def load_Tank_images_to_list(self):
-        for file in os.listdir("Models/Tank/Tank_friend"):
-            if file.endswith("png"):
-                image = open(f"Models/Tank/Tank_friend/{file}","rb")
-                print(image)
-                binaryImage = image.read()
-                dataImage = io.BytesIO(binaryImage)
-                img = CoreImage(dataImage,ext="png").texture
 
-                new_image = Image()
-                new_image.texture = img
-                self.root.tank_model_rotation.append(img)
 
     def start_game(self):
         if self.root.restart == 0:
@@ -126,5 +114,52 @@ class Game_state_reset():
 
         self.root.children = [widgetKivy,mapView]
 
+    def load_models_animations_to_memory(self):
+        self.root.tank_friend_animation = {}
+        self.root.tank_enemy_animation  = {}
+
+        self.root.rocketLauncher_friend_animation = {}
+        self.root.rocketLauncher_enemy_animation = {}
+
+        self.root.main_base_friend_animation = {}
+        self.root.main_base_enemy_animation = {}
+
+        self.root.war_factory_friend_animation = {}
+        self.root.war_factory_enemy_animation = {}
 
 
+        # Iterate lists
+        objectNames = ["Tank_friend/","Tank_enemy/","Rocket_friend/","Rocket_enemy/"]
+        imagesDicts = [self.root.tank_friend_animation,self.root.tank_enemy_animation,
+                       self.root.rocketLauncher_friend_animation,self.root.rocketLauncher_enemy_animation]
+        directory = "Models/Models_textures/"
+
+        for name,dictionary in zip(objectNames,imagesDicts):
+            print(name,dictionary)
+            currentPath = directory + name
+            for file in os.listdir(currentPath):
+                if file.endswith("png"):
+                    image = open(currentPath+file,"rb")
+                    binaryImage = image.read()
+                    dataImage = io.BytesIO(binaryImage)
+                    textureImage = CoreImage(dataImage,ext="png").texture
+
+                    dictName = file[:-4]
+                    dictionary[dictName] = textureImage
+        
+
+
+# Działa ładowanie plików do pamięci !!! pliki musza zostać zamienione na textury !!
+    # i widgetowi zamiast zmieniać .source zmieniamy .texture !!
+    def load_Tank_images_to_list(self):
+        for file in os.listdir("Models/Tank/Tank_friend"):
+            if file.endswith("png"):
+                image = open(f"Models/Tank/Tank_friend/{file}","rb")
+                # print(image)
+                binaryImage = image.read()
+                dataImage = io.BytesIO(binaryImage)
+                img = CoreImage(dataImage,ext="png").texture
+
+                new_image = Image()
+                new_image.texture = img
+                self.root.tank_model_rotation.append(img)

@@ -69,7 +69,9 @@ class Building(Button):
         self.path = "Main_base/Render_friend"
         if self.frames_counter == 80:
             self.frames_counter = 0
-        self.source_rectangle.source = f"Models/{self.path}/{self.frames_counter}.png"
+            # DZIAŁA !!!
+            # i nie obniża prędkości !! wjebać wszystko do ramu
+        # self.source_rectangle.texture = self.root.tank_model_rotation[self.frames_counter]
         self.frames_counter += 1
 
     def on_release(self):

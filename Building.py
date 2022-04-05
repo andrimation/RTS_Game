@@ -30,10 +30,9 @@ class Building(Button):
         self.minimapName = None
         self.moveX = 0
         self.moveY = 0
-        self.source_rectangle = self.find_source_rectangle()
-        self.set_building_image()
         self.animation_counter = 0
         self.frames_counter    = 0
+        self.animation_source = None
         self.path = ""
 
         self.root = root
@@ -55,6 +54,11 @@ class Building(Button):
 
         self.size_hint = (None,None)
 
+        self.source_rectangle = self.find_source_rectangle()
+        self.set_building_image()
+
+
+
     def find_source_rectangle(self):
         for element in self.canvas.before.children:
             if isinstance(element,Rectangle):
@@ -62,17 +66,29 @@ class Building(Button):
 
     def set_building_image(self):
         if self.buildingType == "MainBase":
-            self.path = "Main_base/Render_friend"
-            self.source_rectangle.source = f"Models/{self.path}/0.png"
+            if self.player == self.root.humanPlayer:
+                self.animation_source = self.root.main_base_friend_animation
+            else:
+                self.animation_source = self.root.main_base_enemy_animation
+        elif self.buildingType == "WarFactory":
+            if self.player == self.root.humanPlayer:
+                self.animation_source = self.root.war_factory_friend_animation
+            else:
+                self.animation_source = self.root.war_factory_enemy_animation
+
+
 
     def animate_building(self):
-        self.animation_counter += 1
-        if self.animation_counter == 2:
-            self.frames_counter += 1
-            self.animation_counter = 0
-            if self.frames_counter == 79:
-                self.frames_counter = 0
-            self.source_rectangle.texture = self.root.main_base_friend_animation[str(self.frames_counter)]
+        try:
+            self.animation_counter += 1
+            if self.animation_counter == 2:
+                self.frames_counter += 1
+                self.animation_counter = 0
+                if self.frames_counter == 79:
+                    self.frames_counter = 0
+                self.source_rectangle.texture = self.animation_source[str(self.frames_counter)]
+        except:
+            pass
 
     def on_release(self):
         if self.side == "Friend" and self.buildingType == "MainBase":

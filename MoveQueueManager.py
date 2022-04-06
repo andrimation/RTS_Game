@@ -101,8 +101,6 @@ class MoveQueueManager():
         else:
             return False
 
-# Zrobić osobny thread dla obliczania trasy.
-
     def compute_paths_for_orders(self):
         if self.root.orders_destinations:
             order_destination = self.root.orders_destinations.pop(0)
@@ -268,7 +266,7 @@ class MoveQueueManager():
 
     # Coś jest zjebane z atakiem - jednostki jakby atakują zlą pozycję targetu ( ale tylko czasem )
     # Rozkminić co sie dzieje jak zaczynają dziać się dziwne rzeczy - dodać button do debuowania, że printuje mi
-    # attack tylko jak jest wciśnięty i tylko wybranych jednostek
+    # attack tylko jak jest wciśnięty i tylko wybranych jednostek - to się dzieje gdy uciekam jednostkami przed atakiem
     def attack(self):
         # Jednostki wroga mogą atakować swoje unity !
         for order in self.root.move_queue:

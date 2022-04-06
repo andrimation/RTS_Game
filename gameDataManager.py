@@ -127,14 +127,23 @@ class Game_state_reset():
         self.root.war_factory_friend_animation = {}
         self.root.war_factory_enemy_animation = {}
 
+        self.root.rafinery_friend_animation = {}
+        self.root.rafinery_enemy_animation = {}
+
+        self.root.power_plant_friend_animation = {}
+        self.root.power_plant_enemy_animation = {}
+
 
         # Iterate lists
         objectNames = ["Tank_friend/","Tank_enemy/","Rocket_friend/","Rocket_enemy/","Main_base_friend/","Main_base_enemy/",
-                       "War_factory_friend/","War_factory_enemy/"]
+                       "War_factory_friend/","War_factory_enemy/","Rafinery_friend/","Rafinery_enemy/",
+                       "Power_plant_friend/","Power_plant_enemy/"]
         imagesDicts = [self.root.tank_friend_animation,self.root.tank_enemy_animation,
                        self.root.rocketLauncher_friend_animation,self.root.rocketLauncher_enemy_animation,
                        self.root.main_base_friend_animation,self.root.main_base_enemy_animation,
-                       self.root.war_factory_friend_animation,self.root.war_factory_enemy_animation]
+                       self.root.war_factory_friend_animation,self.root.war_factory_enemy_animation,
+                       self.root.rafinery_friend_animation,self.root.rafinery_enemy_animation,
+                       self.root.power_plant_friend_animation,self.root.power_plant_enemy_animation]
         directory = "Models/Models_textures/"
 
         # Load images to memory

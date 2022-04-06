@@ -57,8 +57,6 @@ class Building(Button):
         self.source_rectangle = self.find_source_rectangle()
         self.set_building_image()
 
-
-
     def find_source_rectangle(self):
         for element in self.canvas.before.children:
             if isinstance(element,Rectangle):
@@ -75,11 +73,20 @@ class Building(Button):
                 self.animation_source = self.root.war_factory_friend_animation
             else:
                 self.animation_source = self.root.war_factory_enemy_animation
-
+        elif self.buildingType == "Rafinery":
+            if self.player == self.root.humanPlayer:
+                self.animation_source = self.root.rafinery_friend_animation
+            else:
+                self.animation_source = self.root.rafinery_enemy_animation
+        elif self.buildingType == "PowerPlant":
+            if self.player == self.root.humanPlayer:
+                self.animation_source = self.root.power_plant_friend_animation
+            else:
+                self.animation_source = self.root.power_plant_enemy_animation
 
 
     def animate_building(self):
-        try:
+        try:   # Ten try usunać gdy będą gotowe wszystkie słowniki z obrazkami
             self.animation_counter += 1
             if self.animation_counter == 2:
                 self.frames_counter += 1

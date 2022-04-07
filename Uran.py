@@ -2,6 +2,7 @@ from kivy.uix.image import Image
 from kivy.uix.button import Button
 from kivy.core.window import Window
 from UranMiner import UranMiner
+from kivy.graphics import Rectangle
 
 import math
 
@@ -15,6 +16,12 @@ class Uran(Button):
         self.size = (60,60)
         self.minimapUnit = None
         self.minimapName = None
+        self.source_rectangle = None
+        self.find_source_rectangle()
+        self.source_rectangle.source = "Models/Models_textures/Uran_source/uran.png"
+
+
+
 
     moveX = 0
     moveY = 0
@@ -31,6 +38,12 @@ class Uran(Button):
     attack = False
     startPos = []
     target = []
+
+    def find_source_rectangle(self):
+        for element in self.canvas.before.children:
+            if isinstance(element,Rectangle):
+                self.source_rectangle = element
+
 
     def on_release(self):
         print(self.matrixPosition)

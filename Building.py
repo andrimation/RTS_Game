@@ -83,6 +83,11 @@ class Building(Button):
                 self.animation_source = self.root.power_plant_friend_animation
             else:
                 self.animation_source = self.root.power_plant_enemy_animation
+        elif self.buildingType == "DefenceTower":
+            if self.player == self.root.humanPlayer:
+                self.animation_source = self.root.defence_friend
+            else:
+                self.animation_source = self.root.defence_enemy
 
 
     def animate_building(self):
@@ -129,8 +134,8 @@ class Building(Button):
                 self.player.MainBase = self
 
             elif self.buildingType == "Rafinery":
-                self.size = (180, 240)
-                self.matrixSize = [4, 3]
+                self.size = (180, 300)
+                self.matrixSize = [5, 3]
                 self.buildMode = True
                 self.health = 800
                 if self.side != "Enemy":
@@ -150,8 +155,8 @@ class Building(Button):
 
             elif self.buildingType == "WarFactory":
                 if self.player.WarFactory == None:
-                    self.size = (180, 240)
-                    self.matrixSize = [4, 3]
+                    self.size = (180, 300)
+                    self.matrixSize = [5, 3]
                     self.buildMode = True
                     self.health = 700
                     if self.side != "Enemy":
@@ -279,7 +284,6 @@ class Building(Button):
     # Rafinery only
     def add_uranMiner(self):
         """Add uranMiner next to rafinery - need separate invoke when building matrix position is known"""
-        print(self.fullMatrixPosition)
         self.fullMatrixPosition.sort(key= lambda x: x[0])
         freePlace = [self.fullMatrixPosition[0][0]+self.matrixSize[0],self.fullMatrixPosition[0][1]]
         uranMiner = UranMiner(self.root,"UranMiner",self.side,self.player,None)
@@ -291,7 +295,7 @@ class Building(Button):
         self.root.autoUnits.append(uranMiner)
         self.root.onMapObjectsToShift.append(uranMiner)
         self.root.movableObjects.append(uranMiner)
-        self.root.add_widget(uranMiner,canvas="after",index=1)
+        self.root.add_widget(uranMiner,index=self.root.ids["SidePanelWidget"].index+1)
         self.root.updateGameMatrix()
         self.player.buildings.append(self)
 

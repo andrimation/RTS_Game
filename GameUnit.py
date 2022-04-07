@@ -68,13 +68,17 @@ class GameUnit(Button):
         if self.player == self.root.humanPlayer:
             if self.unitType == "Tank":
                 dictionary = self.root.tank_friend_animation
-            else:
+            elif self.unitType == "RocketLauncher":
                 dictionary = self.root.rocketLauncher_friend_animation
+            elif self.unitType == "UranMiner":
+                dictionary = self.root.uran_miner_friend
         else:
             if self.unitType == "Tank":
                 dictionary = self.root.tank_enemy_animation
-            else:
+            elif self.unitType == "RocketLauncher":
                 dictionary = self.root.rocketLauncher_enemy_animation
+            elif self.unitType == "UranMiner":
+                dictionary = self.root.uran_miner_enemy
 
         if self.angle_ >= 0:
             self.source_rectangle.texture = dictionary[str(self.angle_)]

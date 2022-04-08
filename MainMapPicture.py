@@ -52,7 +52,7 @@ class MainMapPicture(Scatter):
     def draw_explosion(self,pos):
         explosion = InstructionGroup()
         explosion.add(Color(1,1,0))
-        explosion.add(Ellipse(pos=(pos[1]-30,pos[0]-30),size=(120,120)))
+        explosion.add(Rectangle(pos=(pos[1]-30,pos[0]-30),size=(120,120)))
         self.explosions.append(explosion)
         self.canvas.add(explosion)
 

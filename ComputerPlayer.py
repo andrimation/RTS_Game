@@ -73,13 +73,14 @@ class ComputerPlayer():
 
 
     def create_units_build_plan(self):
-        if self.build_Delay():
-            for x in range(5):
-                unitType = random.choice(self.aviableUnits)
-                unitToBuild = GameUnit(self.root,unitType,"Enemy",self,self.combatTeams).create_unit()
-                self.buildUnitsQueue.append(unitToBuild)
-            self.combatTeams += 1
-            pass
+        if self.WarFactory != None:
+            if self.build_Delay():
+                for x in range(5):
+                    unitType = random.choice(self.aviableUnits)
+                    unitToBuild = GameUnit(self.root,unitType,"Enemy",self,self.combatTeams).create_unit()
+                    self.buildUnitsQueue.append(unitToBuild)
+                self.combatTeams += 1
+                pass
 
 # Można dodać sprawdzanie żeby nie stawiał budynków zaraz przy sobie
 

@@ -362,9 +362,12 @@ class Building(Button):
         except:
             pass
 
-        if self.buildingType == "WarFactory" and self.player == self.root.humanPlayer:
-            self.root.ids["MenuButton_BuildTank"].disabled = True
-            self.root.ids["MenuButton_BuildRocketLauncher"].disabled = True
-            self.player.WarFactory = None
+        if self.buildingType == "WarFactory":
+            if self.player == self.root.humanPlayer:
+                self.root.ids["MenuButton_BuildTank"].disabled = True
+                self.root.ids["MenuButton_BuildRocketLauncher"].disabled = True
+                self.player.WarFactory = None
+            else:
+                self.player.WarFactory = None
 
 

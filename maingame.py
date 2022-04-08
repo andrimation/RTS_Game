@@ -298,7 +298,7 @@ class MainWindow(FloatLayout):
             # Bullet hit
             if bullet.collide_widget(bullet.target):
                 bullet.target.health -= bullet.root.firePower
-                self.ids["MainMapPicture"].draw_explosion([bullet.absoluteTargetY,bullet.absoluteTargetX])
+                # self.ids["MainMapPicture"].draw_explosion([bullet.absoluteTargetY,bullet.absoluteTargetX])
                 self.bullets.remove(bullet)
                 self.remove_widget(bullet)
 

@@ -4,7 +4,8 @@ from MoveQueueManager import MoveQueueManager
 from kivy.core.window import Window
 from kivy.core.image import Image
 from kivy.uix.image import Image,CoreImage
-from GameUnit import GameUnit
+from kivy.uix.button import Button
+from GameUnit import GameUnit,StartButton
 from GameUnit import Tank
 from GameUnit import RocketLauncher
 from Building import Building
@@ -78,7 +79,7 @@ class Game_state_reset():
         self.root.selectBoxesObjects = []
 
         # Buttons status
-        self.root.ids["MenuButton_BuildMainBase"].disabled = False
+        self.root.ids["MenuButton_BuildMainBase"].disabled = True
         self.root.ids["MenuButton_BuildRafinery"].disabled = True
         self.root.ids["MenuButton_BuildPowerPlant"].disabled = True
         self.root.ids["MenuButton_BuildWarFactory"].disabled = True
@@ -87,11 +88,14 @@ class Game_state_reset():
         # Game models
         self.root.tank_model_rotation = []
         self.load_Tank_images_to_list()
-        print(self.root.tank_model_rotation)
 
+    def add_start_button(self):
+        self.root.ids["StartButton"].pos = (-500,-500)
 
+    def hide_start_button(self):
+        self.root.ids["StartButton"].pos = (-900,-900)
 
-    def start_game(self):
+    def start_game(self,*args):
         if self.root.restart == 0:
             self.root.remove_widget(self.root.ids["StartButton"])
         self.root.create_map_matrix()
@@ -105,14 +109,16 @@ class Game_state_reset():
         self.root.computerPlayer.execute_build_plan()
         self.root.restart += 1
 
-    def reset_game_objects(self):
-        # Tu może zjaść potrzeba pobrania tych elementów imiennie, nie po indeksie.
+    def reset_game_objects(self,winner):
         widgetKivy = self.root.children.pop(0)
         mapView    = self.root.children.pop(-1)
         self.root.clear_widgets()
         self.root.children = [widgetKivy,mapView]
+        startButton = StartButton(self.root)
+        startButton.id = "StartButton"
+        startButton.text = winner
+        self.root.add_widget(startButton)
 
-        self.root.children = [widgetKivy,mapView]
 
     def load_models_animations_to_memory(self):
         self.root.tank_friend_animation = {}

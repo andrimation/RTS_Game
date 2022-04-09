@@ -34,13 +34,14 @@ class Building(Button):
         self.frames_counter    = 0
         self.animation_source = None
         self.path = ""
+        self.win = 0
 
         self.root = root
         self.selected = BooleanProperty(False)
         self.player = player
 
         self.buildAndEnergyCosts = {"MainBase":(500,0),"Rafinery":(1500,-500),"PowerPlant":(1000,1500),
-                                    "WarFactory":(1500,-500),"DefenceTower":(500,-250)}
+                                    "WarFactory":(3250,-500),"DefenceTower":(500,-250)}
         self.side = side
         self.health = 100
         self.shotDistance = 10
@@ -178,10 +179,7 @@ class Building(Button):
                     self.root.add_widget(self, canvas="before", index=self.root.building_add_index)
                     self.root.buildingToAdd.append(self)
                 self.root.ids["SidePanelWidget"].index = 0
-                # if self.player == self.root.humanPlayer:
-                #     self.player.defenceTowers += 1
-                #     if self.player.defenceTowers == 3:
-                #         self.root.ids["MenuButton_BuildDefenceTower"].disabled = True
+
 
 
 
@@ -369,5 +367,6 @@ class Building(Button):
                 self.player.WarFactory = None
             else:
                 self.player.WarFactory = None
+
 
 

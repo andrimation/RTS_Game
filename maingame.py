@@ -50,8 +50,8 @@ class MainWindow(FloatLayout):
         self.gameDataObject.set_game_data()
         Window.fullscreen = 'auto'
 
-    def start(self):
-        self.gameDataObject.start_game()
+    def start(self,*args):
+        self.gameDataObject.start_game(*args)
 
     def create_minimap(self):
         miniMapInit  = miniMap(self)
@@ -216,8 +216,8 @@ class MainWindow(FloatLayout):
         # if isinstance(startObject,Building):
         #     startPos = startObject.matrixPosition[0]
 
-        new_Bullet.absoluteBulletStartX = self.gameMapMatrix[startPos[0]][startPos[1]][0]
-        new_Bullet.absoluteBulletStartY  = self.gameMapMatrix[startPos[0]][startPos[1]][1]
+        new_Bullet.absoluteBulletStartX = self.gameMapMatrix[startPos[0]][startPos[1]][0]+new_Bullet.root.width*0.5
+        new_Bullet.absoluteBulletStartY  = self.gameMapMatrix[startPos[0]][startPos[1]][1]+new_Bullet.root.width*0.5
 
         targetMatrixPos = new_Bullet.root.target.matrixPosition
         # if isinstance(new_Bullet.root.target,Building):
@@ -226,7 +226,7 @@ class MainWindow(FloatLayout):
         new_Bullet.absoluteTargetX = self.gameMapMatrix[targetMatrixPos[0]][targetMatrixPos[1]][0]
         new_Bullet.absoluteTargetY = self.gameMapMatrix[targetMatrixPos[0]][targetMatrixPos[1]][1]
         new_Bullet.distanceToFly = startObject.shotDistance
-        new_Bullet.pos   = [startObject.pos[0],startObject.pos[1]]
+        new_Bullet.pos   = [startObject.pos[0]+new_Bullet.root.width*0.5,startObject.pos[1]+new_Bullet.root.width*0.5]
         new_Bullet.id = f"Bullet{self.obj_add_index}"
         new_Bullet.size_hint = (None, None)
         new_Bullet.target = endPos
@@ -459,16 +459,26 @@ class MainWindow(FloatLayout):
                 except:
                     pass
 
-    def check_if_loose(self):  # Zmienić że poprostu zniszczenie main base.
+    def check_if_loose(self):
+        winner = None
         if self.humanPlayer.money < 650 * 5 and self.humanPlayer.units == []:
-            self.time = 0.5
-            self.gameDataObject.reset_game_objects()
-            self.gameDataObject.set_game_data()
-            self.start()
+            winner = """Computer player has won the game ! you got no units and no money to build!
+                        
+                                    Click here to play again, Esc to exit."""
         elif self.computerPlayer.money < 650 * 5 and self.computerPlayer.units == []:
-            self.gameDataObject.reset_game_objects()
+            winner = """You have won the game ! computer got no units and no money to build!
+                        
+                                    Click here to play again, Esc to exit."""
+        if winner != None:
+            self.time = 0.5
+            self.gameDataObject.reset_game_objects(winner)
             self.gameDataObject.set_game_data()
-            self.start()
+
+
+
+
+
+
 
 ###########################################################################
 

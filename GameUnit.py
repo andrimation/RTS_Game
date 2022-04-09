@@ -311,6 +311,20 @@ class Bullet(GameUnit):
     #         self.root.click_on_map("Attack",self)
 
 
+class StartButton(Button):
+    def __init__(self,root):
+        super(Button, self).__init__()
+        self.id = "StartButton"
+        self.root = root
+        self.pos_hint = {"x":0.1,"y":0}
+        self.size_hint = (0.9,1)
+
+    def on_release(self):
+        self.root.remove_widget(self)
+        self.root.start()
+
+
+
 
 
 

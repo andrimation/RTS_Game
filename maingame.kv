@@ -31,12 +31,12 @@
                 Rectangle:
     Button:
         id: StartButton
-        index:0
         canvas.before:
             Color:
                 rgb: 0.7,0.7,0.7
             Rectangle:
                 size: 100,100
+                on_touch_down: root.start()
         on_release: root.start()
 
     Widget:

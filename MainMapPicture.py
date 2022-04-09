@@ -56,7 +56,6 @@ class MainMapPicture(Scatter):
         self.explosions.append(explosion)
         self.canvas.add(explosion)
 
-
     def clear_explosions(self):
         if self.canvasCleaner == 9:
             if self.explosions:

@@ -368,5 +368,8 @@ class Building(Button):
             else:
                 self.player.WarFactory = None
 
+        elif self.buildingType == "MainBase":
+            self.player.MainBase = "Destroyed"
+
 
 

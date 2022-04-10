@@ -298,7 +298,8 @@ class MainWindow(FloatLayout):
             # Bullet hit
             if bullet.collide_widget(bullet.target):
                 bullet.target.health -= bullet.root.firePower
-                self.ids["MainMapPicture"].draw_explosion([bullet.absoluteTargetY,bullet.absoluteTargetX],bullet.root)
+                if self.ids["MenuButton_AddSelect"].selected == False:
+                    self.ids["MainMapPicture"].draw_explosion([bullet.absoluteTargetY,bullet.absoluteTargetX],bullet.root)
                 self.bullets.remove(bullet)
                 self.remove_widget(bullet)
 
@@ -469,6 +470,16 @@ class MainWindow(FloatLayout):
             winner = """You have won the game ! computer got no units and no money to build!
                         
                                     Click here to play again, Esc to exit."""
+
+        elif self.computerPlayer.MainBase == "Destroyed":
+            winner = """You have won the game ! you destroyed computer`s main base!
+
+                                                Click here to play again, Esc to exit."""
+
+        elif self.humanPlayer.MainBase == "Destroyed":
+            winner = """Computer player has won the game ! you lost your main base!
+
+                                                Click here to play again, Esc to exit."""
 
         if winner != None:
             self.time = 0.5

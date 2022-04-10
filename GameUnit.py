@@ -286,7 +286,7 @@ class Bullet(GameUnit):
 
         self.absoluteTargetX = 0
         self.absoluteTargetY = 0
-
+        self.source_rectangle = None
 
         self.moveX = 0
         self.moveY = 0
@@ -300,15 +300,16 @@ class Bullet(GameUnit):
         self.target = []
         self.source = []
 
+    def set_image(self):
+        self.selected = False
+        self.find_source_rectangle()
+        if self.root.player == self.root.root.humanPlayer:
+            self.source_rectangle.texture = self.root.root.bullet_friend_source["bullet_main"]
+        else:
+            self.source_rectangle.texture = self.root.root.bullet_enemy_source["bullet_main"]
 
-    # def on_release(self):
-    #     if self.side == "Friend":
-    #         if Storage.MenuButtonSelected == False:
-    #             self.selected = not self.selected
-    #             print(self.id,self.selected)
-    #
-    #     else:
-    #         self.root.click_on_map("Attack",self)
+
+
 
 
 class StartButton(Button):

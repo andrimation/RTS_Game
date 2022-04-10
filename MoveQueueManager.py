@@ -352,3 +352,51 @@ class MoveQueueManager():
                     unit.rotate_finish = True
                     return
 
+
+
+
+# Wyszukiwanie trasy.
+    # 1) w jednym framesie obliczamy path tylko dla jednego unitu.   - tu zmiana, bo obliczam trasy w kilku wątkach !!
+    #   A) Zaczynając obliczenia z listy z orderami popujemy jeden order_destination z indeksem 0
+    #
+    #   - sprawdzamy czy dana destynacja jest - w innych orders_destination i czy jest jako destination w move_queue i czy jest wolna
+    #     czyli:
+    #     - sprawdzamy czy dana komórka jest w innych oczekujących do oliczenia rozkazach
+    #     - sprawdzamy czy dana komórka jest już w innych wykonywanych rozkazach
+    #     - sprawdzamy czy dana komórka jest wolna.
+    #     Jeśli się komórka powtarza, to wyszukujemy nowej, bliskiej komórki docelowej, jeśli nie to zwracamy wybraną komórkę, jako komórkę
+    #     docelową dla której szukamy trasy.
+
+    #   B) Jeśli obliczenie orderu zakończy się pomyślnie, to przekazujemy order do kolejki move_queue, a wypopowany order destynacja przepada
+    #       - sprawdzamy czy order destination jest dłuższy niż zwykły - jeśli jest dłuższy, to do move queue przekazujemy wynik obliczania trasy
+    #         + trasa która jest zapisana jako [-1] order destination
+    #   C) Jeśli obliczenie orderu zwróci None, to z wynikiem nie robimy nic, a wypopowany wcześniej order, wsadzamy z powrotem na koniec kolejki destynacji
+    #   - takie rozwiązanie spowoduje że jeśli jakiś order nie jest możliwy do obliczenia w danym momencie, to nie będzie on pobierany w kolejnym framesie
+    #     ale obliczane będą kolejne ordersy, a w miarę ich wykonania, może stać się możliwe obliczenie tego ordersu który zwracał None. Pomoże to uniknąć
+    #     zapętlenia na nieobliczalnym rozkazie ( w danej chwili )
+
+# Wykonywanie rozkazów:
+    # 1) rozkazy wykonywane są jak dotychczas.
+    # 2) Jeśli kolejna komórka na którą ma wjechać pojazd, jest zajęta przez coś innego to:
+    #    - pojazd odlicza do 50
+    #    - po odliczeniu do 50 sprawdzamy czy kolejna komórka wciąż jest zajęta.
+    #       - Jeśli nie - to wykonujemy ruch
+    #       - Jeśli tak - to obliczamy trasę - od komórki gdzie znajduje się jednostka, do kolejnej najbliższej wolnej komórki w obliczonym już rozkazie.
+    #       Pierwsza wersja: zakładam obliczenie tej mini trasy we framesie ruchu - sprawdzamy która kolejna komórka jest wolna, i obliczamy
+    #                        trasę dla tej komórki - odejmujemy trasę z komórką zajętą od istniejącej trasy w rozkazie, i dodajemy mini trasę do istniejącego rozkazu
+    #
+    #       Wersja druga:   usuwamy istniejący rozkaz z move queue, i dodajemy do kolejki rozkazów do obliczenia nowy rozkaz do obliczenia, zawierający obliczenie mini
+    #                       trasy + na końcu listę z obliczonymi wcześniej rozkazami - w tym przypadku, na początku algorytmu musimy sprawdzać czy order destination
+    #                       ma len 4(albo 3?) czy 5(albo 4?) - jeśli jest ten dłuższy, to wiemy, że jest to obliczanie mini trasy i po obliczeniu mini trasy, do
+    #                       obliczonej mini trasy dodajemy ostatni element order destination - czyli wczesniej obliczoną już trasę. ( to chyba lepsze wyjście, nie
+    #                       będzie blokować move, a obliczenie będzie się wykonywać w funkcji obliczania. )
+    # 3) popawić pozycje jednostek tak aby nigdy sie nie przenikały na mapie !
+    # 4) Problem utraty kontroli nad jednostkami po iluś atakach
+    # 5) Problem nie pojawiających się uranMinerów po ataku na inne jednostki
+
+    # Rozkaz jest usuwany jeżeli
+    #   1) jednostka znajdzie się w komórce do której miała dotrzeć
+    #   2) jeżeli jednostka atakuje i znajduje sie w odległości strzału od atakowanego obiektu
+
+
+

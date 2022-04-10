@@ -145,14 +145,16 @@ class Game_state_reset():
         self.root.uran_miner_friend = {}
         self.root.uran_miner_enemy = {}
 
-        self.uran_source = {}
+        self.root.uran_source = {}
+        self.root.bullet_friend_source = {}
+        self.root.bullet_enemy_source = {}
 
 
         # Iterate lists
         objectNames = ["Tank_friend/","Tank_enemy/","Rocket_friend/","Rocket_enemy/","Main_base_friend/","Main_base_enemy/",
                        "War_factory_friend/","War_factory_enemy/","Rafinery_friend/","Rafinery_enemy/",
                        "Power_plant_friend/","Power_plant_enemy/","Defence_friend/","Defence_enemy/",
-                       "Uran_miner_friend/","Uran_miner_enemy/","Uran_source/"]
+                       "Uran_miner_friend/","Uran_miner_enemy/","Uran_source/","Bullet_friend/","Bullet_enemy/"]
         imagesDicts = [self.root.tank_friend_animation,self.root.tank_enemy_animation,
                        self.root.rocketLauncher_friend_animation,self.root.rocketLauncher_enemy_animation,
                        self.root.main_base_friend_animation,self.root.main_base_enemy_animation,
@@ -160,7 +162,7 @@ class Game_state_reset():
                        self.root.rafinery_friend_animation,self.root.rafinery_enemy_animation,
                        self.root.power_plant_friend_animation,self.root.power_plant_enemy_animation,
                        self.root.defence_friend,self.root.defence_enemy,self.root.uran_miner_friend,self.root.uran_miner_enemy,
-                       self.uran_source]
+                       self.root.uran_source,self.root.bullet_friend_source,self.root.bullet_enemy_source]
         directory = "Models/Models_textures/"
 
         # Load images to memory
@@ -173,10 +175,9 @@ class Game_state_reset():
                     binaryImage = image.read()
                     dataImage = io.BytesIO(binaryImage)
                     textureImage = CoreImage(dataImage,ext="png").texture
-
                     dictName = file[:-4]
                     dictionary[dictName] = textureImage
-        print(self.root.main_base_friend_animation)
+
 
 
 

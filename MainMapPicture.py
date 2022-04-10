@@ -49,10 +49,12 @@ class MainMapPicture(Scatter):
                     self.shiftYCounter += SCROLL_SPEED
                     return -SCROLL_SPEED
 
-    def draw_explosion(self,pos):
+    def draw_explosion(self,pos,bulletRoot):
         explosion = InstructionGroup()
-        explosion.add(Color(1,1,0))
-        explosion.add(Rectangle(pos=(pos[1]-30,pos[0]-30),size=(120,120)))
+        if bulletRoot.player == self.root.humanPlayer:
+            explosion.add(Rectangle(texture=self.root.bullet_friend_source["bullet_expl"],pos=(pos[1]-30,pos[0]-30),size=(120,120)))
+        else:
+            explosion.add(Rectangle(texture=self.root.bullet_enemy_source["bullet_expl"], pos=(pos[1] - 30, pos[0] - 30),size=(120, 120)))
         self.explosions.append(explosion)
         self.canvas.add(explosion)
 

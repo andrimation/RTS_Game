@@ -213,15 +213,13 @@ class MainWindow(FloatLayout):
         new_Bullet.targetMatrix = endPos.matrixPosition.copy()
 
         startPos = startObject.matrixPosition
-        # if isinstance(startObject,Building):
-        #     startPos = startObject.matrixPosition[0]
+
 
         new_Bullet.absoluteBulletStartX = self.gameMapMatrix[startPos[0]][startPos[1]][0]+new_Bullet.root.width*0.5
         new_Bullet.absoluteBulletStartY  = self.gameMapMatrix[startPos[0]][startPos[1]][1]+new_Bullet.root.width*0.5
 
         targetMatrixPos = new_Bullet.root.target.matrixPosition
-        # if isinstance(new_Bullet.root.target,Building):
-        #     targetMatrixPos = new_Bullet.root.target.matrixPosition[0]
+
 
         new_Bullet.absoluteTargetX = self.gameMapMatrix[targetMatrixPos[0]][targetMatrixPos[1]][0]
         new_Bullet.absoluteTargetY = self.gameMapMatrix[targetMatrixPos[0]][targetMatrixPos[1]][1]
@@ -231,6 +229,8 @@ class MainWindow(FloatLayout):
         new_Bullet.size_hint = (None, None)
         new_Bullet.target = endPos
         new_Bullet.size = (20, 20)
+        new_Bullet.selected = False
+        new_Bullet.set_image()
         self.bullets.append(new_Bullet)
         self.add_widget(new_Bullet,index=self.ids["SidePanelWidget"].index+1,canvas="after")
         self.obj_add_index += 1
@@ -298,7 +298,7 @@ class MainWindow(FloatLayout):
             # Bullet hit
             if bullet.collide_widget(bullet.target):
                 bullet.target.health -= bullet.root.firePower
-                # self.ids["MainMapPicture"].draw_explosion([bullet.absoluteTargetY,bullet.absoluteTargetX])
+                self.ids["MainMapPicture"].draw_explosion([bullet.absoluteTargetY,bullet.absoluteTargetX],bullet.root)
                 self.bullets.remove(bullet)
                 self.remove_widget(bullet)
 
@@ -469,6 +469,7 @@ class MainWindow(FloatLayout):
             winner = """You have won the game ! computer got no units and no money to build!
                         
                                     Click here to play again, Esc to exit."""
+
         if winner != None:
             self.time = 0.5
             self.gameDataObject.reset_game_objects(winner)

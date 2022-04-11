@@ -1,7 +1,6 @@
 #: include mainmappicture.kv
 #: include mapview.kv
 #: include gameunit.kv
-#: include matrixmapwidget.kv
 #: include menubutton.kv
 #: include building.kv
 #: include uran.kv
@@ -26,7 +25,7 @@
         MainMapPicture:
             id: MainMapPicture
             on_touch_down: root.click_on_map(*args)
-            source: "testimage.jpg"
+            source: "main_map.jpg"
             canvas.before:
                 Rectangle:
     Button:

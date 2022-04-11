@@ -10,7 +10,7 @@ from MapView import MapView
 from GameUnit import GameUnit,Bullet
 from Building import Building
 from MenuButton import MenuButton
-from MatrixMapWidget import MatrixMapWidget
+
 from kivy.config import Config
 from Uran import Uran
 from SelectBox import SelectBox
@@ -19,6 +19,7 @@ from MoveQueueManager import MoveQueueManager
 from UranMiner import UranMiner
 from miniMap import miniMap
 from gameDataManager import Game_state_reset
+from BulletManager import BulletManager
 
 # Others
 import threading
@@ -415,7 +416,6 @@ class MainWindow(FloatLayout):
     def update_positionX(self):
         self.positionX = Window.size[0] * 0.1
 
-    # Nie updejtować force matrixa co klatkę ! - zbyt kosztowne, np co kliknięcie
     def updateGameMatrix(self):
         positions = []
         for object in self.children:
@@ -550,7 +550,7 @@ class MainGameApp(App):
 
     def build(self):
         mainwindow = MainWindow()
-        Clock.schedule_interval(mainwindow.next_frame,0.008)
+        Clock.schedule_interval(mainwindow.next_frame,0.01)
         return mainwindow
 
 if __name__ == "__main__":

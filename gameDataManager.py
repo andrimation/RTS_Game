@@ -11,6 +11,7 @@ from GameUnit import RocketLauncher
 from Building import Building
 from Uran import Uran
 from UranMiner import UranMiner
+from BulletManager import BulletManager
 import os
 
 import gc
@@ -23,13 +24,14 @@ class Game_state_reset():
         self.root.clickOnMapEnabled = True
 
     def set_game_data(self):
-
+        """Setting main variables to begin state"""
         self.root.miniMap = None
         self.root.gameDataObject = Game_state_reset(self.root)
         self.root.humanPlayer = HumanPlayer(self.root)
         self.root.computerPlayer = ComputerPlayer(self.root)
         self.root.computerPlayerEnabled = False
         self.root.moveQueueManager = MoveQueueManager(self.root)
+        self.root.bulletManager = BulletManager(self.root)
 
         self.root.building_add_index = 1
         self.root.obj_add_index = 1
@@ -85,20 +87,12 @@ class Game_state_reset():
         self.root.ids["MenuButton_BuildWarFactory"].disabled = True
         self.root.ids["MenuButton_BuildDefenceTower"].disabled = True
 
-        # Game models
-        self.root.tank_model_rotation = []
-        self.load_Tank_images_to_list()
-
         # Clean counter
         self.root.clean_counter = 0
 
-    def add_start_button(self):
-        self.root.ids["StartButton"].pos = (-500,-500)
-
-    def hide_start_button(self):
-        self.root.ids["StartButton"].pos = (-900,-900)
 
     def start_game(self,*args):
+        """Creates main game"""
         if self.root.restart == 0:
             self.root.remove_widget(self.root.ids["StartButton"])
         self.root.create_map_matrix()
@@ -113,6 +107,7 @@ class Game_state_reset():
         self.root.restart += 1
 
     def reset_game_objects(self,winner):
+        """Clears all widgets ( except two needed ), creates start button"""
         widgetKivy = self.root.children.pop(0)
         mapView    = self.root.children.pop(-1)
         self.root.clear_widgets()
@@ -124,6 +119,7 @@ class Game_state_reset():
 
 
     def load_models_animations_to_memory(self):
+        """Function loads all animations of game objects to RAM"""
         self.root.tank_friend_animation = {}
         self.root.tank_enemy_animation  = {}
 
@@ -152,7 +148,6 @@ class Game_state_reset():
         self.root.bullet_friend_source = {}
         self.root.bullet_enemy_source = {}
 
-
         # Iterate lists
         objectNames = ["Tank_friend/","Tank_enemy/","Rocket_friend/","Rocket_enemy/","Main_base_friend/","Main_base_enemy/",
                        "War_factory_friend/","War_factory_enemy/","Rafinery_friend/","Rafinery_enemy/",
@@ -170,7 +165,7 @@ class Game_state_reset():
 
         # Load images to memory
         for name,dictionary in zip(objectNames,imagesDicts):
-            print(name,dictionary)
+            print("Loading unit animation to memory:",name[:-1])
             currentPath = directory + name
             for file in os.listdir(currentPath):
                 if file.endswith("png"):
@@ -182,19 +177,3 @@ class Game_state_reset():
                     dictionary[dictName] = textureImage
 
 
-
-
-# Działa ładowanie plików do pamięci !!! pliki musza zostać zamienione na textury !!
-    # i widgetowi zamiast zmieniać .source zmieniamy .texture !!
-    def load_Tank_images_to_list(self):
-        for file in os.listdir("Models/Tank/Tank_friend"):
-            if file.endswith("png"):
-                image = open(f"Models/Tank/Tank_friend/{file}","rb")
-                # print(image)
-                binaryImage = image.read()
-                dataImage = io.BytesIO(binaryImage)
-                img = CoreImage(dataImage,ext="png").texture
-
-                new_image = Image()
-                new_image.texture = img
-                self.root.tank_model_rotation.append(img)

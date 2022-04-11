@@ -45,6 +45,7 @@ class UranMiner(GameUnit):
         self.closestUranSpot = []
         self.uranSpots = []
         self.closestUran = None
+        self.type = "uranminer"
 
     def mineUran(self):
         if self.closestUranSpot == []:
@@ -87,12 +88,14 @@ class UranMiner(GameUnit):
         if self.closestUranSpot != []:
             if self.working == False:
                 self.root.orders_destinations.append([self, self.closestUranSpot.matrixPosition, "Move", self.closestUranSpot,None])
-                self.root.compute_orders_paths()
+                # self.root.compute_orders_paths()
 
     def mine_uran(self):
+        self.working = True
         self.wait += 1
         if self.wait == 500:
             self.wait = 0
+            self.working = False
             try:
                 if self.root.gameMapMatrix[self.closestUranSpot.matrixPosition[0]][self.closestUranSpot.matrixPosition[1]][-1] == "uranMiner":
                     self.root.gameMapMatrix[self.closestUranSpot.matrixPosition[0]][self.closestUranSpot.matrixPosition[1]].pop(-1)

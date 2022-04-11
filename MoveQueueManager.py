@@ -20,11 +20,10 @@ class MoveQueueManager():
                 pathThread = threading.Thread(target=self.compute_paths_for_orders)
                 self.root.path_compute_threads.append(pathThread)
                 self.root.path_compute_threads[-1].run()
-
         self.pathThreadsRemove()
 
     def pathThreadsRemove(self):
-        if self.threads_counter == 10:
+        if self.threads_counter == 5:  # Poprawić usuwanie elementów na wyrażenie listowe !
             self.root.path_compute_threads = [thread for thread in self.root.path_compute_threads if thread.is_alive()]
             self.threads_counter = 0
         else:
@@ -279,11 +278,13 @@ class MoveQueueManager():
                 if isinstance(object, Building):
                     if math.dist(objectMatrixPos, target.matrixPosition) >= object.shotDistance:
                         object.reset_attack()
-                        self.root.move_queue.remove(order)
+                        try:
+                            self.root.move_queue.remove(order)
+                        except:
+                            pass
                         continue
 
-                targetMatrixPos = target.matrixPosition
-
+                targetMatrixPos = target.matrixPosition.copy()
 
                 if math.dist(objectMatrixPos,targetMatrixPos) < object.shotDistance and object.moveX == 0 and object.moveY == 0:
                     self.root.numpyMapMatrix[objectMatrixPos[0]][object.matrixPosition[1]] = 1

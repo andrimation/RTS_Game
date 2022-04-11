@@ -97,9 +97,10 @@ class MainWindow(FloatLayout):
             for object in self.movableObjects:
                 if object.pos[0] in range(rangeXStart,rangeXEnd) and object.pos[1] in range(rangeYStart,rangeYEnd) and object.player == self.humanPlayer:
                     object.selected = True
-                    for unit in self.movableObjects:
-                        if unit.combatTeam == object.combatTeam and unit.side == object.side:
-                            unit.selected = object.selected
+                    if not isinstance(object,UranMiner):
+                        for unit in self.movableObjects:
+                            if unit.combatTeam == object.combatTeam and unit.side == object.side:
+                                unit.selected = object.selected
                     self.selectedUnits = True
 
             self.remove_widget(boxToRemove)
@@ -343,15 +344,23 @@ class MainWindow(FloatLayout):
     # Funkcja czyści wszystkie pending rozkazy i dodaje zje znów do orders destinations.
     # Jakby tu zrobić że oznacza tylko rozkazy do usunięcia, a później co jedną klatkę usuwa i przelicza 1 rozkaz
     # - to by nie bylo takiego laga w momencie dodawania budynku
+    # --- Napisać to ładniej z tymi uran minerami.
     def recomupute_all_orders(self):
         self.orders_destinations = []
         for order in self.move_queue:
-            try:
-                self.orders_destinations.append([order[0],order[2][-1],order[3],order[4],None])
-                if isinstance(order[0],Building):
-                    order[0].reset_attack()
-            except:
-                pass
+            if not isinstance(order[0],UranMiner):
+                try:
+                    self.orders_destinations.append([order[0],order[2][-1],order[3],order[4],None])
+                    if isinstance(order[0],Building):
+                        order[0].reset_attack()
+                except:
+                    pass
+            else:
+                if order[0].working == False:
+                    try:
+                        self.orders_destinations.append([order[0], order[2][-1], order[3], order[4], None])
+                    except:
+                        pass
 
     def click_on_map(self,*args):   # Dodac ograniczenie że za jednym razem można np max 7 unitów
         self.updateGameMatrix()
@@ -518,8 +527,11 @@ class MainWindow(FloatLayout):
         # execute build queue
         self.build_queue_execute()
 
-        # Clean orders
-        self.order_and_units_cleaner()
+        # Clean orders  - nie wiem czy to konieczne ??
+        # self.clean_counter += 1
+        # if self.clean_counter == 500:
+        #     self.order_and_units_cleaner()
+        #     self.clean_counter = 0
 
         # Make sure panel inex is 0
         self.ids["SidePanelWidget"].index = 0

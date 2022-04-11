@@ -89,6 +89,8 @@ class Game_state_reset():
         self.root.tank_model_rotation = []
         self.load_Tank_images_to_list()
 
+        # Clean counter
+        self.root.clean_counter = 0
 
     def add_start_button(self):
         self.root.ids["StartButton"].pos = (-500,-500)

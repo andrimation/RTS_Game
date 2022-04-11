@@ -57,6 +57,7 @@ class GameUnit(Button):
         self.attack = False
         self.startPos = []
         self.target = []
+        self.type = "unit"
 
 
     def find_source_rectangle(self):
@@ -116,11 +117,18 @@ class GameUnit(Button):
             self.player.buildUnitsQueue = []
 
     def on_release(self):
+        print(self)
+        print("Self matrix pose",self.matrixPosition)
+        try:
+            print("target matrix",self.target)
+        except:
+            pass
         if self.player == self.root.humanPlayer:
             self.selected = not self.selected
-            for unit in self.root.movableObjects:
-                if unit.combatTeam == self.combatTeam and unit.side == self.side:
-                    unit.selected = self.selected
+            if self.type != "uranminer":
+                for unit in self.root.movableObjects:
+                    if unit.combatTeam == self.combatTeam and unit.side == self.side:
+                        unit.selected = self.selected
         else:
             self.root.click_on_map("Attack",self)
 
@@ -155,14 +163,14 @@ class GameUnit(Button):
             pass
 
     def remove_object(self):
-
         self.reset_attack()
+
+        self.root.orders_destinations = [order for order in self.root.orders_destinations if order[0] != self and order[3] != self]
+        self.root.move_queue = [order for order in self.root.move_queue if order[0] != self and order[4] != self]
 
         for unit in self.root.movableObjects:
             if unit.target == self:
-                unit.target = []
-                unit.attack = False
-
+                unit.reset_attack()
         try:
             self.player.units.remove(self)
         except:
@@ -180,38 +188,13 @@ class GameUnit(Button):
         except:
             pass
         try:
+
             self.root.minimapObject.remove_widget(self.minimapUnit)
             self.root.miniMapUnits.remove(self.minimapName)
             self.minimapName = None
             self.minimapUnit = None
         except:
             pass
-
-        for order in self.root.orders_destinations:
-            if order[0] == self:
-                try:
-                    self.root.orders_destinations.remove(order)
-                except:
-                    pass
-            elif order[3] == self:
-                try:
-                    self.root.orders_destinations.remove(order)
-                except:
-                    pass
-
-        for order in self.root.move_queue:
-            if order[0] == self:
-                try:
-                    self.root.move_queue.remove(order)
-                except:
-                    pass
-            elif order[4] == self:
-                try:
-                    order[0].reset_attack()
-                    self.root.move_queue.remove(order)
-                except:
-                    pass
-
 
     def reset_attack(self):
         self.attack = False
@@ -225,8 +208,7 @@ class GameUnit(Button):
             for order in self.root.move_queue:
                 if order[0] == self:
                     return
-    # Rozkminić jak atakować budynki ?!!?!?!
-    # W pewnym momencie komp przestaje grać ??
+
             targets = self.root.movableObjects + self.root.buildings
             targets.sort(key=lambda x: math.dist(x.matrixPosition, self.matrixPosition))  # Tu sortować tylko human playera units zamiast wszystko
             for unit in targets:

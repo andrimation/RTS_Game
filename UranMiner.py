@@ -46,11 +46,6 @@ class UranMiner(GameUnit):
         self.uranSpots = []
         self.closestUran = None
 
-    def on_release(self):
-        if self.side == "Friend":
-            self.selected = True
-            self.root.movableObjects.append(self)
-
     def mineUran(self):
         if self.closestUranSpot == []:
             if self.working == False:
@@ -87,7 +82,6 @@ class UranMiner(GameUnit):
                 if order[0] == self and order[2] == None:
                     self.deliver_uran_to_rafinery()
 
-
     def go_to_uran(self):
         self.selected = False
         if self.closestUranSpot != []:
@@ -109,7 +103,7 @@ class UranMiner(GameUnit):
             except:
                 pass
             self.root.orders_destinations.append([self, self.motherRafinery, "Move",self.motherRafinery,None])
-            self.root.compute_orders_paths()
+            # self.root.compute_orders_paths()
 
     def deliver_uran_to_rafinery(self):
         self.wait += 1

@@ -374,6 +374,10 @@ class MainWindow(FloatLayout):
         # Add object,coords to orders compute
         elif args[0] == "Attack":
                 matrixX, matrixY = args[1].matrixPosition
+
+        elif args[0] == "Uran":
+                matrixX, matrixY = args[1].matrixPosition
+
         selectedObjectsList = []
         for object in self.movableObjects:
             if  object.selected == True : #and object.side == "Friend":
@@ -485,12 +489,6 @@ class MainWindow(FloatLayout):
             self.time = 0.5
             self.gameDataObject.reset_game_objects(winner)
             self.gameDataObject.set_game_data()
-
-
-
-
-
-
 
 ###########################################################################
 

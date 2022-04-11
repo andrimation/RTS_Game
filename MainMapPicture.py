@@ -21,6 +21,7 @@ class MainMapPicture(Scatter):
     shiftXCounter = 0
     shiftYCounter = 0
     explosions = []
+    explosionsCounter = 0
     shadowRange = 2
     def moveX(self,mouseX,screenWidth):
         if self.root.scrollEnabled == True:
@@ -50,13 +51,16 @@ class MainMapPicture(Scatter):
                     return -SCROLL_SPEED
 
     def draw_explosion(self,pos,bulletRoot):
-        explosion = InstructionGroup()
-        if bulletRoot.player == self.root.humanPlayer:
-            explosion.add(Rectangle(texture=self.root.bullet_friend_source["bullet_expl"],pos=(pos[1]-30,pos[0]-30),size=(120,120)))
-        else:
-            explosion.add(Rectangle(texture=self.root.bullet_enemy_source["bullet_expl"], pos=(pos[1] - 30, pos[0] - 30),size=(120, 120)))
-        self.explosions.append(explosion)
-        self.canvas.add(explosion)
+        self.explosionsCounter += 1
+        if self.explosionsCounter == 2:
+            self.explosionsCounter = 0
+            explosion = InstructionGroup()
+            if bulletRoot.player == self.root.humanPlayer:
+                explosion.add(Rectangle(texture=self.root.bullet_friend_source["bullet_expl"],pos=(pos[1]-30,pos[0]-30),size=(120,120)))
+            else:
+                explosion.add(Rectangle(texture=self.root.bullet_enemy_source["bullet_expl"], pos=(pos[1] - 30, pos[0] - 30),size=(120, 120)))
+            self.explosions.append(explosion)
+            self.canvas.add(explosion)
 
     def clear_explosions(self):
         if self.canvasCleaner == 9:

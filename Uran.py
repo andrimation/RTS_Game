@@ -19,35 +19,16 @@ class Uran(Button):
         self.source_rectangle = None
         self.find_source_rectangle()
         self.source_rectangle.source = "Models/Models_textures/Uran_source/uran.png"
+        self.button = None
 
-
-
-
-    moveX = 0
-    moveY = 0
-
-    wait = 0
-
-    buildCost = 0
-    side = "Friend"
-    health = 100
-    shotDistance = 5
-    firePower = 10
-    reloadTime = 30
-    reloadCounter = 0
-    attack = False
-    startPos = []
-    target = []
 
     def find_source_rectangle(self):
         for element in self.canvas.before.children:
             if isinstance(element,Rectangle):
                 self.source_rectangle = element
 
-
     def on_release(self):
-        print(self.matrixPosition)
-        uranMiner = ""
+        uranMiner = None
         for object in self.root.movableObjects:
             if isinstance(object,UranMiner) and object.selected == True:
                 uranMiner = object
@@ -56,6 +37,9 @@ class Uran(Button):
             uranMiner.closestUranSpot = self
             uranMiner.go_to_uran()
             uranMiner.selected = False
+
+        elif uranMiner == None:
+            self.root.click_on_map("Uran",self)
 
     def compute_minimapXY(self):
         imageX, imageY = self.root.ids["MainMapPicture"].ids["main_map_image"].size
